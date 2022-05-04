@@ -1,0 +1,7 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Eggshell.Core.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Log.cpp
+  Linker.cpp
+  Project.cpp
+  Generating Code...
+     Creating library E:\Projects\Eggshell\x64\Debug\Eggshell.Native.lib and object E:\Projects\Eggshell\x64\Debug\Eggshell.Native.exp
+  Eggshell.Native.vcxproj -> E:\Projects\Eggshell\x64\Debug\Eggshell.Native.dll

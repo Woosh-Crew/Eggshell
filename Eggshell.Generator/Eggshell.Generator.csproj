@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>10.0</LangVersion>
+        <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+        <RootNamespace>Eggshell.Generator</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis" Version="3.8.0" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>10.0</LangVersion>
+        <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
+        <RootNamespace>Eggshell</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference
+                Include="../Eggshell.Generator/Eggshell.Generator.csproj"
+                OutputItemType="Analyzer"
+                ReferenceOutputAssembly="false"
+                SetTargetFramework="TargetFramework=netstandard2.0"/>
+    </ItemGroup>
+
+</Project>
