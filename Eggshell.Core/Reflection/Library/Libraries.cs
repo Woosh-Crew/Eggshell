@@ -52,7 +52,7 @@ namespace Eggshell
 
 		// API
 
-		internal void Add( Library item )
+		public void Add( Library item )
 		{
 			var hashedName = item.Name!.Hash();
 

@@ -10,9 +10,31 @@ namespace Eggshell.Generator
 		public List<Exception> Exceptions { get; } = new();
 		public List<Processor> Processors { get; } = new();
 
+		public void Register( params Processor[] processors )
+		{
+			foreach ( var processor in processors )
+			{
+				processor.Register( this );
+				Processors.Add( processor );
+			}
+		}
+
 		public void Register<T>() where T : Processor, new()
 		{
 			var newT = new T();
+			newT.Register( this );
+			Processors.Add( newT );
+		}
+
+		public void Register( Type type )
+		{
+			var newT = (Processor)Activator.CreateInstance( type );
+
+			if ( newT == null )
+			{
+				return;
+			}
+
 			newT.Register( this );
 			Processors.Add( newT );
 		}
@@ -22,7 +44,9 @@ namespace Eggshell.Generator
 
 		public virtual void Initialize( GeneratorInitializationContext context )
 		{
+			// Init Library Generators
 			Register<LibrarySetup>();
+			Register<LibraryCompiler>();
 		}
 
 		public void Execute( GeneratorExecutionContext context )

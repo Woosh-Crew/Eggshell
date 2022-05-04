@@ -1,5 +1,3 @@
-using Eggshell;
-
 namespace Eggshell
 {
 	/// <summary>

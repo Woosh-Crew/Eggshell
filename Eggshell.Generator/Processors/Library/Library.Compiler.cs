@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Eggshell.Generator
 {
-	public class Reflection : Processor
+	public class LibraryCompiler : Processor
 	{
 		private ImmutableHashSet<ITypeSymbol> ILibrary { get; set; }
 		private List<string> Generated { get; } = new();
@@ -50,15 +54,35 @@ namespace Eggshell.Generator
 			var variableName = $"{typeSymbol.ContainingNamespace.ToString().Replace( '.', '_' )}_{typeSymbol.Name}";
 
 			return $@"
-var {variableName} = new Library( typeof( {typeSymbol.ContainingNamespace}.{typeSymbol.Name} ), ""ent.base"" )
+var {variableName} = new Library( typeof( {typeSymbol.ContainingNamespace}.{typeSymbol.Name} ) )
 {{
-	Title = ""Entity"",
-	Group = ""Systems"",
-	Spawnable = true,
+	
+	Title = ""{GetTitle( typeSymbol )}"",
+	Group = ""{GetGroup( typeSymbol )}"",
+	Help = ""{GetHelp( typeSymbol )}"",
 }};
-t
-Library.Add( {variableName} );
+Library.Database.Add( {variableName} );
 ";
+		}
+
+		private string GetHelp( ITypeSymbol typeSymbol )
+		{
+			return "Very Helpful help";
+		}
+
+		private string GetTitle( ITypeSymbol typeSymbol )
+		{
+			var title = (string)typeSymbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Title" ) )?.ConstructorArguments[0].Value;
+			title ??= typeSymbol.Name;
+
+			return title;
+		}
+
+		private string GetGroup( ITypeSymbol typeSymbol )
+		{
+			var group = (string)typeSymbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) )?.ConstructorArguments[0].Value;
+			group ??= typeSymbol.ContainingNamespace.IsGlobalNamespace ? "" : typeSymbol.ContainingNamespace.Name;
+			return group;
 		}
 
 		private string Finalise()
