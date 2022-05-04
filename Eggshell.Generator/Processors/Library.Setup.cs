@@ -18,7 +18,13 @@ namespace Eggshell.Generator
 				.OfType<ClassDeclarationSyntax>()
 				.Select( x => Model.GetDeclaredSymbol( x ) )
 				.OfType<ITypeSymbol>()
-				.Where( x => x.Interfaces.Contains( libraryInterface ) && !x.GetMembers().Any( e => e.Name == "ClassInfo" ) )
+				.Where( x =>
+				{
+					var hasInterface = x.Interfaces.Contains( libraryInterface );
+					var hasAttribute = !x.IsStatic && x.GetAttributes().Any( e => e.AttributeClass!.Name.StartsWith( "Library" ) ) && !x.AllInterfaces.Contains( libraryInterface );
+
+					return (hasInterface || hasAttribute) && !x.GetMembers().Any( e => e.Name == "ClassInfo" );
+				} )
 				.ToImmutableHashSet();
 
 			return ILibrary.Count > 0;
@@ -42,10 +48,8 @@ namespace Eggshell.Generator
 
 		public string Compile( ITypeSymbol typeSymbol )
 		{
-			// Create the class
-
 			var src = $@"
-partial class {typeSymbol.Name} : ILibrary
+partial class {typeSymbol.Name} {(typeSymbol.Interfaces.Any( e => e.Name == "ILibrary" ) ? string.Empty : ": ILibrary")}
 {{
 	private Library _classInfo;
 	public Library ClassInfo => _classInfo ??= Library.Register( this );
@@ -53,7 +57,7 @@ partial class {typeSymbol.Name} : ILibrary
 ";
 			// Add in the Namespace
 
-			if ( !typeSymbol.ContainingNamespace.IsGlobalNamespace)
+			if ( !typeSymbol.ContainingNamespace.IsGlobalNamespace )
 			{
 				src = $@"
 namespace {typeSymbol.ContainingNamespace}
