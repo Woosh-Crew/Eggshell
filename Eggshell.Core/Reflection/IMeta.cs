@@ -17,8 +17,8 @@ namespace Eggshell.Reflection
 	public interface IMeta
 	{
 		string Name { get; }
+		string Help { get; }
 		string Title { get; set; }
 		string Group { get; set; }
-		string Help { get; set; }
 	}
 }

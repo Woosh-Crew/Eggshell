@@ -9,18 +9,13 @@ namespace Eggshell
 	[AttributeUsage( AttributeTargets.Class | AttributeTargets.Assembly )]
 	public sealed class LibraryAttribute : Attribute
 	{
-		private readonly string _name;
+		public string Name { get; }
 
 		public LibraryAttribute() { }
 
 		public LibraryAttribute( string name )
 		{
-			_name = name;
-		}
-
-		public Library CreateRecord( Type type )
-		{
-			return new( type, _name );
+			Name = name;
 		}
 	}
 }

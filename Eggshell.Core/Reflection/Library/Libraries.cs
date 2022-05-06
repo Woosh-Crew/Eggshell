@@ -115,7 +115,7 @@ namespace Eggshell
 
 			// If we have meta present, use it
 			var attribute = type.GetCustomAttribute<LibraryAttribute>();
-			Add( attribute!.CreateRecord( type ) );
+			Add( new Library( type, attribute!.Name ) );
 		}
 
 		public void Add( Assembly assembly )
