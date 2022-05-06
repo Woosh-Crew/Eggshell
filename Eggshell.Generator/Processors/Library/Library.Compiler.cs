@@ -56,7 +56,7 @@ Library.Database.Add( new Library( typeof( {name} ), ""{GetName( typeSymbol )}""
 	
 	Title = ""{GetTitle( typeSymbol )}"",
 	Group = ""{GetGroup( typeSymbol )}"",
-	Help = $@""{GetHelp( typeSymbol )}"",
+	Help = @""{GetHelp( typeSymbol )}"",
 }} );
 ";
 		}
@@ -80,7 +80,7 @@ Library.Database.Add( new Library( typeof( {name} ), ""{GetName( typeSymbol )}""
 				.FirstOrDefault( e => e.IsKind( SyntaxKind.SingleLineDocumentationCommentTrivia ) )
 				.ToFullString().Split( new[] { "///" }, StringSplitOptions.RemoveEmptyEntries );
 
-			return summary.Length == 0 ? String.Empty : Between( string.Join( " ", summary ), " <summary>", " </summary>" ).Replace( "\"", "\"\"" );
+			return summary.Length == 0 ? string.Empty : Between( string.Join( " ", summary ), " <summary>", " </summary>" ).Replace( "\"", "\"\"" ).Replace( "\n", " " );
 
 		}
 
@@ -130,7 +130,7 @@ namespace Eggshell.Generated
 	[CompilerGenerated]
 	public static class Classroom
 	{{
-		private static void Cache()
+		public static void Cache()
 		{{
 			{string.Join( "\n\t\t\t", Generated )}
 		}}		

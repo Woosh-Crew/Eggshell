@@ -14,10 +14,11 @@ namespace Eggshell.Debugging.Logging
 		{
 			if ( string.IsNullOrEmpty( entry.Message ) )
 			{
-				return;
+				entry.Message = "n/a";
 			}
 
 			entry.Time = DateTime.Now;
+			Console.WriteLine( $"[{entry.Time.ToShortTimeString()}] [{entry.Level}] {entry.Message}" );
 			_logs.Add( entry );
 		}
 

@@ -90,7 +90,9 @@ namespace Eggshell
 
 		public void Add( Library item )
 		{
-			var hashedName = item.Name!.Hash();
+			var hashedName = item.Name.Hash();
+
+			Terminal.Log.Info( $"Adding {item.Name}" );
 
 			// Store it in Database
 			if ( _storage.ContainsKey( hashedName ) )
@@ -107,7 +109,7 @@ namespace Eggshell
 		{
 			if ( !type.IsDefined( typeof( LibraryAttribute ), false ) )
 			{
-				Add( new Library( type ) );
+				Add( new Library( type, type.Name.ToProgrammerCase() ) );
 				return;
 			}
 
@@ -122,10 +124,12 @@ namespace Eggshell
 
 			if ( container != null )
 			{
-				Console.WriteLine( "Using Cache" );
-				container.GetMethod( "Cache", BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
+				container.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
 				return;
 			}
+
+			// Only Cache by Precomputed Types
+			return;
 
 			foreach ( var type in assembly.GetTypes() )
 			{

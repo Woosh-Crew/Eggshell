@@ -25,7 +25,6 @@ namespace Eggshell
 
 			using ( Terminal.Stopwatch( "Library Initialized" ) )
 			{
-				Database.Add( new Library( typeof( App ) ) );
 				Database.Add( AppDomain.CurrentDomain );
 			}
 		}
@@ -129,6 +128,21 @@ namespace Eggshell
 
 			Terminal.Log.Error( $"Can't construct {library.Name}, is abstract and doesn't have constructor predefined." );
 			return null;
+		}
+
+		public static implicit operator Library( string value )
+		{
+			return Database[value];
+		}
+
+		public static implicit operator Library( Type value )
+		{
+			return Database[value];
+		}
+
+		public static implicit operator Library( int hash )
+		{
+			return Database[hash];
 		}
 	}
 }

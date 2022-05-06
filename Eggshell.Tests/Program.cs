@@ -1,17 +1,21 @@
-﻿using System;
+﻿using Eggshell;
+
+[assembly : Library]
 
 namespace Eggshell.Tests
 {
+	/// <summary>
+	/// Hello World
+	/// </summary>
 	public class ConsoleApplication : App
 	{
 		public static void Main( string[] args )
 		{
 			Crack();
-			
-			Console.WriteLine( "Hello World!" );
-			foreach ( var module in All )
+
+			foreach ( var library in Library.Database )
 			{
-				Console.WriteLine( module.ToString() );
+				Terminal.Log.Info( $"{library.Title} - {library.Help}");
 			}
 		}
 	}
