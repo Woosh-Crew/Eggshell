@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Eggshell.Components
+namespace Eggshell
 {
 	public class Components<T> : IEnumerable<IComponent<T>> where T : class
 	{
@@ -41,11 +41,11 @@ namespace Eggshell.Components
 
 		// Controllers
 
-		public Components<T> Add( IComponent<T> item )
+		public void Add( IComponent<T> item )
 		{
 			if ( !item.CanAttach( _owner ) )
 			{
-				return this;
+				return;
 			}
 
 			// Replace if its a Singleton
@@ -53,13 +53,11 @@ namespace Eggshell.Components
 			{
 				Terminal.Log.Warning( $"Replacing Component [{lib.ClassInfo.Name}]. Was Singleton" );
 				Replace( comp, item );
-				return this;
+				return;
 			}
 
 			_storage.Add( item );
 			item.OnAttached( _owner );
-
-			return this;
 		}
 
 		public bool Contains( IComponent<T> item )
@@ -88,7 +86,7 @@ namespace Eggshell.Components
 		public TComp Get<TComp>() where TComp : class
 		{
 			var index = 0;
-			while ( index <= Count - 1 )
+			while (index <= Count - 1)
 			{
 				var item = _storage[index];
 
@@ -106,7 +104,7 @@ namespace Eggshell.Components
 		public IComponent<T> Get( Type type )
 		{
 			var index = 0;
-			while ( index <= Count - 1 )
+			while (index <= Count - 1)
 			{
 				var item = _storage[index];
 
@@ -207,7 +205,7 @@ namespace Eggshell.Components
 		public bool Has( Type type )
 		{
 			var index = 0;
-			while ( index <= Count - 1 )
+			while (index <= Count - 1)
 			{
 				var item = _storage[index];
 

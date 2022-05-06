@@ -41,7 +41,6 @@ namespace Eggshell
 
 		// Debug
 
-		[Terminal, Property( "dev.report_stopwatch", true )]
 		private static bool ReportStopwatch { get; set; } = true;
 
 		private class TimedScope : IDisposable

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Eggshell.Debugging.Commands;
-using Eggshell.Components;
 using Eggshell.Reflection;
 
 namespace Eggshell
@@ -12,8 +11,9 @@ namespace Eggshell
 	/// inside libraries, instanced or not.
 	/// </summary>
 	[AttributeUsage( AttributeTargets.Property | AttributeTargets.Method, Inherited = false )]
-	public sealed class TerminalAttribute : Attribute, IComponent<Property>, IComponent<Function>
+	public sealed class TerminalAttribute : Attribute
 	{
+		/* 
 		public void OnAttached( Function item )
 		{
 			if ( !item.Info.IsStatic )
@@ -66,5 +66,6 @@ namespace Eggshell
 
 			Terminal.Command.Push( command );
 		}
+		*/
 	}
 }

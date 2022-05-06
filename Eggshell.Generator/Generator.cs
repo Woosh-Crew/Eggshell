@@ -45,8 +45,9 @@ namespace Eggshell.Generator
 		public virtual void Initialize( GeneratorInitializationContext context )
 		{
 			// Init Library Generators
-			Register<LibrarySetup>();
+			//	Register<LibrarySetup>(); /* This is disabled, because you I want it to be init in a constructor */  
 			Register<LibraryCompiler>();
+			Register<ModuleCompiler>();
 		}
 
 		public void Execute( GeneratorExecutionContext context )

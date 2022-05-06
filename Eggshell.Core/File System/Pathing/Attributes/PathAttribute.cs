@@ -1,6 +1,5 @@
 ﻿using System;
 using Eggshell.IO;
-using Eggshell.Components;
 
 namespace Eggshell
 {

@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Generator", "Eggsh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Core", "Eggshell.Core\Eggshell.Core.csproj", "{27C96D3C-AFF1-4398-A06F-991AA5698E03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Tests", "Eggshell.Tests\Eggshell.Tests.csproj", "{53F5062C-3D7E-4738-A266-904B9008DD45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -38,5 +40,13 @@ Global
 		{27C96D3C-AFF1-4398-A06F-991AA5698E03}.Release|Win32.Build.0 = Release|Any CPU
 		{27C96D3C-AFF1-4398-A06F-991AA5698E03}.Release|x64.ActiveCfg = Release|Any CPU
 		{27C96D3C-AFF1-4398-A06F-991AA5698E03}.Release|x64.Build.0 = Release|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Debug|Win32.Build.0 = Debug|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Debug|x64.Build.0 = Debug|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Release|Win32.ActiveCfg = Release|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Release|Win32.Build.0 = Release|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Release|x64.ActiveCfg = Release|Any CPU
+		{53F5062C-3D7E-4738-A266-904B9008DD45}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

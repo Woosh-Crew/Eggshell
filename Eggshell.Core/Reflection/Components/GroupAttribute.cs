@@ -1,5 +1,4 @@
 using System;
-using Eggshell.Components;
 using Eggshell.Reflection;
 
 namespace Eggshell

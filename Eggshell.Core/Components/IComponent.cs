@@ -1,4 +1,4 @@
-﻿namespace Eggshell.Components
+﻿namespace Eggshell
 {
 	public interface IComponent<in T> : IComponent where T : class
 	{

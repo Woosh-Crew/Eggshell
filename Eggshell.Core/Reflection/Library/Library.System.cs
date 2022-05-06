@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Eggshell.Components;
 
 namespace Eggshell
 {
@@ -10,13 +9,31 @@ namespace Eggshell
 		/// All static Properties and Functions can be found in the Globals Library
 		/// database index. It is here for easy viewing
 		/// </summary>
-		public static Library Global => Database[typeof( Global )];
+		public static Library Global => Database[typeof( App )];
 
 		/// <summary>
 		/// Database for Library Records. Allows the access of all records.
 		/// Use extension methods to add functionality to database access.
 		/// </summary>
 		public static Libraries Database { get; private set; }
+
+		private static Dictionary<Type, ILibrary> Singletons { get; } = new();
+
+		static Library()
+		{
+			Database = new();
+
+			using ( Terminal.Stopwatch( "Library Initialized" ) )
+			{
+				Database.Add( new Library( typeof( App ) ) );
+				Database.Add( AppDomain.CurrentDomain );
+			}
+		}
+
+		internal static bool IsValid( Type type )
+		{
+			return type.HasInterface( typeof( ILibrary ) ) || type.IsDefined( typeof( LibraryAttribute ), true );
+		}
 
 		/// <summary>
 		/// Registers the target object with the Library.
@@ -112,28 +129,6 @@ namespace Eggshell
 
 			Terminal.Log.Error( $"Can't construct {library.Name}, is abstract and doesn't have constructor predefined." );
 			return null;
-		}
-
-		//
-		// Manager
-		//
-
-		private static Dictionary<Type, ILibrary> Singletons { get; } = new();
-
-		static Library()
-		{
-			Database = new();
-
-			using ( Terminal.Stopwatch( "Library Initialized" ) )
-			{
-				Database.Add( new Library( typeof( Global ) ) );
-				Database.Add( AppDomain.CurrentDomain );
-			}
-		}
-
-		internal static bool IsValid( Type type )
-		{
-			return type.HasInterface( typeof( ILibrary ) ) || type.IsDefined( typeof( LibraryAttribute ), true );
 		}
 	}
 }
