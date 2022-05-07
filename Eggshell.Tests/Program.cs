@@ -1,4 +1,5 @@
 ﻿using Eggshell;
+using Eggshell.Generated;
 
 [assembly : Library]
 

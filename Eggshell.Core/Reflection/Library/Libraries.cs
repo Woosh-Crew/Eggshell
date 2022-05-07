@@ -92,8 +92,6 @@ namespace Eggshell
 		{
 			var hashedName = item.Name.Hash();
 
-			Terminal.Log.Info( $"Adding {item.Name}" );
-
 			// Store it in Database
 			if ( _storage.ContainsKey( hashedName ) )
 			{
@@ -118,18 +116,13 @@ namespace Eggshell
 			Add( new Library( type, attribute!.Name ) );
 		}
 
-		public void Add( Assembly assembly )
+		public void Add( Assembly assembly, bool precompiled = true )
 		{
-			var container = assembly.GetType( "Eggshell.Generated.Classroom" );
-
-			if ( container != null )
+			if ( precompiled )
 			{
-				container.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
+				assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
 				return;
 			}
-
-			// Only Cache by Precomputed Types
-			return;
 
 			foreach ( var type in assembly.GetTypes() )
 			{
@@ -145,7 +138,7 @@ namespace Eggshell
 			var main = typeof( Library ).Assembly;
 			Add( main );
 
-			foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies().Where( e => e.IsDefined( typeof( LibraryAttribute ) ) ) )
+			foreach ( var assembly in domain.GetAssemblies() )
 			{
 				if ( assembly != main )
 				{
