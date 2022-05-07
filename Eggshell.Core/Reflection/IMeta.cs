@@ -9,8 +9,8 @@ namespace Eggshell.Reflection
 
 	public interface IMember : IMeta
 	{
-		Library Owner { get; set; }
-		int Identifier { get; set; }
+		Library Parent { get; set; }
+		int Id { get; }
 		bool IsStatic { get; }
 	}
 

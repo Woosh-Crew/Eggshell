@@ -13,49 +13,58 @@ namespace Eggshell.Debugging.Logging
 	}
 }
 
-//
-// Extensions
-// 
-
-public static class LoggingProviderExtensions
+namespace Eggshell
 {
-	public static void Info<T>( this ILogger provider, T message, string stack = null )
+	public static class LoggerExtensions
 	{
-		provider?.Add( new()
+		public static void Info<T>( this ILogger provider, T message, string stack = null )
 		{
-			Message = message.ToString(),
-			Trace = string.IsNullOrWhiteSpace( stack ) ? Environment.StackTrace : stack,
-			Level = "Info",
-		} );
-	}
+			provider?.Add( new()
+			{
+				Message = message.ToString(),
+				Trace = string.IsNullOrWhiteSpace( stack ) ? Environment.StackTrace : stack,
+				Level = "Info",
+			} );
+		}
 
-	public static void Warning<T>( this ILogger provider, T message )
-	{
-		provider?.Add( new()
+		public static void Entry<T>( this ILogger provider, T message, string level, string stack = null )
 		{
-			Message = message.ToString(),
-			Trace = Environment.StackTrace,
-			Level = "Warning",
-		} );
-	}
+			provider?.Add( new()
+			{
+				Message = message.ToString(),
+				Trace = string.IsNullOrWhiteSpace( stack ) ? Environment.StackTrace : stack,
+				Level = level,
+			} );
+		}
 
-	public static void Error<T>( this ILogger provider, T message )
-	{
-		provider?.Add( new()
+		public static void Warning<T>( this ILogger provider, T message )
 		{
-			Message = message.ToString(),
-			Trace = Environment.StackTrace,
-			Level = "Error",
-		} );
-	}
+			provider?.Add( new()
+			{
+				Message = message.ToString(),
+				Trace = Environment.StackTrace,
+				Level = "Warning",
+			} );
+		}
 
-	public static void Exception( this ILogger provider, Exception exception )
-	{
-		provider?.Add( new()
+		public static void Error<T>( this ILogger provider, T message )
 		{
-			Message = $"{exception.Message}",
-			Trace = exception.StackTrace,
-			Level = "Exception",
-		} );
+			provider?.Add( new()
+			{
+				Message = message.ToString(),
+				Trace = Environment.StackTrace,
+				Level = "Error",
+			} );
+		}
+
+		public static void Exception( this ILogger provider, Exception exception )
+		{
+			provider?.Add( new()
+			{
+				Message = $"{exception.Message}",
+				Trace = exception.StackTrace,
+				Level = "Exception",
+			} );
+		}
 	}
 }
