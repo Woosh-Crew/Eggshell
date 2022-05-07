@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Eggshell.Reflection;
 
 namespace Eggshell
@@ -20,9 +21,16 @@ namespace Eggshell
 
 		/// <summary>
 		/// What is this library inherited from. (This will automatically
-		/// pull properties and methods from this Library)
+		/// pull properties and methods from this Library) - (Data is filled
+		/// out by source generators)
 		/// </summary>
 		public Library Parent { get; }
+
+		/// <summary>
+		/// What is using this Library for inheritance. (Data is filled
+		/// out by source generators)
+		/// </summary>
+		public List<Library> Children { get; } = new();
 
 		/// <summary>
 		/// Library's ILibrary implementation for Library. as ironic
@@ -45,6 +53,8 @@ namespace Eggshell
 			Name = name;
 			Parent = parent;
 			Id = Name.Hash();
+
+			parent?.Children.Add( this );
 
 			Components = new( this );
 		}
