@@ -11,7 +11,7 @@ namespace Eggshell
 	/// shit because of this.
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
-	public sealed partial class Library : ILibrary, IMeta
+	public partial class Library : ILibrary, IMeta
 	{
 		/// <summary>
 		/// The type this library was generated for, caching
@@ -45,18 +45,61 @@ namespace Eggshell
 		/// </summary>
 		public Components<Library> Components { get; }
 
+		/// <summary>
+		/// It isn't recommended that you create the library manually, as
+		/// this is usually done through source generators.
+		/// </summary>
 		public Library( string name, Type type, Library parent = null )
 		{
 			Assert.IsNull( type );
 
 			Info = type;
+
 			Name = name;
-			Parent = parent;
 			Id = Name.Hash();
 
-			parent?.Children.Add( this );
+			Parent = parent;
+			Parent?.Children.Add( this );
 
 			Components = new( this );
+		}
+
+		/// <summary>
+		/// Creates an ILibrary, this just does some sanity checking before
+		/// calling the internal Construct() method, which can be overridden
+		/// or uses a constructor attribute.
+		/// </summary>
+		public ILibrary Create()
+		{
+			if ( Spawnable )
+			{
+				return IsSingleton( this ) && Singletons.ContainsKey( Info ) ? Singletons[Info] : Construct();
+			}
+
+			Terminal.Log.Error( $"{Name} is not spawnable. Set Spawnable to true in classes meta." );
+			return null;
+		}
+
+		/// <summary>
+		/// Constructs this ILibrary, can be overriden to provide custom logic.
+		/// such as using a custom constructor, or setting off events when
+		/// this library has been constructed. Use wisely!
+		/// </summary>
+		protected virtual ILibrary Construct()
+		{
+			// Check if we have a custom Constructor
+			if ( Components.TryGet<ConstructorAttribute>( out var constructor ) )
+			{
+				return (ILibrary)constructor.Invoke();
+			}
+
+			if ( !Info.IsAbstract )
+			{
+				return (ILibrary)Activator.CreateInstance( Info );
+			}
+
+			Terminal.Log.Error( $"Can't construct {Name}, is abstract and doesn't have constructor predefined." );
+			return null;
 		}
 
 		/// <summary>

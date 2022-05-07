@@ -6,12 +6,6 @@ namespace Eggshell
 	public partial class Library
 	{
 		/// <summary>
-		/// All static Properties and Functions can be found in the Globals Library
-		/// database index. It is here for easy viewing
-		/// </summary>
-		public static Library Global => Database[typeof( App )];
-
-		/// <summary>
 		/// Database for Library Records. Allows the access of all records.
 		/// Use extension methods to add functionality to database access.
 		/// </summary>
@@ -55,8 +49,6 @@ namespace Eggshell
 				Singletons.Add( lib.Info, value );
 			}
 
-			// Callback.Register( value );
-
 			return lib;
 		}
 
@@ -72,8 +64,6 @@ namespace Eggshell
 			{
 				Singletons.Remove( value.GetType() );
 			}
-
-			// Callback.Unregister( value );
 		}
 
 		/// <summary>
@@ -85,49 +75,11 @@ namespace Eggshell
 			return lib.Components.Has<SingletonAttribute>() && !lib.Info.HasInterface( typeof( IComponent ) );
 		}
 
-		/// <summary>
-		/// Constructs ILibrary, if it it has a custom constructor
-		/// it'll use that to create the ILibrary
-		/// </summary>
-		public static ILibrary Create( Library library )
-		{
-			if ( library == null )
-			{
-				Terminal.Log.Error( "Can't construct, Library is null" );
-				return null;
-			}
-
-			if ( library.Spawnable )
-			{
-				return IsSingleton( library ) && Singletons.ContainsKey( library.Info ) ? Singletons[library.Info] : Construct( library );
-			}
-
-			Terminal.Log.Error( $"{library.Name} is not spawnable. Set Spawnable to true in classes meta." );
-			return null;
-		}
-
 		/// <summary> <inheritdoc cref="Create"/> and returns T </summary>
 		public static T Create<T>( Library lib = null )
 		{
 			lib ??= typeof( T );
-			return (T)Create( lib );
-		}
-
-		private static ILibrary Construct( Library library )
-		{
-			// Check if we have a custom Constructor
-			if ( library.Components.TryGet<ConstructorAttribute>( out var constructor ) )
-			{
-				return constructor.Invoke() as ILibrary;
-			}
-
-			if ( !library.Info.IsAbstract )
-			{
-				return Activator.CreateInstance( library.Info ) as ILibrary;
-			}
-
-			Terminal.Log.Error( $"Can't construct {library.Name}, is abstract and doesn't have constructor predefined." );
-			return null;
+			return (T)lib.Create();
 		}
 
 		public static implicit operator Library( string value )

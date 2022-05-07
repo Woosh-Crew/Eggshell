@@ -119,38 +119,12 @@ namespace Eggshell
 			return null;
 		}
 
-		// Get or Create
-
-		public TComp GetOrCreate<TComp>() where TComp : class, IComponent<T>, new()
-		{
-			return TryGet<TComp>( out var comp ) ? comp : Create<TComp>();
-		}
-
-		public TComp GetOrCreate<TComp>( Func<TComp> creation ) where TComp : class
-		{
-			return TryGet<TComp>( out var comp ) ? comp : Create( creation );
-		}
-
 		// Create
 
 		public TComp Create<TComp>() where TComp : class, IComponent<T>, new()
 		{
 			var newComp = new TComp();
 			Add( newComp );
-			return newComp;
-		}
-
-		public Components<T> Create<TComp>( out TComp comp ) where TComp : class, IComponent<T>, new()
-		{
-			comp = new TComp();
-			Add( comp );
-			return this;
-		}
-
-		public TComp Create<TComp>( Func<TComp> creation )
-		{
-			var newComp = creation.Invoke();
-			Add( newComp as IComponent<T> );
 			return newComp;
 		}
 
@@ -172,13 +146,6 @@ namespace Eggshell
 
 			Remove( old );
 			Add( newComp );
-		}
-
-		// All
-
-		public IEnumerable<TComp> GetAll<TComp>()
-		{
-			return _storage.OfType<TComp>();
 		}
 
 		// Try Get
