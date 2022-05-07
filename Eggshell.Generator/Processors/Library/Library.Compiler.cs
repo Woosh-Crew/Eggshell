@@ -53,9 +53,9 @@ namespace Eggshell.Generator
 			return $@"
 Library.Database.Add( new Library( typeof( {name} ), ""{GetName( typeSymbol )}"" )
 {{
-	Help = ""{GetHelp( typeSymbol )}"",
 	Title = ""{GetTitle( typeSymbol )}"",
 	Group = ""{GetGroup( typeSymbol )}"",
+	Help = ""{GetHelp( typeSymbol )}"",
 }} );
 ";
 		}
@@ -72,15 +72,15 @@ Library.Database.Add( new Library( typeof( {name} ), ""{GetName( typeSymbol )}""
 
 		private string GetHelp( ITypeSymbol typeSymbol )
 		{
-			var summary = typeSymbol.DeclaringSyntaxReferences
-				.First()
-				.GetSyntax()
-				.GetLeadingTrivia()
-				.FirstOrDefault( e => e.IsKind( SyntaxKind.SingleLineDocumentationCommentTrivia ) )
-				.ToFullString().Split( new[] { "///" }, StringSplitOptions.RemoveEmptyEntries );
+			var syntax = typeSymbol.DeclaringSyntaxReferences.First().GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
 
-			return summary.Length == 0 ? string.Empty : Between( string.Join( "", summary ), " <summary>", " </summary>" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
+			if ( syntax.Length == 0 )
+			{
+				return "n/a";
+			}
 
+			// This is so fucking aids... dont change it
+			return string.Join( "", syntax ).Replace( "<summary>", "" ).Replace( "</summary>", "" ).Replace( "///", "" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
 		}
 
 		private string Between( string input, string first, string last )
