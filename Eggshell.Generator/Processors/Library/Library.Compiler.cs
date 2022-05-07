@@ -55,7 +55,7 @@ Library.Database.Add( new Library( typeof( {name} ), ""{GetName( typeSymbol )}""
 {{
 	Title = ""{GetTitle( typeSymbol )}"",
 	Group = ""{GetGroup( typeSymbol )}"",
-	Help = ""{GetHelp( typeSymbol )}"",
+	Help = @""{GetHelp( typeSymbol )}"",
 }} );
 ";
 		}
