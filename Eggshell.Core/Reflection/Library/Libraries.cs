@@ -19,6 +19,9 @@ namespace Eggshell
 		// Accessors
 		// --------------------------------------------------------------------------------------- //
 
+		/// <summary>
+		/// Finds a library by its deterministic Id
+		/// </summary>
 		public Library this[ int hash ]
 		{
 			get
@@ -29,12 +32,15 @@ namespace Eggshell
 				}
 				catch ( KeyNotFoundException )
 				{
-					Terminal.Log.Error( $"ClassName ID [{hash}], was not found in Library Database" );
+					Terminal.Log.Error( $"Classname ID [{hash}], was not found in Library Database" );
 					return null;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Finds a library by its name
+		/// </summary>
 		public Library this[ string key ]
 		{
 			get
@@ -45,14 +51,23 @@ namespace Eggshell
 				}
 				catch ( KeyNotFoundException )
 				{
-					Terminal.Log.Error( $"ClassName {key}, was not found in Library Database" );
+					Terminal.Log.Error( $"Classname {key}, was not found in Library Database" );
 					return null;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Finds a library by its type
+		/// </summary>
 		public Library this[ Type key ] => _storage.Values.FirstOrDefault( e => e.Info == key );
 
+		/// <summary>
+		/// This will find the library that holds this type. Or will
+		/// find a type that is implementing an interface from the inputted
+		/// type, (as confusing as that sounds). This is very helpful
+		/// for finding types easily. As it handles interface logic
+		/// </summary>
 		public Library Find( Type type )
 		{
 			return type.IsInterface
@@ -61,6 +76,14 @@ namespace Eggshell
 					(type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
 		}
 
+		/// <summary>
+		/// This will find the library that holds this type with an added
+		/// search pattern, where you can cull results based on components
+		/// or what ever. Or will find a type that is implementing an interface
+		/// from the inputted type, (as confusing as that sounds).
+		/// This is very helpful for finding types easily.
+		/// As it handles interface logic
+		/// </summary>
 		public Library Find( Type type, Func<Library, bool> search )
 		{
 			return type.IsInterface
@@ -70,16 +93,23 @@ namespace Eggshell
 					(type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
 		}
 
+		///  <inheritdoc cref="Find{T}()"/>
 		public Library Find<T>() where T : class
 		{
-			return this.Find( typeof( T ) );
+			return Find( typeof( T ) );
 		}
 
+		///  <inheritdoc cref="Find(Type, Func{Library, bool})"/>
 		public Library Find<T>( Func<Library, bool> search ) where T : class
 		{
-			return this.Find( typeof( T ), search );
+			return Find( typeof( T ), search );
 		}
 
+		/// <summary>
+		/// This will get all libraries where they are a subclass of
+		/// the type T, or will get types that implement the inputted
+		/// interface. 
+		/// </summary>
 		public IEnumerable<Library> All<T>() where T : class
 		{
 			var type = typeof( T );

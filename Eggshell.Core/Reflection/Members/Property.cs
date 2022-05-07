@@ -33,7 +33,7 @@ namespace Eggshell.Reflection
 		/// It isn't recommended that you create a property manually, as
 		/// this is usually done through source generators.
 		/// </summary>
-		public Property( string name, PropertyInfo info, Library parent = null )
+		public Property( string name, PropertyInfo info )
 		{
 			Assert.IsNull( info );
 
@@ -41,15 +41,12 @@ namespace Eggshell.Reflection
 
 			Name = name;
 			Id = Name.Hash();
-
-			Parent = parent;
 		}
 
 		/// <summary>
 		/// Tells the target instance to change the properties value
 		/// by the input of "from".
 		/// </summary>
-		/// <param name="from"></param>
 		public object this[ object from ]
 		{
 			get => Info.GetMethod == null ? default : Info.GetValue( from );

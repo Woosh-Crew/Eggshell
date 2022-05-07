@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Eggshell.Reflection;
 
 namespace Eggshell
@@ -44,6 +45,18 @@ namespace Eggshell
 		/// to do some really crazy cool shit
 		/// </summary>
 		public Components<Library> Components { get; }
+
+		/// <summary>
+		/// Properties are variables that the library owns. This is
+		/// usually mutable value types if the property has a setter
+		/// </summary>
+		public Members<Property, PropertyInfo> Properties { get; set; }
+
+		/// <summary>
+		/// Functions are tasks that the library does broken up into
+		/// groups so its easier to digest how a program works.
+		/// </summary>
+		public Members<Function, MethodInfo> Functions { get; set; }
 
 		/// <summary>
 		/// It isn't recommended that you create the library manually, as
