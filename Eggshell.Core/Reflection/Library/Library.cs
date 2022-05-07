@@ -19,6 +19,12 @@ namespace Eggshell
 		public Type Info { get; }
 
 		/// <summary>
+		/// What is this library inherited from. (This will automatically
+		/// pull properties and methods from this Library)
+		/// </summary>
+		public Library Parent { get; }
+
+		/// <summary>
 		/// Library's ILibrary implementation for Library. as ironic
 		/// as that sounds. Its used for getting meta about Library
 		/// </summary>
@@ -31,12 +37,13 @@ namespace Eggshell
 		/// </summary>
 		public Components<Library> Components { get; }
 
-		public Library( Type type, string name )
+		public Library( string name, Type type, Library parent = null )
 		{
 			Assert.IsNull( type );
 
 			Info = type;
 			Name = name;
+			Parent = parent;
 			Id = Name.Hash();
 
 			Components = new( this );

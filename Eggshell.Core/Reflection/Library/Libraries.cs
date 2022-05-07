@@ -107,13 +107,13 @@ namespace Eggshell
 		{
 			if ( !type.IsDefined( typeof( LibraryAttribute ), false ) )
 			{
-				Add( new Library( type, type.Name.ToProgrammerCase() ) );
+				Add( new Library( type.Name.ToProgrammerCase(), type ) );
 				return;
 			}
 
 			// If we have meta present, use it
 			var attribute = type.GetCustomAttribute<LibraryAttribute>();
-			Add( new Library( type, attribute!.Name ) );
+			Add( new Library( attribute!.Name, type ) );
 		}
 
 		public void Add( Assembly assembly, bool precompiled = true )
