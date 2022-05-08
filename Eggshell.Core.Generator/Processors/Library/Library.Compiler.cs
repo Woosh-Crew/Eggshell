@@ -39,8 +39,10 @@ namespace Eggshell.Generator
 
 		public override void OnFinish()
 		{
-			if ( ILibrary == null || ILibrary.Count == 0 )
+			if ( Generated.Count == 0 )
+			{
 				return;
+			}
 
 			Add( Finalise(), $"{Compilation.AssemblyName}.Classroom" );
 		}
@@ -152,11 +154,18 @@ new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"
 		private string GetName( ISymbol symbol )
 		{
 			var attribute = symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Library" ) );
+			if ( attribute != null && attribute.ConstructorArguments.Length > 0 )
+			{
+				return (string)attribute.ConstructorArguments[0].Value;
+			}
 
-			if ( attribute == null || attribute.ConstructorArguments.Length == 0 )
+			// Class Symbol
+			if ( symbol is ITypeSymbol )
+			{
 				return ToProgrammerCase( symbol.Name, symbol.ContainingNamespace?.ToString() );
+			}
 
-			return (string)attribute.ConstructorArguments[0].Value;
+			return ToProgrammerCase( symbol.Name, symbol.ContainingType?.ToString() );
 		}
 
 		private string GetHelp( ISymbol typeSymbol )
@@ -177,10 +186,10 @@ new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"
 			return title;
 		}
 
-		private string GetGroup( ISymbol typeSymbol )
+		private string GetGroup( ISymbol symbol )
 		{
-			var group = (string)typeSymbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) )?.ConstructorArguments[0].Value;
-			group ??= typeSymbol.ContainingNamespace.IsGlobalNamespace ? "" : typeSymbol.ContainingNamespace.Name;
+			var group = (string)symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) )?.ConstructorArguments[0].Value;
+			group ??= (symbol is ITypeSymbol ? (symbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : symbol.ContainingNamespace.Name) : symbol.ContainingType.Name);
 			return group;
 		}
 

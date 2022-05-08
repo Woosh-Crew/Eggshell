@@ -1,11 +1,13 @@
-﻿namespace Eggshell.Tests
+﻿using Eggshell.Resources;
+
+namespace Eggshell.Tests
 {
 	public class Console : Application
 	{
 		public static void Main( string[] args )
 		{
-			Crack();
-
+			var penis = Assets.All;
+			
 			foreach ( var library in Library.Database )
 			{
 				Terminal.Log.Info( $"{library.Title} - {library.Help}" );
@@ -17,6 +19,8 @@
 
 				Terminal.Log.Info( "---------------------------" );
 			}
+			
+			Crack();
 		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Eggshell.Reflection
 {
-	public class Members<T, TInfo> : IEnumerable<T> where TInfo : MemberInfo where T : class, IMember<TInfo>
+	public class Members<T> : IEnumerable<T> where T : class, IMember
 	{
 		private readonly SortedList<int, T> _storage = new();
 		public Library Parent { get; }
@@ -29,7 +29,7 @@ namespace Eggshell.Reflection
 			_storage.Add( item.Id, item );
 		}
 
-		internal void Add( Members<T, TInfo> inherited )
+		internal void Add( Members<T> inherited )
 		{
 			foreach ( var prop in inherited._storage.Values )
 			{

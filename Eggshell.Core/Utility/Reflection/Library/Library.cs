@@ -50,13 +50,13 @@ namespace Eggshell
 		/// Properties are variables that the library owns. This is
 		/// usually mutable value types if the property has a setter
 		/// </summary>
-		public Members<Property, PropertyInfo> Properties { get; }
+		public Members<Property> Properties { get; }
 
 		/// <summary>
 		/// Functions are tasks that the library does broken up into
 		/// groups so its easier to digest how a program works.
 		/// </summary>
-		public Members<Function, MethodInfo> Functions { get; }
+		public Members<Function> Functions { get; }
 
 		/// <summary>
 		/// It isn't recommended that you create the library manually, as
