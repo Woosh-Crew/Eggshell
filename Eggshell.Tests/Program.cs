@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Eggshell.Reflection;
+﻿using Eggshell.Generated;
 
 namespace Eggshell.Tests
 {
@@ -9,21 +8,18 @@ namespace Eggshell.Tests
 
 		public static void Main( string[] args )
 		{
-			var console_type = typeof( Console );
-			var lib = new Library( "console", console_type )
-			{
-				Title = "Console",
-				Group = "Tests",
-				Help = "Hello World"
-			};
-
-			lib.Properties.Add( new Property( "prop.variable", console_type.GetProperty( "Variable", BindingFlags.Public ) ) );
-
-			Crack();
+			App.Crack();
 
 			foreach ( var library in Library.Database )
 			{
 				Terminal.Log.Info( $"{library.Title} - {library.Help}" );
+
+				foreach ( var property in library.Properties )
+				{
+					Terminal.Log.Info( $"{property.Name} - {property.Help} - from: {property.Parent.Name}" );
+				}
+
+				Terminal.Log.Info( "---------------------------" );
 			}
 		}
 	}

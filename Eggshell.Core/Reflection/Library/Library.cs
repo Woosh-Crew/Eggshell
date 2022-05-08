@@ -50,13 +50,13 @@ namespace Eggshell
 		/// Properties are variables that the library owns. This is
 		/// usually mutable value types if the property has a setter
 		/// </summary>
-		public Members<Property, PropertyInfo> Properties { get; set; }
+		public Members<Property, PropertyInfo> Properties { get; }
 
 		/// <summary>
 		/// Functions are tasks that the library does broken up into
 		/// groups so its easier to digest how a program works.
 		/// </summary>
-		public Members<Function, MethodInfo> Functions { get; set; }
+		public Members<Function, MethodInfo> Functions { get; }
 
 		/// <summary>
 		/// It isn't recommended that you create the library manually, as
@@ -67,6 +67,9 @@ namespace Eggshell
 			Assert.IsNull( type );
 
 			Info = type;
+
+			Properties = new Members<Property, PropertyInfo>( this );
+			Functions = new Members<Function, MethodInfo>( this );
 
 			Name = name;
 			Id = Name.Hash();

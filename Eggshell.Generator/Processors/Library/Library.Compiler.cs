@@ -53,23 +53,100 @@ namespace Eggshell.Generator
 
 			// Item has base type, cache it first.
 			var hasBaseType = typeSymbol.BaseType != null && typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) );
-			if ( hasBaseType )
+
+			var baseTypeInAssembly = typeSymbol.BaseType?.ContainingAssembly.Equals( Context.Compilation.Assembly, SymbolEqualityComparer.Default ) ?? false;
+
+			if ( hasBaseType && baseTypeInAssembly )
 				Create( typeSymbol.BaseType );
 
+			// Dont touch it, its so aids
+			var baseTypeName = $"{(typeSymbol.BaseType.ContainingNamespace != null ? $"{typeSymbol.BaseType.ContainingNamespace}." : string.Empty)}{typeSymbol.BaseType.Name}";
+			var baseTypeText = hasBaseType && baseTypeInAssembly
+				? baseTypeName.Replace( '.', '_' )
+				: (baseTypeInAssembly ? "null" : typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) ) ? $"typeof({baseTypeName})" : "null	");
+
+			// Start creating string
+			var variableName = name.Replace( '.', '_' );
+
 			var output = $@"
-var {name.Replace( '.', '_' )} = new Library( ""{GetName( typeSymbol )}"", typeof( {name} ), {(hasBaseType ? $"{(typeSymbol.BaseType.ContainingNamespace != null ? $"{typeSymbol.BaseType.ContainingNamespace}." : string.Empty)}{typeSymbol.BaseType.Name}".Replace( '.', '_' ) : "null")} )
+var {variableName}_type =  typeof( {name} );
+var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_type , {baseTypeText} )
 {{
 	Title = ""{GetTitle( typeSymbol )}"",
 	Group = ""{GetGroup( typeSymbol )}"",
 	Help = @""{GetHelp( typeSymbol )}"",
 }};
+
+{CacheProperties( typeSymbol, variableName, $"{variableName}_type" )}
+{CacheFunctions( typeSymbol, variableName, $"{variableName}_type" )}
 ";
 
 			Generated.Add( output );
 			Names.Add( name.Replace( '.', '_' ) );
 		}
 
-		private string GetName( ITypeSymbol symbol )
+		private string CacheProperties( ITypeSymbol typeSymbol, string variable, string typeVariable )
+		{
+			var builder = new StringBuilder();
+
+			foreach ( var symbol in typeSymbol.GetMembers().Where( e => IsValidProperty( e, typeSymbol ) ) )
+			{
+				builder.AppendLine( $@"{variable}.Properties.Add( 
+new Property(""{GetName( symbol )}"", {typeVariable}.GetProperty( ""{symbol.Name}"", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static )  ) 
+{{
+	Title = ""{GetTitle( symbol )}"",
+	Group = ""{GetGroup( symbol )}"",
+	Help = @""{GetHelp( symbol )}"",
+}}
+);" );
+			}
+
+			return builder.ToString();
+		}
+
+		private string CacheFunctions( ITypeSymbol typeSymbol, string variable, string typeVariable )
+		{
+			var builder = new StringBuilder();
+
+			foreach ( var symbol in typeSymbol.GetMembers().Where( e => IsValidFunction( e, typeSymbol ) ) )
+			{
+				builder.AppendLine( $@"{variable}.Functions.Add( 
+new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static )  ) 
+{{
+	Title = ""{GetTitle( symbol )}"",
+	Group = ""{GetGroup( symbol )}"",
+	Help = @""{GetHelp( symbol )}"",
+}}
+);" );
+			}
+
+			return builder.ToString();
+		}
+
+		private bool IsValidProperty( ISymbol symbol, ITypeSymbol typeSymbol )
+		{
+			return symbol.Kind == SymbolKind.Property
+			       && !symbol.Name.StartsWith( "this" )
+			       && symbol.ContainingType.Equals( typeSymbol, SymbolEqualityComparer.Default )
+			       && (symbol.DeclaredAccessibility == Accessibility.Public || symbol.GetAttributes().Any( attribute =>
+			       {
+				       var name = attribute.AttributeClass!.Name;
+				       return name.StartsWith( "Property" );
+			       } ));
+		}
+
+		private bool IsValidFunction( ISymbol symbol, ITypeSymbol typeSymbol )
+		{
+			return symbol.Kind == SymbolKind.Method
+			       && symbol.ContainingType.Equals( typeSymbol, SymbolEqualityComparer.Default )
+			       && symbol.GetAttributes().Any( attribute =>
+			       {
+				       var name = attribute.AttributeClass!.Name;
+				       return name.StartsWith( "Function" );
+			       } );
+		}
+
+		private string GetName( ISymbol symbol )
 		{
 			var attribute = symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Library" ) );
 
@@ -79,25 +156,25 @@ var {name.Replace( '.', '_' )} = new Library( ""{GetName( typeSymbol )}"", typeo
 			return (string)attribute.ConstructorArguments[0].Value;
 		}
 
-		private string GetHelp( ITypeSymbol typeSymbol )
+		private string GetHelp( ISymbol typeSymbol )
 		{
-			var syntax = typeSymbol.DeclaringSyntaxReferences.First().GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
+			var syntax = typeSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
 
-			if ( syntax.Length == 0 )
+			if ( syntax == null || syntax.Length == 0 )
 				return "n/a";
 
 			// This is so fucking aids... dont change it
 			return string.Join( "", syntax ).Replace( "<summary>", "" ).Replace( "</summary>", "" ).Replace( "///", "" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
 		}
 
-		private string GetTitle( ITypeSymbol typeSymbol )
+		private string GetTitle( ISymbol typeSymbol )
 		{
 			var title = (string)typeSymbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Title" ) )?.ConstructorArguments[0].Value;
 			title ??= CultureInfo.CurrentCulture.TextInfo.ToTitleCase( string.Concat( typeSymbol.Name.Select( x => char.IsUpper( x ) ? " " + x : x.ToString() ) ).TrimStart( ' ' ) );
 			return title;
 		}
 
-		private string GetGroup( ITypeSymbol typeSymbol )
+		private string GetGroup( ISymbol typeSymbol )
 		{
 			var group = (string)typeSymbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) )?.ConstructorArguments[0].Value;
 			group ??= typeSymbol.ContainingNamespace.IsGlobalNamespace ? "" : typeSymbol.ContainingNamespace.Name;
@@ -126,6 +203,8 @@ var {name.Replace( '.', '_' )} = new Library( ""{GetName( typeSymbol )}"", typeo
 
 			return $@"// This was generated by Eggshell.
 using Eggshell;
+using Eggshell.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Eggshell.Generated
