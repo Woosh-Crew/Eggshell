@@ -1,19 +1,23 @@
-﻿using Eggshell.Reflection;
+﻿using System.Reflection;
+using Eggshell.Reflection;
 
 namespace Eggshell.Tests
 {
 	public class Console : App
 	{
+		public string Variable { get; set; }
+
 		public static void Main( string[] args )
 		{
-			// var console_type = typeof( Console );
-			// var lib = new Library( "console", console_type )
-			// {
-			// 	Properties = new()
-			// 	{
-			// 		new Property( "Hello", console_type.GetProperty( "Hello" ) ),
-			// 	}
-			// };
+			var console_type = typeof( Console );
+			var lib = new Library( "console", console_type )
+			{
+				Title = "Console",
+				Group = "Tests",
+				Help = "Hello World"
+			};
+
+			lib.Properties.Add( new Property( "prop.variable", console_type.GetProperty( "Variable", BindingFlags.Public ) ) );
 
 			Crack();
 

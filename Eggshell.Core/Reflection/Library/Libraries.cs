@@ -12,9 +12,11 @@ namespace Eggshell
 	/// class so we can decouple it, plus provide a wrapper / our own
 	/// accessors to the database.
 	/// </summary>
-	public class Libraries : IEnumerable<Library>
+	[Serializable, Group( "Reflection" )]
+	public class Libraries : ILibrary, IEnumerable<Library>
 	{
 		private readonly SortedList<int, Library> _storage = new();
+		public Library ClassInfo => typeof( Libraries );
 
 		// Accessors
 		// --------------------------------------------------------------------------------------- //

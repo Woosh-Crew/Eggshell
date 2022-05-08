@@ -72,7 +72,15 @@ namespace Eggshell
 			Id = Name.Hash();
 
 			Parent = parent;
-			Parent?.Children.Add( this );
+
+			if ( Parent != null )
+			{
+				Parent.Children.Add( this );
+
+				// Inherit Members
+				Properties.Add( Parent.Properties );
+				Functions.Add( Parent.Functions );
+			}
 
 			Components = new( this );
 		}
