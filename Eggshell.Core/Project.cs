@@ -9,13 +9,13 @@ namespace Eggshell
 	/// creates your applications object. Make sure to
 	/// call Crack in your programs entry point.
 	/// </summary>
-	public class Application : Module
+	public abstract class Project : Module
 	{
 		/// <summary>
 		/// Initializes all Eggshell Systems, from
 		/// source generators using reflection
 		/// </summary>
-		public static void Crack()
+		protected static void Crack()
 		{
 			// Cache Modules
 			foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )

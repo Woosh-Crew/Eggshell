@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Eggshell
 {
@@ -10,7 +11,27 @@ namespace Eggshell
 	/// </summary>
 	public abstract class Module : IModule
 	{
-		public static List<IModule> All { get; } = new();
+		// Static API
+		// --------------------------------------------------------------------------------------- //
+
+		protected static List<IModule> All { get; } = new();
+
+		public static T Get<T>() where T : class, IModule
+		{
+			return All.FirstOrDefault( e => e is T ) as T;
+		}
+
+		public static T Create<T>() where T : class, IModule, new()
+		{
+			var item = new T();
+			All.Add( item );
+			return item;
+		}
+
+
+		// Instance
+		// --------------------------------------------------------------------------------------- //
+
 		public Library ClassInfo { get; }
 
 		public Module()

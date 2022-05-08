@@ -95,16 +95,24 @@ namespace Eggshell
 					(type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
 		}
 
-		///  <inheritdoc cref="Find{T}()"/>
+		/// <inheritdoc cref="Find{T}()"/>
 		public Library Find<T>() where T : class
 		{
 			return Find( typeof( T ) );
 		}
 
-		///  <inheritdoc cref="Find(Type, Func{Library, bool})"/>
+		/// <inheritdoc cref="Find(Type, Func{Library, bool})"/>
 		public Library Find<T>( Func<Library, bool> search ) where T : class
 		{
 			return Find( typeof( T ), search );
+		}
+
+		/// <summary>
+		/// Gets all Libraries with the given components
+		/// </summary>
+		public IEnumerable<Library> With<T>() where T : IComponent<Library>
+		{
+			return this.Where( e => e.Components.Has<T>() );
 		}
 
 		/// <summary>
@@ -152,9 +160,7 @@ namespace Eggshell
 		{
 			if ( precompiled )
 			{
-				using ( Terminal.Stopwatch( $"Cached {assembly.GetName().Name}" ) )
-					assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
-				
+				assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
 				return;
 			}
 

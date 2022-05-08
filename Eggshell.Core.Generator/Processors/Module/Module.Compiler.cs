@@ -46,7 +46,7 @@ namespace Eggshell.Generator
 		private string Create( ITypeSymbol typeSymbol )
 		{
 			var name = $"{(typeSymbol.ContainingNamespace != null ? $"{typeSymbol.ContainingNamespace}." : string.Empty)}{typeSymbol.Name}";
-			return $@"Module.All.Add( new {name}() );";
+			return $@"Module.Create<{name}>();";
 		}
 
 		private string Finalise()

@@ -165,6 +165,6 @@ namespace Eggshell
 		/// library's creator. this is false on abstract classes. Or can be
 		/// disabled by you the programmer.
 		/// </summary>
-		public bool Spawnable { get; set; }
+		public bool Spawnable { get; set; } = true;
 	}
 }

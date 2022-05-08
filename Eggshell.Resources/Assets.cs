@@ -9,6 +9,9 @@ namespace Eggshell.Resources
 
 		public override void OnReady()
 		{
+			// No valid pathing right now...
+			return;
+			
 			// Setup Resources
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
 			{

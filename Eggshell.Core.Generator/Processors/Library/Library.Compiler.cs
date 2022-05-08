@@ -63,7 +63,7 @@ namespace Eggshell.Generator
 
 			if ( hasBaseType && baseTypeInAssembly )
 				Create( typeSymbol.BaseType );
-
+			
 			// Dont touch it, its so aids
 			var baseTypeName = $"{(typeSymbol.BaseType.ContainingNamespace != null ? $"{typeSymbol.BaseType.ContainingNamespace}." : string.Empty)}{typeSymbol.BaseType.Name}";
 			var baseTypeText = hasBaseType && baseTypeInAssembly
