@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Resources", "Eggsh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Resources", "Eggshell.Resources\Eggshell.Resources.csproj", "{6E7A3393-F355-41C1-93B8-5089637C3C97}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Generators", "Eggshell.Generators", "{0E9726FA-21BD-4E61-8ECA-5CD11579DCAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
