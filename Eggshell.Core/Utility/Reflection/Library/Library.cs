@@ -9,7 +9,7 @@ namespace Eggshell
 	/// Libraries are used for storing meta data on a type, this includes
 	/// Title, Name, Group, Icons, etc. You can also add your own data
 	/// using components. We can do a lotta cool and performant
-	/// shit because of this.
+	/// shit because of this. Such as easily doing C# / C++ calls.
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
 	public partial class Library : ILibrary, IMeta
@@ -68,8 +68,8 @@ namespace Eggshell
 
 			Info = type;
 
-			Properties = new Members<Property, PropertyInfo>( this );
-			Functions = new Members<Function, MethodInfo>( this );
+			Properties = new( this );
+			Functions = new( this );
 
 			Name = name;
 			Id = Name.Hash();

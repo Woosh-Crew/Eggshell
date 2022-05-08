@@ -39,6 +39,9 @@ namespace Eggshell.Generator
 
 		public override void OnFinish()
 		{
+			if ( ILibrary == null || ILibrary.Count == 0 )
+				return;
+
 			Add( Finalise(), $"{Compilation.AssemblyName}.Classroom" );
 		}
 

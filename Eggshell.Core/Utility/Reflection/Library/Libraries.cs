@@ -152,7 +152,9 @@ namespace Eggshell
 		{
 			if ( precompiled )
 			{
-				assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
+				using ( Terminal.Stopwatch( $"Cached {assembly.GetName().Name}" ) )
+					assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
+				
 				return;
 			}
 

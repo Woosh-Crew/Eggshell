@@ -3,7 +3,13 @@ using System.Reflection;
 
 namespace Eggshell
 {
-	public class App : Module
+	/// <summary>
+	/// Entry point to your Eggs, You'd want to
+	/// inherit from this so Eggshell automatically
+	/// creates your applications object. Make sure to
+	/// call Crack in your programs entry point.
+	/// </summary>
+	public class Application : Module
 	{
 		/// <summary>
 		/// Initializes all Eggshell Systems, from

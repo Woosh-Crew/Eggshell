@@ -1,0 +1,119 @@
+﻿using System.Collections.Generic;
+using Eggshell.IO;
+
+namespace Eggshell.Resources
+{
+	public sealed class Resource : ILibrary
+	{
+		public Library ClassInfo { get; }
+
+		private Resource()
+		{
+			ClassInfo = Library.Register( this );
+		}
+
+		public Resource( Pathing path ) : this()
+		{
+			Path = path;
+			Identifier = path.Hash();
+		}
+
+		public override int GetHashCode()
+		{
+			return Identifier;
+		}
+
+		public override string ToString()
+		{
+			return $"loaded:[{IsLoaded}] path:[{Path}]";
+		}
+
+		// State
+
+		public bool Persistant { get; set; }
+		public bool IsLoaded => Source != null;
+
+		// References
+
+		public IAsset Source { get; private set; }
+		public List<IAsset> Instances { get; private set; }
+
+		// Identification
+
+		public int Identifier { get; }
+		public Pathing Path { get; }
+
+		// Management
+
+		public T Create<T>() where T : class, IAsset, new()
+		{
+			Assert.IsTrue( Source != null );
+
+			Source = new T();
+			Source.Resource = this;
+			Source.Setup( Path );
+
+			return Source as T;
+		}
+
+		public T Load<T>( bool persistant = false ) where T : class, IAsset, new()
+		{
+			Persistant ^= persistant;
+
+			Library library = typeof( T );
+
+			if ( !IsLoaded )
+			{
+				var stopwatch = Terminal.Stopwatch( $"Loaded {library.Title} at Path [{Path}]" );
+
+				Instances = new();
+				Source = Create<T>();
+				Source.Load();
+
+				stopwatch.Dispose();
+			}
+
+			var instance = Source.Clone();
+
+			if ( instance == null || instance == Source )
+			{
+				return (T)Source;
+			}
+
+			Instances.Add( instance );
+			instance.Resource = this;
+
+			return instance as T;
+		}
+
+		public void Unload( bool forcefully )
+		{
+			if ( !IsLoaded )
+			{
+				// Nothing was loaded
+				return;
+			}
+
+			foreach ( var instance in Instances )
+			{
+				if ( instance == Source )
+				{
+					continue;
+				}
+
+				instance.Delete();
+			}
+
+			Instances.Clear();
+
+			if ( forcefully || !Persistant )
+			{
+				Terminal.Log.Info( $"Unloading {Source.ClassInfo.Title} [{Path}]" );
+
+				Source.Unload();
+				Source.Delete();
+				Source = null;
+			}
+		}
+	}
+}

@@ -1,14 +1,10 @@
-﻿using Eggshell.Generated;
-
-namespace Eggshell.Tests
+﻿namespace Eggshell.Tests
 {
-	public class Console : App
+	public class Console : Application
 	{
-		public string Variable { get; set; }
-
 		public static void Main( string[] args )
 		{
-			App.Crack();
+			Crack();
 
 			foreach ( var library in Library.Database )
 			{
