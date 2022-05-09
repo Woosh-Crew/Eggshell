@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Eggshell.Resources/1.0.0": {
+        "dependencies": {
+          "Eggshell.Core": "1.0.0"
+        },
+        "runtime": {
+          "Eggshell.Resources.dll": {}
+        }
+      },
+      "Eggshell.Core/1.0.0": {
+        "runtime": {
+          "Eggshell.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Eggshell.Resources/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Eggshell.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -137,16 +137,20 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 				if ( symbol.Type is not INamedTypeSymbol { IsGenericType: true } nType )
 					return type;
 
-				var builder = new StringBuilder( $"<{nType.TypeArguments[0].Name}" );
+				var builder = new StringBuilder( "<" );
 
-				for ( var i = 1; i < nType.TypeArguments.Length; i++ )
-					builder.Append( $",{nType.TypeArguments[i].Name}" );
+				for ( var i = 0; i < nType.TypeArguments.Length; i++ )
+				{
+					var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
+					builder.Append( i == 0  ? $"{fullName}" : $",{fullName}" );
+				}
 
 				return $"{type}{builder.Append( '>' )}";
 
 			}
 
 			var property = $@"
+[CompilerGenerated]
 private class {className} : Property
 {{
 	public {className}() : base( ""{name}"", ""{symbol.Name}"" )

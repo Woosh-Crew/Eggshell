@@ -15,7 +15,7 @@ namespace Eggshell.Tests
 				
 				foreach ( var property in library.Properties )
 				{
-					Terminal.Log.Info( $"-- {property.Name}" );
+					Terminal.Log.Info( $"-- {property.Name} [{property.Type.Name}]" );
 				}
 			}
 		}
