@@ -107,7 +107,6 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 		private string CreateProperty( IPropertySymbol symbol )
 		{
 			var owner = $"{(symbol.ContainingType.ContainingNamespace != null ? $"{symbol.ContainingType.ContainingNamespace}." : string.Empty)}{symbol.ContainingType.Name}";
-			var type = $"{(symbol.Type.ContainingNamespace != null ? $"{symbol.Type.ContainingNamespace}." : string.Empty)}{symbol.Type.Name}";
 
 			var className = $"{owner}.{symbol.Name}".Replace( '.', '_' );
 
@@ -129,23 +128,31 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 				if ( symbol.SetMethod == null || symbol.SetMethod.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected )
 					return $@"Terminal.Log.Warning( ""Can't set {name}, {(symbol.SetMethod == null ? "property doesnt have setter" : "property is private")}"" );";
 
-				return $@"{(symbol.IsStatic ? $"{owner}.{symbol.Name} = newValue" : $"(({owner})target).{symbol.Name} = ({type})value")};";
+				var type = OnType( symbol.Type );
+				return $@"{(symbol.IsStatic ? $"{owner}.{symbol.Name} = ({type})value" : $"(({owner})target).{symbol.Name} = ({type})value")};";
 			}
 
-			string OnType()
+			string OnType( ITypeSymbol inputType )
 			{
-				if ( symbol.Type is not INamedTypeSymbol { IsGenericType: true } nType )
-					return type;
+				if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
+				{
+					return OnType( arrayTypeSymbol.ElementType ) + "[]";
+				}
+
+				var typeName = $"{(inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty)}{inputType.Name}";
+
+				if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType )
+					return typeName;
 
 				var builder = new StringBuilder( "<" );
 
 				for ( var i = 0; i < nType.TypeArguments.Length; i++ )
 				{
 					var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
-					builder.Append( i == 0  ? $"{fullName}" : $",{fullName}" );
+					builder.Append( i == 0 ? $"{fullName}" : $",{fullName}" );
 				}
 
-				return $"{type}{builder.Append( '>' )}";
+				return $"{typeName}{builder.Append( '>' )}";
 
 			}
 
@@ -159,7 +166,7 @@ private class {className} : Property
 		Group = ""{group}"";
 		Help = @""{help}"";
 		IsStatic = {(symbol.IsStatic ? "true" : "false")};
-		Type = typeof( {OnType()} );
+		Type = typeof( {OnType( symbol.Type )} );
 	}}
 
 	protected override object Get( object from )

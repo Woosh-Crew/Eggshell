@@ -1,4 +1,5 @@
 using System;
+using Eggshell.IO;
 
 namespace Eggshell
 {
@@ -25,6 +26,4 @@ namespace Eggshell
 
 		public void OnAttached( Library library ) { }
 	}
-
-	public enum Serialization { Json, Binary, Ini, Yaml, XML }
 }

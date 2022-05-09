@@ -9,6 +9,8 @@ namespace Eggshell.Resources
 
 		public override void OnReady()
 		{
+			return;
+			
 			// Setup Resources
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
 			{
