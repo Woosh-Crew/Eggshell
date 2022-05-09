@@ -9,8 +9,8 @@ namespace Eggshell.Resources
 
 		/// <summary>
 		/// Gets called on the main asset when setting up the
-		///  resource. Use this for assigning file providers
-		///, or mutating components.
+		/// resource. Use this for assigning file providers
+		/// or mutating components.
 		/// </summary>
 		/// <param name="path"></param>
 		void Setup( Pathing path );
