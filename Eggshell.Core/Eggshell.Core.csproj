@@ -6,6 +6,14 @@
         <RootNamespace>Eggshell</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>..\Builds\Debug\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <OutputPath>..\Builds\Release\</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Eggshell.Core.Generator\Eggshell.Core.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netstandard2.0" />
     </ItemGroup>

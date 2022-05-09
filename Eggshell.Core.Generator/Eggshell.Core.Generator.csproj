@@ -6,8 +6,16 @@
         <RootNamespace>Eggshell.Generator</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <OutputPath>..\Builds\Debug\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <OutputPath>..\Builds\Release\</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis" Version="3.8.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis" Version="3.8.0"/>
     </ItemGroup>
 
 </Project>

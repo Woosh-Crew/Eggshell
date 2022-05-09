@@ -8,8 +8,6 @@ namespace Eggshell.Generator
 {
 	public abstract class Processor
 	{
-		// Utils
-
 		protected Generator Generator { get; private set; }
 		protected SemanticModel Model => Generator.Context.Compilation.GetSemanticModel( Scope );
 		protected SyntaxTree Scope => Generator.Scope;

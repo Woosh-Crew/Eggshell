@@ -9,9 +9,6 @@ namespace Eggshell.Resources
 
 		public override void OnReady()
 		{
-			// No valid pathing right now...
-			return;
-			
 			// Setup Resources
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
 			{
@@ -58,7 +55,8 @@ namespace Eggshell.Resources
 		
 		*/
 
-		// API
+		// Static API
+		// --------------------------------------------------------------------------------------- //
 
 		public static T Load<T>( Pathing path, bool persistant = false ) where T : class, IAsset, new()
 		{

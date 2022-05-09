@@ -4,12 +4,6 @@ namespace Eggshell.IO
 {
 	public class Serializer
 	{
-		//
-		// API
-		//
-
-		// Serialization
-
 		/// <summary>
 		/// Saves a byte buffer to a path,
 		/// it will overwrite if the file at that

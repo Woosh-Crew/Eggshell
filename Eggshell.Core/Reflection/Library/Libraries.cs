@@ -160,7 +160,7 @@ namespace Eggshell
 		{
 			if ( precompiled )
 			{
-				assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static )?.Invoke( null, null );
+				assembly.GetType( "Eggshell.Generated.Classroom" )?.GetMethod( "Cache", BindingFlags.Public | BindingFlags.Static )?.Invoke( null, null );
 				return;
 			}
 

@@ -4,7 +4,9 @@ namespace Eggshell.Resources
 {
 	public interface IAsset : ILibrary
 	{
-		/// <summary> Where did this asset come from? </summary>
+		/// <summary>
+		/// Where did this asset come from?
+		/// </summary>
 		Resource Resource { set; }
 
 		/// <summary>

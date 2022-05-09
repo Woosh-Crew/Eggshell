@@ -28,7 +28,6 @@ namespace Eggshell
 			return item;
 		}
 
-
 		// Instance
 		// --------------------------------------------------------------------------------------- //
 
@@ -40,6 +39,7 @@ namespace Eggshell
 		}
 
 		public virtual bool OnRegister() { return true; }
+		public virtual void OnUpdate() { }
 		public virtual void OnReady() { }
 		public virtual void OnShutdown() { }
 	}

@@ -10,6 +10,7 @@ namespace Eggshell.Reflection
 	public interface IMember : IMeta
 	{
 		Library Parent { get; set; }
+		
 		int Id { get; }
 		bool IsStatic { get; }
 	}
@@ -18,7 +19,7 @@ namespace Eggshell.Reflection
 	{
 		string Name { get; }
 		string Help { get; }
-		string Title { get; set; }
-		string Group { get; set; }
+		string Title { get; }
+		string Group { get; }
 	}
 }
