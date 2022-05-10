@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using Eggshell.IO;
 
 namespace Eggshell.Resources
@@ -14,8 +16,16 @@ namespace Eggshell.Resources
 
 		public Resource( Pathing path ) : this()
 		{
-			Path = path;
-			Identifier = path.Hash();
+			Identifier = path.Virtual().Hash();
+			Extension = path.Extension();
+			Stream = () => path.Info<FileInfo>().OpenRead();
+		}
+
+		public Resource( int hash, string extension, Func<Stream> stream ) : this()
+		{
+			Identifier = hash;
+			Extension = extension;
+			Stream = stream;
 		}
 
 		public override int GetHashCode()
@@ -25,7 +35,7 @@ namespace Eggshell.Resources
 
 		public override string ToString()
 		{
-			return $"loaded:[{IsLoaded}] path:[{Path}]";
+			return $"loaded:[{IsLoaded}]id:[{Identifier}]";
 		}
 
 		// State
@@ -37,11 +47,12 @@ namespace Eggshell.Resources
 
 		public IAsset Source { get; private set; }
 		public List<IAsset> Instances { get; private set; }
+		public Func<Stream> Stream { get; }
 
 		// Identification
 
 		public int Identifier { get; }
-		public Pathing Path { get; }
+		public string Extension { get; }
 
 		// Management
 
@@ -51,7 +62,7 @@ namespace Eggshell.Resources
 
 			Source = new T();
 			Source.Resource = this;
-			Source.Setup( Path );
+			Source.Setup( Extension );
 
 			return Source as T;
 		}
@@ -64,11 +75,15 @@ namespace Eggshell.Resources
 
 			if ( !IsLoaded )
 			{
-				var stopwatch = Terminal.Stopwatch( $"Loaded {library.Title} at Path [{Path}]" );
+				var stopwatch = Terminal.Stopwatch( $"Loaded {library.Title} [{Identifier}]" );
 
 				Instances = new();
 				Source = Create<T>();
-				Source.Load();
+
+				using ( var stream = Stream.Invoke() )
+				{
+					Source.Load( stream );
+				}
 
 				stopwatch.Dispose();
 			}
@@ -108,7 +123,7 @@ namespace Eggshell.Resources
 
 			if ( forcefully || !Persistant )
 			{
-				Terminal.Log.Info( $"Unloading {Source.ClassInfo.Title} [{Path}]" );
+				Terminal.Log.Info( $"Unloading {Source.ClassInfo.Title} [{Identifier}]" );
 
 				Source.Unload();
 				Source.Delete();

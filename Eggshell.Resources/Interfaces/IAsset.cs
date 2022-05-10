@@ -1,4 +1,5 @@
-﻿using Eggshell.IO;
+﻿using System.IO;
+using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
@@ -12,12 +13,11 @@ namespace Eggshell.Resources
 		/// <summary>
 		/// Gets called on the main asset when setting up the
 		/// resource. Use this for assigning file providers
-		/// or mutating components.
+		/// or mutating components based off the file extension
 		/// </summary>
-		/// <param name="path"></param>
-		void Setup( Pathing path );
+		void Setup( string extension );
 
-		void Load();
+		void Load( Stream stream );
 		void Unload();
 
 

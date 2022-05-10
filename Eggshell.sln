@@ -2,23 +2,15 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Eggshell.Native", "Eggshell.Native\Eggshell.Native.vcxproj", "{F3D86293-D769-4C3B-9AC3-6F1935530F81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Core.Generator", "Eggshell.Core.Generator\Eggshell.Core.Generator.csproj", "{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Generator", "Eggshell.Generator\Eggshell.Generator.csproj", "{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Core", "Eggshell.Core\Eggshell.Core.csproj", "{27C96D3C-AFF1-4398-A06F-991AA5698E03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Tests", "Eggshell.Tests\Eggshell.Tests.csproj", "{53F5062C-3D7E-4738-A266-904B9008DD45}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Core", "Eggshell.Core", "{A1472989-4654-45A1-8585-A23572E9A89B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{3B7A26CF-43F9-42FC-A86C-F4FE4F4D3273}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Native", "Eggshell.Native", "{3B11348E-211F-4408-A334-8593672A45AA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Resources", "Eggshell.Resources", "{54EB502C-C18A-4AD3-AED7-38FC9A279FB0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Resources", "Eggshell.Resources\Eggshell.Resources.csproj", "{6E7A3393-F355-41C1-93B8-5089637C3C97}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eggshell.Generators", "Eggshell.Generators", "{0E9726FA-21BD-4E61-8ECA-5CD11579DCAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,10 +62,6 @@ Global
 		{6E7A3393-F355-41C1-93B8-5089637C3C97}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{27C96D3C-AFF1-4398-A06F-991AA5698E03} = {A1472989-4654-45A1-8585-A23572E9A89B}
-		{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1} = {A1472989-4654-45A1-8585-A23572E9A89B}
 		{53F5062C-3D7E-4738-A266-904B9008DD45} = {3B7A26CF-43F9-42FC-A86C-F4FE4F4D3273}
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81} = {3B11348E-211F-4408-A334-8593672A45AA}
-		{6E7A3393-F355-41C1-93B8-5089637C3C97} = {54EB502C-C18A-4AD3-AED7-38FC9A279FB0}
 	EndGlobalSection
 EndGlobal

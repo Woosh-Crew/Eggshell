@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Eggshell.IO;
 
 namespace Eggshell.Resources
@@ -32,6 +34,19 @@ namespace Eggshell.Resources
 		}
 
 		// API
+
+		public Resource Fill( int hash, string extension, Func<Stream> stream )
+		{
+			if ( Assets.Registered[hash] != null )
+			{
+				return Assets.Registered[hash];
+			}
+
+			var instance = new Resource( hash, extension, stream );
+
+			_storage.Add( instance.Identifier, instance );
+			return instance;
+		}
 
 		public Resource Fill( Pathing path )
 		{

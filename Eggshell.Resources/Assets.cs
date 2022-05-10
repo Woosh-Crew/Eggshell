@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using Eggshell.IO;
 
 namespace Eggshell.Resources
@@ -10,7 +12,7 @@ namespace Eggshell.Resources
 		public override void OnReady()
 		{
 			return;
-			
+
 			// Setup Resources
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
 			{
@@ -59,6 +61,21 @@ namespace Eggshell.Resources
 
 		// Static API
 		// --------------------------------------------------------------------------------------- //
+
+		public static T Load<T>( int hash, string extension, Func<Stream> stream, bool persistant = false ) where T : class, IAsset, new()
+		{
+			var resource = Find( hash );
+
+			// Already Exists
+			if ( resource != null )
+			{
+				return resource.Load<T>();
+			}
+
+			// Load from stream
+			resource = Registered.Fill( hash, extension, stream );
+			return resource.Load<T>( persistant );
+		}
 
 		public static T Load<T>( Pathing path, bool persistant = false ) where T : class, IAsset, new()
 		{
