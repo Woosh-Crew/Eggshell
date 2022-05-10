@@ -7,15 +7,6 @@ namespace Eggshell
 {
 	public class Components<T> : IEnumerable<IComponent<T>> where T : class
 	{
-		// IDatabase
-
-		public int Count => _storage.Count;
-
-		public IComponent<T> this[ int key ] => _storage[key];
-		public IComponent<T> this[ Type key ] => Get( key );
-
-		// Instance
-
 		public Components( T item )
 		{
 			_owner = item;
@@ -31,7 +22,7 @@ namespace Eggshell
 		public IEnumerator<IComponent<T>> GetEnumerator()
 		{
 			// This shouldn't box. _store.GetEnumerator Does. but Enumerable.Empty shouldn't.
-			return Count == 0 ? Enumerable.Empty<IComponent<T>>().GetEnumerator() : _storage.GetEnumerator();
+			return _storage.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -86,7 +77,7 @@ namespace Eggshell
 		public TComp Get<TComp>() where TComp : class
 		{
 			var index = 0;
-			while (index <= Count - 1)
+			while (index <= _storage.Count - 1)
 			{
 				var item = _storage[index];
 
@@ -104,7 +95,7 @@ namespace Eggshell
 		public IComponent<T> Get( Type type )
 		{
 			var index = 0;
-			while (index <= Count - 1)
+			while (index <= _storage.Count - 1)
 			{
 				var item = _storage[index];
 
@@ -172,7 +163,7 @@ namespace Eggshell
 		public bool Has( Type type )
 		{
 			var index = 0;
-			while (index <= Count - 1)
+			while (index <= _storage.Count - 1)
 			{
 				var item = _storage[index];
 

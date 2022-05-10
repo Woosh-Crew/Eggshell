@@ -12,17 +12,17 @@ namespace Eggshell.Resources
 		private Resource()
 		{
 			ClassInfo = Library.Register( this );
+			Components = new( this );
 		}
 
-		public Resource( Pathing path ) : this()
+		public Resource( Pathing path ) : this( path.Virtual().Hash(), path.Name( false ), path.Extension(), () => path.Info<FileInfo>().OpenRead() )
 		{
-			Identifier = path.Virtual().Hash();
-			Extension = path.Extension();
-			Stream = () => path.Info<FileInfo>().OpenRead();
+			Components.Create<Origin>().Path = path;
 		}
 
-		public Resource( int hash, string extension, Func<Stream> stream ) : this()
+		public Resource( int hash, string name, string extension, Func<Stream> stream ) : this()
 		{
+			Name = name;
 			Identifier = hash;
 			Extension = extension;
 			Stream = stream;
@@ -38,6 +38,12 @@ namespace Eggshell.Resources
 			return $"loaded:[{IsLoaded}]id:[{Identifier}]";
 		}
 
+		// Identification
+
+		public string Name { get; }
+		public int Identifier { get; }
+		public string Extension { get; }
+
 		// State
 
 		public bool Persistant { get; set; }
@@ -48,15 +54,11 @@ namespace Eggshell.Resources
 		public IAsset Source { get; private set; }
 		public List<IAsset> Instances { get; private set; }
 		public Func<Stream> Stream { get; }
-
-		// Identification
-
-		public int Identifier { get; }
-		public string Extension { get; }
+		public Components<Resource> Components { get; }
 
 		// Management
 
-		public T Create<T>() where T : class, IAsset, new()
+		private T Create<T>() where T : class, IAsset, new()
 		{
 			Assert.IsTrue( Source != null );
 
@@ -67,27 +69,29 @@ namespace Eggshell.Resources
 			return Source as T;
 		}
 
+		private void Load()
+		{
+			using var stopwatch = Terminal.Stopwatch( $"Loaded Resource [{Name}, {Identifier}]" );
+			using var stream = Stream.Invoke();
+			Source.Load( stream );
+		}
+
 		public T Load<T>( bool persistant = false ) where T : class, IAsset, new()
 		{
 			Persistant ^= persistant;
 
-			Library library = typeof( T );
-
 			if ( !IsLoaded )
 			{
-				var stopwatch = Terminal.Stopwatch( $"Loaded {library.Title} [{Identifier}]" );
-
 				Instances = new();
 				Source = Create<T>();
-
-				using ( var stream = Stream.Invoke() )
-				{
-					Source.Load( stream );
-				}
-
-				stopwatch.Dispose();
+				Load();
 			}
 
+			return Clone<T>();
+		}
+
+		private T Clone<T>() where T : class, IAsset, new()
+		{
 			var instance = Source.Clone();
 
 			if ( instance == null || instance == Source )
@@ -98,7 +102,7 @@ namespace Eggshell.Resources
 			Instances.Add( instance );
 			instance.Resource = this;
 
-			return instance as T;
+			return (T)instance;
 		}
 
 		public void Unload( bool forcefully )
@@ -123,10 +127,11 @@ namespace Eggshell.Resources
 
 			if ( forcefully || !Persistant )
 			{
-				Terminal.Log.Info( $"Unloading {Source.ClassInfo.Title} [{Identifier}]" );
+				Terminal.Log.Info( $"Unloading Resource [{Name}, {Identifier}]" );
 
 				Source.Unload();
 				Source.Delete();
+
 				Source = null;
 			}
 		}

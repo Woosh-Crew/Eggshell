@@ -35,14 +35,14 @@ namespace Eggshell.Resources
 
 		// API
 
-		public Resource Fill( int hash, string extension, Func<Stream> stream )
+		public Resource Fill( int hash, Func<Resource> creation )
 		{
 			if ( Assets.Registered[hash] != null )
 			{
 				return Assets.Registered[hash];
 			}
 
-			var instance = new Resource( hash, extension, stream );
+			var instance = creation.Invoke();
 
 			_storage.Add( instance.Identifier, instance );
 			return instance;

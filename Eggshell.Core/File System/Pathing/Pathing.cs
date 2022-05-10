@@ -457,7 +457,7 @@ namespace Eggshell.IO
 		/// </summary>
 		public string Extension()
 		{
-			return Path.GetExtension( Output );
+			return Path.GetExtension( Output )?.Substring( 1 );
 		}
 
 		/// <summary>

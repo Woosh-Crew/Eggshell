@@ -62,7 +62,7 @@ namespace Eggshell.Resources
 		// Static API
 		// --------------------------------------------------------------------------------------- //
 
-		public static T Load<T>( int hash, string extension, Func<Stream> stream, bool persistant = false ) where T : class, IAsset, new()
+		public static T Load<T>( int hash, Func<Resource> creation, bool persistant = false ) where T : class, IAsset, new()
 		{
 			var resource = Find( hash );
 
@@ -73,7 +73,7 @@ namespace Eggshell.Resources
 			}
 
 			// Load from stream
-			resource = Registered.Fill( hash, extension, stream );
+			resource = Registered.Fill( hash, creation );
 			return resource.Load<T>( persistant );
 		}
 
