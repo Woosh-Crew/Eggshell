@@ -26,7 +26,7 @@ namespace Eggshell.IO
 			// Shorthand Instance
 			// --------------------------------------------------------------------------------------- //
 
-			public string Apply( string path )
+			internal string Apply( string path )
 			{
 				// Not Virtualized Shorthand, Break
 				if ( Path.Count == 1 || path.IsEmpty() )
@@ -160,12 +160,9 @@ namespace Eggshell.IO
 		public Pathing Absolute( bool directoryOnly = false )
 		{
 			var path = Output;
-
 			Assert.IsNull( path );
 
-			//
 			// Keywords
-			//
 
 			if ( path.Contains( '<' ) )
 			{
@@ -191,9 +188,7 @@ namespace Eggshell.IO
 				}
 			}
 
-			//
 			// Shorthand
-			//
 
 			if ( !path.Contains( "://" ) || !Shorthand.All.ContainsKey( path.Split( "://" )[0] ) )
 			{
@@ -208,9 +203,7 @@ namespace Eggshell.IO
 			splitPath[0] = Shorthand.Find( shorthand ).Apply( splitPath[1] );
 			var newPath = Path.GetFullPath( Path.Combine( splitPath[0], splitPath[1] ) );
 
-			//
 			// Output
-			//	
 
 			Output = directoryOnly ? Path.GetDirectoryName( newPath ) : newPath;
 			return this;
