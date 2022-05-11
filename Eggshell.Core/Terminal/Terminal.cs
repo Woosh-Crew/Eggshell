@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Eggshell.Debugging.Commands;
 using Eggshell.Debugging.Logging;
 
@@ -25,6 +26,12 @@ namespace Eggshell
 		public static ILogger Log { get; set; }
 
 		/// <summary>
+		/// Returns true if the instance was launched in developer mode,
+		/// meaning there was a launch arg of -dev.
+		/// </summary>
+		public static bool Developer { get; }
+
+		/// <summary>
 		/// Runs a stopwatch on a IDisposable Scope. Use this in a using() expression
 		/// to record how long it took to execute that code block.
 		/// </summary>
@@ -35,6 +42,8 @@ namespace Eggshell
 
 		static Terminal()
 		{
+			Developer = Environment.GetCommandLineArgs().Contains( "-dev" );
+			
 			Log = new Logger();
 			Command = new Commander();
 		}
