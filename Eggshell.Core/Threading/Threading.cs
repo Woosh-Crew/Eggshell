@@ -20,7 +20,7 @@ namespace Eggshell
 			{
 				thread.Start();
 			}
-
+			
 			return meta;
 		}
 
