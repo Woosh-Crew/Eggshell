@@ -5,35 +5,32 @@ using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
+	/// <summary>
+	/// The registry is responsible for containing references to all loaded 
+	/// and unloaded resources. We use this for keeping track of resource state.
+	/// </summary>
 	public class Registry : IEnumerable<Resource>
 	{
-		private readonly SortedList<int, Resource> _storage = new();
+		// Public API
+		// --------------------------------------------------------------------------------------- //
 
-		public Resource this[ int key ] => _storage.ContainsKey( key ) ? _storage[key] : null;
+		/// <summary>
+		/// Gets to get a resource by its hash / identifier. This is useful
+		/// for loading resources over the network.
+		/// </summary>
+		public Resource this[ int key ] => _storage.TryGetValue( key, out var resource ) ? resource : null;
 
-		public Resource this[ Pathing key ]
-		{
-			get
-			{
-				var hash = key.Hash();
-				return _storage.ContainsKey( hash ) ? _storage[hash] : null;
-			}
-		}
+		/// <summary>
+		/// Gets a resource by its path. Make sure to call virtual before you
+		/// try and get the path, or else it'll most likely return the wrong path.
+		/// </summary>
+		public Resource this[ Pathing key ] => _storage.TryGetValue( key.Hash(), out var resource ) ? resource : null;
 
-		// Enumerator
-
-		public IEnumerator<Resource> GetEnumerator()
-		{
-			return _storage.Values.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		// API
-
+		/// <summary>
+		/// Fills a slot on the resources storage by its raw identifier.
+		/// It'll return the slot that's currently being used from the hash,
+		/// if not it'll make a not slot for that resource and return that.
+		/// </summary>
 		public Resource Fill( int hash, Func<Resource> creation )
 		{
 			if ( Assets.Registered[hash] != null )
@@ -47,6 +44,11 @@ namespace Eggshell.Resources
 			return instance;
 		}
 
+		/// <summary>
+		/// Fills a slot on the resources storage by its path.
+		/// It'll return the slot that's currently being used from the hash,
+		/// if not it'll make a not slot for that resource and return that.
+		/// </summary>
 		public Resource Fill( Pathing path )
 		{
 			var hash = path.Virtual().Hash();
@@ -60,6 +62,24 @@ namespace Eggshell.Resources
 
 			_storage.Add( instance.Identifier, instance );
 			return instance;
+		}
+
+
+		// Internal Logic
+		// --------------------------------------------------------------------------------------- //
+
+		private readonly SortedList<int, Resource> _storage = new();
+
+		// Enumerator
+
+		public IEnumerator<Resource> GetEnumerator()
+		{
+			return _storage.Values.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }
