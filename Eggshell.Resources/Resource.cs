@@ -5,6 +5,10 @@ using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
+	/// <summary>
+	/// A resource holds a reference and its state to an
+	/// asset. It uses a stream for loading the asset.
+	/// </summary>
 	public sealed class Resource : ILibrary
 	{
 		public Library ClassInfo { get; }
@@ -15,12 +19,12 @@ namespace Eggshell.Resources
 			Components = new( this );
 		}
 
-		public Resource( Pathing path ) : this( path.Virtual().Hash(), path.Name( false ), path.Extension(), () => path.Info<FileInfo>().OpenRead() )
+		internal Resource( Pathing path ) : this( path.Virtual().Hash(), path.Name( false ), path.Extension(), () => path.Info<FileInfo>().OpenRead() )
 		{
 			Components.Create<Origin>().Path = path;
 		}
 
-		public Resource( int hash, string name, string extension, Func<Stream> stream ) : this()
+		internal Resource( int hash, string name, string extension, Func<Stream> stream ) : this()
 		{
 			Name = name;
 			Identifier = hash;
@@ -46,7 +50,7 @@ namespace Eggshell.Resources
 
 		// State
 
-		public bool Persistant { get; set; }
+		public bool Persistant { get; private set; }
 		public bool IsLoaded => Source != null;
 
 		// References
