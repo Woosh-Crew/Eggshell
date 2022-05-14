@@ -39,53 +39,6 @@ namespace Eggshell
 
 		// Classes
 
-		public class Meta
-		{
-			internal Meta( string name, Thread thread )
-			{
-				Name = name;
-				Thread = thread;
-			}
-
-			public string Name { get; }
-			public bool Closed { get; set; }
-			public Thread Thread { get; }
-
-			public void Enqueue( Action method )
-			{
-				Queue.Enqueue( method );
-			}
-
-			public void Close()
-			{
-				Closed = true;
-
-				if ( Thread.CurrentThread != Thread )
-				{
-					// Maybe stupid?
-					Thread.Abort();
-				}
-
-				Queue.Clear();
-				Running.Remove( this );
-			}
-
-			public void Run()
-			{
-				if ( Closed )
-				{
-					return;
-				}
-
-				for ( var i = 0; i < Queue.Count; i++ )
-				{
-					Queue.Dequeue()?.Invoke();
-				}
-			}
-
-			private Queue<Action> Queue { get; } = new();
-		}
-
 		private class InternalDatabase : IDatabase<Meta, string>
 		{
 			private readonly Dictionary<string, Meta> _storage = new( StringComparer.CurrentCultureIgnoreCase );
@@ -132,5 +85,52 @@ namespace Eggshell
 				return GetEnumerator();
 			}
 		}
+	}
+
+	public class Meta
+	{
+		internal Meta( string name, Thread thread )
+		{
+			Name = name;
+			Thread = thread;
+		}
+
+		public string Name { get; }
+		public bool Closed { get; set; }
+		public Thread Thread { get; }
+
+		public void Enqueue( Action method )
+		{
+			Queue.Enqueue( method );
+		}
+
+		public void Close()
+		{
+			Closed = true;
+
+			if ( Thread.CurrentThread != Thread )
+			{
+				// Maybe stupid?
+				Thread.Abort();
+			}
+
+			Queue.Clear();
+			Threading.Running.Remove( this );
+		}
+
+		public void Run()
+		{
+			if ( Closed )
+			{
+				return;
+			}
+
+			for ( var i = 0; i < Queue.Count; i++ )
+			{
+				Queue.Dequeue()?.Invoke();
+			}
+		}
+
+		private Queue<Action> Queue { get; } = new();
 	}
 }

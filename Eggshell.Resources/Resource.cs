@@ -139,5 +139,11 @@ namespace Eggshell.Resources
 				Source = null;
 			}
 		}
+
+		public void Delete()
+		{
+			Assert.IsTrue( IsLoaded, "Can't delete a loaded resource" );
+			Assets.Registered.Remove( this );
+		}
 	}
 }

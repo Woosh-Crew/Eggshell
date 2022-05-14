@@ -70,6 +70,11 @@ namespace Eggshell.Resources
 
 		private readonly SortedList<int, Resource> _storage = new();
 
+		internal void Remove( Resource resource )
+		{
+			_storage.Remove( resource.Identifier );
+		}
+
 		// Enumerator
 
 		public IEnumerator<Resource> GetEnumerator()

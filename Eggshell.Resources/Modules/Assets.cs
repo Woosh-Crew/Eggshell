@@ -85,10 +85,10 @@ namespace Eggshell.Resources
 		/// Trys to find a resource by its path, if it doesn't exist and its a
 		/// valid path, it'll create a resource at that path.
 		/// </summary>
-		public static Resource Find( Pathing path )
+		public static Resource Find( Pathing path, bool fill = true )
 		{
 			path = path.Virtual().Normalise();
-			return Registered[path] != null ? Registered[path] : (path.Exists() ? Registered.Fill( path ) : null);
+			return Registered[path] != null ? Registered[path] : (path.Exists() && fill ? Registered.Fill( path ) : null);
 		}
 
 		/// <summary>

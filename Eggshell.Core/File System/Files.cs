@@ -29,9 +29,6 @@ namespace Eggshell
 			return new( path.FullName );
 		}
 
-		/// <summary>
-		/// Gets the class that represents the target files extension.
-		/// </summary>
 		public static T Grab<T>( Pathing path ) where T : class, IFile
 		{
 			path.Absolute();
