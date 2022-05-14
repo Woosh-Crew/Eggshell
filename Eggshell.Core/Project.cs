@@ -12,8 +12,8 @@ namespace Eggshell
 	public abstract class Project : Module
 	{
 		/// <summary>
-		/// Initializes all Eggshell Systems, from
-		/// source generators using reflection
+		/// Initializes all Modules, created by
+		/// source generators, through reflection
 		/// </summary>
 		protected static void Crack()
 		{

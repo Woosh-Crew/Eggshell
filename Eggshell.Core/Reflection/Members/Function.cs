@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Eggshell.Reflection
@@ -11,10 +12,16 @@ namespace Eggshell.Reflection
 	public class Function : ILibrary, IMember<MethodInfo>
 	{
 		/// <summary> 
-		/// The MethodInfo that this property was generated for. 
+		/// The MethodInfo that this function was generated for. 
 		/// caching its meta data in the constructor.
 		/// </summary>
-		public MethodInfo Info { get; }
+		public MethodInfo Info => _info ??= Parent.Info.GetMethod( Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
+
+		/// <summary>
+		/// The cached method info that is generated from
+		/// <see cref="Function.Info"/>.
+		/// </summary>
+		private MethodInfo _info;
 
 		/// <summary>
 		/// Where did this function come from? (This will automatically
@@ -33,15 +40,19 @@ namespace Eggshell.Reflection
 		/// It isn't recommended that you create a function manually, as
 		/// this is usually done through source generators.
 		/// </summary>
-		public Function( string name, MethodInfo info )
+		public Function( string name, string origin )
 		{
-			Assert.IsNull( info );
-
-			Info = info;
-
 			Name = name;
+			Origin = origin;
+
 			Id = Name.Hash();
 		}
+
+		/// <summary>
+		/// The name of the function member that this eggshell property
+		/// was generated from. Used when getting the property itself. 
+		/// </summary>
+		public string Origin { get; }
 
 		/// <summary>
 		/// The programmer friendly name of this function, that is used
@@ -79,5 +90,62 @@ namespace Eggshell.Reflection
 		/// Does this function require an instance accessor to be invoked?
 		/// </summary>
 		public bool IsStatic => Info.IsStatic;
+
+		/// <summary>
+		/// Gets the default arguments for a function parameter list,
+		/// will use the inputted (in order of params) or the default
+		/// value from the parameter.
+		/// </summary>
+		private object[] GetDefaultArgs( IReadOnlyList<object> input )
+		{
+			var parameters = Info.GetParameters();
+
+			if ( parameters.Length == 0 )
+			{
+				return null;
+			}
+
+			var args = new object[parameters.Length];
+
+			for ( var i = 0; i < args.Length; i++ )
+			{
+				args[i] = input != null && i < input.Count ? input[i] : parameters[i].DefaultValue;
+			}
+
+			return args;
+		}
+
+		/// <summary>
+		/// Invokes this function
+		/// </summary>
+		public object Invoke( object target )
+		{
+			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
+		}
+
+		/// <summary>
+		/// Invokes this function with a return type of T
+		/// </summary>
+		public T Invoke<T>( object target )
+		{
+			return (T)Info.Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
+		}
+
+		/// <summary>
+		/// Invokes this function with an array of parameters
+		/// </summary>
+		public object Invoke( object target, params object[] parameters )
+		{
+			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
+		}
+
+		/// <summary>
+		/// Invokes this function with an array of parameters and returns the
+		/// type of T
+		/// </summary>
+		public T Invoke<T>( object target, params object[] parameters )
+		{
+			return (T)Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
+		}
 	}
 }

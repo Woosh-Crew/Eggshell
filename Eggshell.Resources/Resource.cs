@@ -71,6 +71,7 @@ namespace Eggshell.Resources
 			if ( !Source.Setup( Extension ) )
 			{
 				// Invalid File, don't load
+				Source = null;
 				return null;
 			}
 
