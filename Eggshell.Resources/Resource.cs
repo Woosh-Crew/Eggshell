@@ -67,28 +67,34 @@ namespace Eggshell.Resources
 			Assert.IsTrue( Source != null );
 
 			Source = new T();
+
+			if ( !Source.Setup( Extension ) )
+			{
+				// Invalid File, don't load
+				return null;
+			}
+
 			Source.Resource = this;
-			Source.Setup( Extension );
-
 			return Source as T;
-		}
-
-		private void Load()
-		{
-			using var stopwatch = Terminal.Stopwatch( $"Loaded Resource [{Name}, {Identifier}]" );
-			using var stream = Stream.Invoke();
-			Source.Load( stream );
 		}
 
 		public T Load<T>( bool persistant = false ) where T : class, IAsset, new()
 		{
 			Persistant ^= persistant;
 
+			// Invalid File
+			Source ??= Create<T>();
+			if ( Source == null )
+			{
+				Terminal.Log.Error( "Invalid type for Resource, not loading." );
+				return null;
+			}
+
 			if ( !IsLoaded )
 			{
-				Instances = new();
-				Source = Create<T>();
-				Load();
+				using var stopwatch = Terminal.Stopwatch( $"Loaded Resource [{Name}, {Identifier}]" );
+				using var stream = Stream.Invoke();
+				Source.Load( stream );
 			}
 
 			return Clone<T>();
@@ -103,6 +109,7 @@ namespace Eggshell.Resources
 				return (T)Source;
 			}
 
+			Instances ??= new();
 			Instances.Add( instance );
 			instance.Resource = this;
 

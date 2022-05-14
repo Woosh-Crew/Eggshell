@@ -3,3 +3,8 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Build Outputs
+Builds/
+x64/
+Eggshell.Native/x64/

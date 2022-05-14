@@ -33,7 +33,7 @@ namespace Eggshell.Resources
 				return;
 			}
 
-			// Location Change?
+			(Assets.Find( args.FullPath ).Source as IWatchable)?.OnHotload();
 		}
 
 		private void OnCreated( object source, FileSystemEventArgs args )
@@ -45,12 +45,13 @@ namespace Eggshell.Resources
 		private void OnDeleted( object source, FileSystemEventArgs args )
 		{
 			// Was deleted, piss it off
-			
 			var resource = Assets.Find( args.FullPath );
 			if ( resource == null )
 			{
 				return;
 			}
+
+			(Assets.Find( args.FullPath ).Source as IWatchable)?.OnDeleted();
 
 			resource.Unload( true );
 			resource.Delete();
@@ -58,7 +59,6 @@ namespace Eggshell.Resources
 
 		private void OnError( object source, ErrorEventArgs args )
 		{
-			// Oh no!
 			Terminal.Log.Exception( args.GetException() );
 		}
 
