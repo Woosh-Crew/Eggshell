@@ -19,7 +19,7 @@ namespace Eggshell.Resources
 			Components = new( this );
 		}
 
-		internal Resource( Pathing path ) : this( path.Virtual().Hash(), path.Name( false ), path.Extension(), () => path.Info<FileInfo>().OpenRead() )
+		internal Resource( Pathing path ) : this( path.Virtual().Normalise().Hash(), path.Name( false ), path.Extension(), () => path.Info<FileInfo>().OpenRead() )
 		{
 			Components.Create<Origin>().Path = path;
 		}

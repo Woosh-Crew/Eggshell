@@ -112,7 +112,7 @@ namespace Eggshell.Resources
 			{
 				foreach ( var file in Files.Pathing( $"{pathing.ShortHand}://" ).All() )
 				{
-					Registered.Fill( file.Virtual().Normalise() );
+					Registered.Fill( file );
 				}
 			}
 		}

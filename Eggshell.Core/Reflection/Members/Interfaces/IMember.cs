@@ -6,20 +6,12 @@ namespace Eggshell.Reflection
 	{
 		T Info { get; }
 	}
-
+	
 	public interface IMember : IMeta
 	{
 		Library Parent { get; set; }
 		
 		int Id { get; }
 		bool IsStatic { get; }
-	}
-
-	public interface IMeta
-	{
-		string Name { get; }
-		string Help { get; }
-		string Title { get; }
-		string Group { get; }
 	}
 }

@@ -24,7 +24,7 @@ namespace Eggshell.Resources
 		/// Gets a resource by its path. Make sure to call virtual before you
 		/// try and get the path, or else it'll most likely return the wrong path.
 		/// </summary>
-		public Resource this[ Pathing key ] => _storage.TryGetValue( key.Hash(), out var resource ) ? resource : null;
+		public Resource this[ Pathing key ] => _storage.TryGetValue( key.Virtual().Normalise().Hash(), out var resource ) ? resource : null;
 
 		/// <summary>
 		/// Fills a slot on the resources storage by its raw identifier.
@@ -51,11 +51,9 @@ namespace Eggshell.Resources
 		/// </summary>
 		public Resource Fill( Pathing path )
 		{
-			var hash = path.Virtual().Hash();
-
-			if ( Assets.Registered[hash] != null )
+			if ( Assets.Registered[path] != null )
 			{
-				return Assets.Registered[hash];
+				return Assets.Registered[path];
 			}
 
 			var instance = new Resource( path );
