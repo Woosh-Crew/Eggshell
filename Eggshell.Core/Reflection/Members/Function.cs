@@ -15,7 +15,7 @@ namespace Eggshell.Reflection
 		/// The MethodInfo that this function was generated for. 
 		/// caching its meta data in the constructor.
 		/// </summary>
-		public MethodInfo Info => _info ??= Parent.Info.GetMethod( Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
+		public MethodInfo Info => Origin == null ? null : _info ??= Parent.Info.GetMethod( Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
 
 		/// <summary>
 		/// The cached method info that is generated from
@@ -120,7 +120,7 @@ namespace Eggshell.Reflection
 		/// </summary>
 		public object Invoke( object target )
 		{
-			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
+			return Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
 
 		/// <summary>
@@ -128,13 +128,13 @@ namespace Eggshell.Reflection
 		/// </summary>
 		public T Invoke<T>( object target )
 		{
-			return (T)Info.Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
+			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
 
 		/// <summary>
 		/// Invokes this function with an array of parameters
 		/// </summary>
-		public object Invoke( object target, params object[] parameters )
+		public virtual object Invoke( object target, params object[] parameters )
 		{
 			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}
@@ -145,7 +145,7 @@ namespace Eggshell.Reflection
 		/// </summary>
 		public T Invoke<T>( object target, params object[] parameters )
 		{
-			return (T)Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
+			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}
 	}
 }

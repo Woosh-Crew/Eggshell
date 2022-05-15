@@ -15,7 +15,7 @@ namespace Eggshell.Reflection
 		/// The PropertyInfo that this property was generated for. 
 		/// This calls GetProperty, if it hasn't already.
 		/// </summary>
-		public PropertyInfo Info => _info ??= Parent.Info.GetProperty( Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
+		public PropertyInfo Info => Origin == null ? null : _info ??= Parent.Info.GetProperty( Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic );
 
 		/// <summary>
 		/// The cached property info that is generated from
@@ -110,7 +110,7 @@ namespace Eggshell.Reflection
 		/// Used in the value setter.
 		/// </summary>
 		public bool IsStatic { get; protected set; }
-		
+
 		/// <summary>
 		/// The backing type that this property is using.
 		/// </summary>
