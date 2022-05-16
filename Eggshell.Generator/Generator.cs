@@ -63,10 +63,8 @@ namespace Eggshell.Generator
 				{
 					try
 					{
-						if ( process.IsProcessable( syntaxTree ) )
-						{
-							process.OnProcess();
-						}
+						// This is awesome
+						(process.IsProcessable( syntaxTree ) ? process : null)?.OnProcess();
 					}
 					catch ( Exception e )
 					{

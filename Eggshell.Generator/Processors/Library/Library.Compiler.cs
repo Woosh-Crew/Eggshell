@@ -49,7 +49,7 @@ namespace Eggshell.Generator
 
 		private void Create( ITypeSymbol typeSymbol )
 		{
-			var name = $"{(typeSymbol.ContainingNamespace != null ? $"{typeSymbol.ContainingNamespace}." : string.Empty)}{typeSymbol.Name}";
+			var name = OnType( typeSymbol );
 
 			if ( Processed.Contains( name ) )
 				return;
@@ -65,7 +65,7 @@ namespace Eggshell.Generator
 				Create( typeSymbol.BaseType );
 
 			// Dont touch it, its so aids
-			var baseTypeName = $"{(typeSymbol.BaseType.ContainingNamespace != null ? $"{typeSymbol.BaseType.ContainingNamespace}." : string.Empty)}{typeSymbol.BaseType.Name}";
+			var baseTypeName = OnType( typeSymbol.BaseType );
 			var baseTypeText = hasBaseType && baseTypeInAssembly
 				? baseTypeName.Replace( '.', '_' )
 				: baseTypeInAssembly
@@ -106,7 +106,7 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 
 		private string CreateProperty( IPropertySymbol symbol )
 		{
-			var owner = $"{(symbol.ContainingType.ContainingNamespace != null ? $"{symbol.ContainingType.ContainingNamespace}." : string.Empty)}{symbol.ContainingType.Name}";
+			var owner = OnType( symbol.ContainingType );
 
 			var className = $"{owner}.{symbol.Name}".Replace( '.', '_' );
 
@@ -130,30 +130,6 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 
 				var type = OnType( symbol.Type );
 				return $@"{(symbol.IsStatic ? $"{owner}.{symbol.Name} = ({type})value" : $"(({owner})target).{symbol.Name} = ({type})value")};";
-			}
-
-			string OnType( ITypeSymbol inputType )
-			{
-				if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
-				{
-					return OnType( arrayTypeSymbol.ElementType ) + "[]";
-				}
-
-				var typeName = $"{(inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty)}{inputType.Name}";
-
-				if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType )
-					return typeName;
-
-				var builder = new StringBuilder( "<" );
-
-				for ( var i = 0; i < nType.TypeArguments.Length; i++ )
-				{
-					var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
-					builder.Append( i == 0 ? $"{fullName}" : $",{fullName}" );
-				}
-
-				return $"{typeName}{builder.Append( '>' )}";
-
 			}
 
 			var property = $@"
@@ -201,6 +177,53 @@ new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"
 );" );
 
 			return builder.ToString();
+		}
+
+		private static string OnType( ITypeSymbol inputType )
+		{
+			// Build Array
+			if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
+			{
+				return OnType( arrayTypeSymbol.ElementType ) + "[]";
+			}
+
+			var typeName = new StringBuilder( inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty );
+
+			// This should be inverted
+			var currentType = inputType.ContainingType;
+			if ( currentType != null )
+			{
+				var symbols = new List<INamedTypeSymbol>();
+
+				while ( currentType != null )
+				{
+					symbols.Add( currentType );
+					currentType = currentType.ContainingType;
+				}
+
+				symbols.Reverse();
+
+				foreach ( var type in symbols )
+				{
+					typeName.Append( $"{type.Name}." );
+				}
+
+				symbols.Clear();
+			}
+
+			if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType )
+				return typeName.Append( inputType.Name ).ToString();
+
+			// Build Generic
+			var builder = new StringBuilder( "<" );
+
+			for ( var i = 0; i < nType.TypeArguments.Length; i++ )
+			{
+				var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
+				builder.Append( i == 0 ? $"{fullName}" : $",{fullName}" );
+			}
+
+			return $"{typeName.Append( inputType.Name )}{builder.Append( '>' )}";
 		}
 
 		private bool IsValidProperty( ISymbol symbol, ITypeSymbol typeSymbol )
