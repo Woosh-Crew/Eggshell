@@ -14,6 +14,7 @@ namespace Eggshell.Generator
 	{
 		private ImmutableHashSet<ITypeSymbol> ILibrary { get; set; }
 
+		private List<string> Libraries { get; } = new();
 		private List<string> Properties { get; } = new();
 		private List<string> Generated { get; } = new();
 		private List<string> Names { get; } = new();
