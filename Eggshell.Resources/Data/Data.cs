@@ -19,7 +19,11 @@ namespace Eggshell.Resources
 		internal void Compile( BinaryWriter writer )
 		{
 			writer.Write( ClassInfo.Id );
-			OnCompile( writer );
+
+			// This is automatic and will compile
+			// Depending on the serialization mode.
+
+			OnCompile();
 		}
 
 		// Resource
@@ -36,7 +40,7 @@ namespace Eggshell.Resources
 			using var reader = new BinaryReader( stream );
 			Assert.IsTrue( reader.ReadInt32() != ClassInfo.Id );
 
-			OnLoad( reader );
+			OnLoad();
 		}
 
 		void IAsset.Unload()
@@ -52,9 +56,9 @@ namespace Eggshell.Resources
 		// Callbacks
 
 		protected virtual bool OnSetup( string extension ) { return true; }
-		protected virtual void OnLoad( BinaryReader reader ) { }
+		protected virtual void OnLoad() { }
 		protected virtual void OnUnload() { }
-		protected virtual void OnCompile( BinaryWriter writer ) { }
+		protected virtual void OnCompile() { }
 
 		// Compiler
 

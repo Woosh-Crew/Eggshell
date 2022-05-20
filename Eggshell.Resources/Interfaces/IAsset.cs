@@ -11,5 +11,5 @@ namespace Eggshell.Resources
 		void Unload();
 
 		IAsset Clone();
-	}
+	} 
 }
