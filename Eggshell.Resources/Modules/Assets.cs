@@ -17,7 +17,7 @@ namespace Eggshell.Resources
 		/// </summary>
 		public static Registry Registered { get; } = new();
 
-		// Static API
+		// Resources API
 		// --------------------------------------------------------------------------------------- //
 
 		/// <summary>
@@ -99,6 +99,18 @@ namespace Eggshell.Resources
 		{
 			return Registered[hash];
 		}
+
+		// Compiler API
+		// --------------------------------------------------------------------------------------- //
+
+		public static void Compile<T>( T item )
+		{
+			var library = Library.Database.Find( typeof( ICompiler<T> ) );
+			Assert.IsNull( library );
+
+			Library.Create<ICompiler<T>>( library.Info )?.Compile( item );
+		}
+
 
 		// Module Logic
 		// --------------------------------------------------------------------------------------- //
