@@ -96,7 +96,7 @@ namespace Eggshell.Reflection
 		/// will use the inputted (in order of params) or the default
 		/// value from the parameter.
 		/// </summary>
-		private object[] GetDefaultArgs( IReadOnlyList<object> input )
+		protected object[] GetDefaultArgs( IReadOnlyList<object> input )
 		{
 			var parameters = Info.GetParameters();
 

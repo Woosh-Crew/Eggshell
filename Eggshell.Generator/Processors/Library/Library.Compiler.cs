@@ -14,10 +14,8 @@ namespace Eggshell.Generator
 	{
 		private ImmutableHashSet<ITypeSymbol> ILibrary { get; set; }
 
-		private List<string> Libraries { get; } = new();
-		private List<string> Properties { get; } = new();
-		private List<string> Generated { get; } = new();
-		private List<string> Names { get; } = new();
+		// Processor
+		// --------------------------------------------------------------------------------------- //
 
 		public override bool IsProcessable( SyntaxTree tree )
 		{
@@ -47,6 +45,15 @@ namespace Eggshell.Generator
 
 			Add( Finalise(), $"{Compilation.AssemblyName}.Classroom" );
 		}
+
+		// Library Compiler
+		// --------------------------------------------------------------------------------------- //
+
+		private List<string> Properties { get; } = new();
+		private List<string> Functions { get; } = new();
+
+		private List<string> Generated { get; } = new();
+		private List<string> Names { get; } = new();
 
 		private void Create( ITypeSymbol typeSymbol )
 		{
@@ -169,7 +176,7 @@ private class {className} : Property
 
 			foreach ( var symbol in typeSymbol.GetMembers().Where( e => IsValidFunction( e, typeSymbol ) ) )
 				builder.AppendLine( $@"{variable}.Functions.Add( 
-new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static )  ) 
+new Function(""{GetName( symbol )}"", ""{symbol.Name}"" ) 
 {{
 	Title = ""{GetTitle( symbol )}"",
 	Group = ""{GetGroup( symbol )}"",
@@ -243,12 +250,17 @@ new Function(""{GetName( symbol )}"", {typeVariable}.GetMethod( ""{symbol.Name}"
 		private bool IsValidFunction( ISymbol symbol, ITypeSymbol typeSymbol )
 		{
 			return symbol.Kind == SymbolKind.Method
+			       && !symbol.IsOverride
+			       && !symbol.Name.StartsWith( ".ctor" )
+			       && !symbol.Name.StartsWith( "op_" )
+			       && !symbol.Name.StartsWith( "get_" )
+			       && !symbol.Name.StartsWith( "set_" )
 			       && symbol.ContainingType.Equals( typeSymbol, SymbolEqualityComparer.Default )
-			       && symbol.GetAttributes().Any( attribute =>
+			       && (symbol.GetAttributes().Any( attribute =>
 			       {
 				       var name = attribute.AttributeClass!.Name;
 				       return name.StartsWith( "Function" );
-			       } );
+			       } ));
 		}
 
 		private string GetName( ISymbol symbol )

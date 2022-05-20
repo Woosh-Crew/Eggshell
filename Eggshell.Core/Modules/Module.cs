@@ -4,10 +4,8 @@ using System.Linq;
 namespace Eggshell
 {
 	/// <summary>
-	/// Module is Eggshells object oriented
-	/// application injection. Modules will
-	/// be automatically created when you
-	/// initialize Eggshell
+	/// Module is Eggshells object oriented application injection. Modules will
+	/// be automatically created when you initialize Eggshell
 	/// </summary>
 	public abstract class Module : IModule
 	{
