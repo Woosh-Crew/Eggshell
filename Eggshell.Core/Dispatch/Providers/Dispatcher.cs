@@ -1,116 +1,60 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Eggshell.Reflection;
 
 namespace Eggshell.Dispatching
 {
-	internal class Dispatcher : IDispatcher
+	public class Dispatcher : IDispatcher
 	{
-		private Dictionary<string, Dispatch.Info.Group> _callbacks = new();
-		private Dictionary<Type, List<object>> _registered = new();
+		private Dictionary<string, List<Function>> _events = new();
+		private Dictionary<Library, List<object>> _registry = new();
 
 		public void Add( string eventName, Function function )
 		{
-			if ( !_callbacks.ContainsKey( eventName ) )
+			if ( !_events.ContainsKey( eventName ) )
 			{
-				_callbacks.Add( eventName, new() );
+				_events.Add( eventName, new() );
 			}
 
-			var items = _callbacks[eventName];
-
-			items?.Add(
-				new Dispatch.Info { IsStatic = function.IsStatic }
-					.FromType( function.Info.DeclaringType )
-					.WithCallback( Build( function.Info ) )
-			);
+			_events[eventName]?.Add( function );
 		}
 
 		public void Run( string name )
 		{
-			if ( !_callbacks.TryGetValue( name, out var callbacks ) )
+			Run( name, null );
+		}
+
+		public void Run( string name, params object[] args )
+		{
+			if ( !_events.TryGetValue( name, out var callbacks ) )
 			{
 				return;
 			}
 
-			for ( var index = 0; index < callbacks.Count; index++ )
+			foreach ( var function in callbacks )
 			{
-				var callback = callbacks[index];
-				if ( callback.IsStatic )
+				if ( function.IsStatic )
 				{
-					callback.Invoke( null, null );
+					function.Invoke( null, args );
 					continue;
 				}
 
-				// If the callback is from an instance, get all instances
-				// And invoke them, using the stored object from _registered
-				if ( !_registered.ContainsKey( callback.Class ) )
+				foreach ( var item in _registry[function.Parent] )
 				{
-					continue;
-				}
-
-				var targets = _registered[callback.Class];
-				for ( var targetIndex = 0; targetIndex < targets.Count; targetIndex++ )
-				{
-					var item = targets[targetIndex];
-					callback.Invoke( item );
+					function.Invoke( item, args );
 				}
 			}
-		}
-
-		public object[] Run( string name, params object[] args )
-		{
-			if ( !_callbacks.TryGetValue( name, out var callbacks ) )
-			{
-				return null;
-			}
-
-			// Build the final object array
-			var builder = new List<object>();
-
-			for ( var index = 0; index < callbacks.Count; index++ )
-			{
-				var callback = callbacks[index];
-				// If the callback is a static method
-				// Then just pass in null for the invoke
-
-				if ( callback.IsStatic )
-				{
-					var arg = callback.Invoke( null, args );
-
-					if ( arg is not null )
-					{
-						builder.Add( arg );
-					}
-
-					continue;
-				}
-
-				// If the callback is from an instance, get all instances
-				// And invoke them, using the stored object from _registered
-				if ( !_registered.ContainsKey( callback.Class ) )
-				{
-					continue;
-				}
-
-				var targets = _registered[callback.Class];
-				builder.AddRange( targets.Select( item => callback.Invoke( item, args ) ) );
-			}
-
-			return builder.ToArray();
 		}
 
 		public void Register( object item )
 		{
 			var type = item.GetType();
 
-			if ( !_registered.ContainsKey( type ) )
+			if ( !_registry.ContainsKey( type ) )
 			{
-				_registered.Add( type, new() );
+				_registry.Add( type, new() );
 			}
 
-			if ( _registered.TryGetValue( type, out var all ) )
+			if ( _registry.TryGetValue( type, out var all ) )
 			{
 				all.Add( item );
 			}
@@ -118,7 +62,7 @@ namespace Eggshell.Dispatching
 
 		public void Unregister( object item )
 		{
-			if ( _registered.TryGetValue( item.GetType(), out var all ) )
+			if ( _registry.TryGetValue( item.GetType(), out var all ) )
 			{
 				all.Remove( item );
 			}
@@ -126,16 +70,11 @@ namespace Eggshell.Dispatching
 
 		public void Dispose()
 		{
-			_registered?.Clear();
-			_registered = null;
+			_registry?.Clear();
+			_registry = null;
 
-			_callbacks?.Clear();
-			_callbacks = null;
-		}
-
-		private static Dispatch.Info.Action Build( MethodBase info )
-		{
-			return ( target, args ) => info?.Invoke( target, args );
+			_events?.Clear();
+			_events = null;
 		}
 	}
 }

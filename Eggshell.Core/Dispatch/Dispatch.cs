@@ -9,8 +9,11 @@ namespace Eggshell
 	/// methods from a string (string based events) can be used across
 	/// languages. (C# - C++, vice versa)
 	/// </summary>
-	public static class Dispatch
+	public class Dispatch : Module
 	{
+		// Dispatch API
+		// --------------------------------------------------------------------------------------- //
+
 		/// <summary>
 		/// The underlying system that controls the dispatcher. Override
 		/// this to add your own dispatching logic.
@@ -23,7 +26,7 @@ namespace Eggshell
 		/// </summary>
 		public static void Run( string name )
 		{
-			if ( Provider is null || name.IsEmpty() )
+			if ( Provider == null || name.IsEmpty() )
 			{
 				return;
 			}
@@ -37,7 +40,7 @@ namespace Eggshell
 		/// </summary>
 		public static void Run( string name, params object[] args )
 		{
-			if ( Provider is null || name.IsEmpty() )
+			if ( Provider == null || name.IsEmpty() )
 			{
 				return;
 			}
@@ -52,40 +55,44 @@ namespace Eggshell
 			}
 		}
 
-		internal struct Info
+		/// <summary>
+		/// Registers an instanced ILibrary to receive dispatch events.
+		/// (Make sure to unregister the object when finished, or else
+		/// it wont be collected by the GC)
+		/// </summary>
+		public static void Register<T>( T item ) where T : class, ILibrary
 		{
-			// Class
-			public Type Class { get; internal set; }
-			public bool IsStatic { get; internal set; }
+			Assert.IsNull( item );
+			Provider.Register( item );
+		}
 
-			// Delegate
-			public delegate object Action( object target, object[] args );
+		/// <summary>
+		/// Unregisters an instanced ILibrary from the dispatch system.
+		/// (Make sure to call this after you're finished with a registered
+		/// object, or else the GC wont collect it)
+		/// </summary>
+		public static void Unregister<T>( T item ) where T : class, ILibrary
+		{
+			Assert.IsNull( item );
+			Provider.Unregister( item );
+		}
 
-			private Action _callback;
+		// Predefined Dispatches
+		// --------------------------------------------------------------------------------------- //
 
-			public object Invoke( object target = null, object[] args = null )
-			{
-				return _callback?.Invoke( target, args );
-			}
+		public override void OnReady()
+		{
+			Run( "eggshell.ready" );
+		}
 
-			//
-			// Builder
-			//
+		public override void OnUpdate()
+		{
+			Run( "eggshell.update" );
+		}
 
-			public Info WithCallback( Action callbackEvent )
-			{
-				_callback = callbackEvent;
-				return this;
-			}
-
-			public Info FromType( Type type )
-			{
-				Class = type;
-				return this;
-			}
-
-			// Group
-			public class Group : List<Info> { }
+		public override void OnShutdown()
+		{
+			Run( "eggshell.shutdown" );
 		}
 	}
 }

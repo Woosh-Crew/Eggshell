@@ -8,7 +8,7 @@ namespace Eggshell.Dispatching
 		void Add( string eventName, Function function );
 
 		void Run( string name );
-		object[] Run( string name, params object[] args );
+		void Run( string name, params object[] args );
 
 		void Register( object item );
 		void Unregister( object item );
