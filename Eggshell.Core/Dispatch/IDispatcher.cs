@@ -10,7 +10,7 @@ namespace Eggshell.Dispatching
 		void Run( string name );
 		void Run( string name, params object[] args );
 
-		void Register( object item );
-		void Unregister( object item );
+		void Register( ILibrary item );
+		void Unregister( ILibrary item );
 	}
 }

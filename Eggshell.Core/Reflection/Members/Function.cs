@@ -118,7 +118,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function
 		/// </summary>
-		public object Invoke( object target )
+		public object Invoke( ILibrary target )
 		{
 			return Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
@@ -126,7 +126,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function with a return type of T
 		/// </summary>
-		public T Invoke<T>( object target )
+		public T Invoke<T>( ILibrary target )
 		{
 			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
@@ -134,7 +134,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function with an array of parameters
 		/// </summary>
-		public virtual object Invoke( object target, params object[] parameters )
+		public virtual object Invoke( ILibrary target, params object[] parameters )
 		{
 			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}
@@ -143,7 +143,7 @@ namespace Eggshell.Reflection
 		/// Invokes this function with an array of parameters and returns the
 		/// type of T
 		/// </summary>
-		public T Invoke<T>( object target, params object[] parameters )
+		public T Invoke<T>( ILibrary target, params object[] parameters )
 		{
 			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}

@@ -6,7 +6,7 @@ namespace Eggshell.Dispatching
 	public class Dispatcher : IDispatcher
 	{
 		private Dictionary<string, List<Function>> _events = new();
-		private Dictionary<Library, List<object>> _registry = new();
+		private Dictionary<Library, List<ILibrary>> _registry = new();
 
 		public void Add( string eventName, Function function )
 		{
@@ -45,7 +45,7 @@ namespace Eggshell.Dispatching
 			}
 		}
 
-		public void Register( object item )
+		public void Register( ILibrary item )
 		{
 			var type = item.GetType();
 
@@ -60,7 +60,7 @@ namespace Eggshell.Dispatching
 			}
 		}
 
-		public void Unregister( object item )
+		public void Unregister( ILibrary item )
 		{
 			if ( _registry.TryGetValue( item.GetType(), out var all ) )
 			{
