@@ -3,7 +3,7 @@ using Eggshell.Reflection;
 
 namespace Eggshell
 {
-	[AttributeUsage( AttributeTargets.Method, Inherited = true, AllowMultiple = true )]
+	[AttributeUsage( AttributeTargets.Method, AllowMultiple = true )]
 	public class DispatchAttribute : Attribute, IComponent<Function>
 	{
 		public string Name { get; }

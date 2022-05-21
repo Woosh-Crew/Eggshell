@@ -1,7 +1,7 @@
 using System;
 using Eggshell.Reflection;
 
-namespace Eggshell.Callbacks
+namespace Eggshell.Dispatching
 {
 	public interface IDispatcher : IDisposable
 	{

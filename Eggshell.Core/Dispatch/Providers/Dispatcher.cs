@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Eggshell.Reflection;
 
-namespace Eggshell.Callbacks
+namespace Eggshell.Dispatching
 {
 	internal class Dispatcher : IDispatcher
 	{
