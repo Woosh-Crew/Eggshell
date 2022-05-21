@@ -59,6 +59,11 @@ namespace Eggshell.IO
 			public Stack<string> Path { get; }
 		}
 
+		static Pathing()
+		{
+			Add( "process", Environment.CurrentDirectory );
+		}
+
 		// Reason why its a func, is cause some of these values are null
 		// when the static constructor gets called, so we use the func instead
 		private static readonly Dictionary<string, Func<string[], string>> Keywords = new()

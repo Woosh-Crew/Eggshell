@@ -10,11 +10,6 @@ namespace Eggshell
 	[AttributeUsage( AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Interface )]
 	public sealed class GroupAttribute : Attribute
 	{
-		private readonly string _group;
-
-		public GroupAttribute( string group )
-		{
-			_group = group;
-		}
+		public GroupAttribute( string group ) { }
 	}
 }

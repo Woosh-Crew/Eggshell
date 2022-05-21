@@ -5,6 +5,7 @@
 		bool OnRegister();
 
 		void OnReady();
+		void OnUpdate();
 		void OnShutdown();
 	}
 }

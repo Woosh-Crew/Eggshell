@@ -9,11 +9,6 @@ namespace Eggshell
 	[AttributeUsage( AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Method, Inherited = false )]
 	public sealed class TitleAttribute : Attribute
 	{
-		private readonly string _title;
-
-		public TitleAttribute( string title )
-		{
-			_title = title;
-		}
+		public TitleAttribute( string title ) { }
 	}
 }

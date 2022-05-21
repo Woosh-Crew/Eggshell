@@ -12,7 +12,7 @@ namespace Eggshell
 		// Static API
 		// --------------------------------------------------------------------------------------- //
 
-		protected static List<IModule> All { get; } = new();
+		public static List<IModule> All { get; } = new();
 
 		public static T Get<T>() where T : class, IModule
 		{
@@ -37,8 +37,9 @@ namespace Eggshell
 		}
 
 		public virtual bool OnRegister() { return true; }
-		public virtual void OnUpdate() { }
+
 		public virtual void OnReady() { }
+		public virtual void OnUpdate() { }
 		public virtual void OnShutdown() { }
 	}
 }

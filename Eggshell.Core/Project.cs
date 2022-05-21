@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-
-namespace Eggshell
+﻿namespace Eggshell
 {
 	/// <summary>
 	/// Entry point to your Eggs, You'd want to
@@ -12,16 +9,23 @@ namespace Eggshell
 	public abstract class Project : Module
 	{
 		/// <summary>
-		/// Initializes all Modules, created by
-		/// source generators, through reflection
+		/// Uses Eggshells reflection system to find a
+		/// bootstrap and uses that to initialize all
+		/// modules created by source generators
 		/// </summary>
 		protected static void Crack()
 		{
-			// Cache Modules
-			foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
-			{
-				assembly.GetType( "Eggshell.Generated.Modules" )?.GetMethod( "Cache", BindingFlags.Static | BindingFlags.NonPublic )?.Invoke( null, null );
-			}
+			Crack( Library.Create<Bootstrap>( Library.Database.Find<Bootstrap>() ) );
+		}
+
+		/// <summary>
+		/// Initializes all Modules, created by
+		/// source generators, through reflection
+		/// </summary>
+		protected static void Crack( Bootstrap bootstrap )
+		{
+			bootstrap.Boot();
+			Terminal.Log.Info( "Eggshell Ready" );
 		}
 	}
 }

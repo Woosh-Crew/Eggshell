@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -57,7 +56,7 @@ namespace Eggshell.Generator
 
 		private void Create( ITypeSymbol typeSymbol )
 		{
-			var name = OnType( typeSymbol );
+			var name = Factory.OnType( typeSymbol );
 
 			if ( Processed.Contains( name ) )
 				return;
@@ -73,7 +72,7 @@ namespace Eggshell.Generator
 				Create( typeSymbol.BaseType );
 
 			// Dont touch it, its so aids
-			var baseTypeName = OnType( typeSymbol.BaseType );
+			var baseTypeName = Factory.OnType( typeSymbol.BaseType );
 			var baseTypeText = hasBaseType && baseTypeInAssembly
 				? baseTypeName.Replace( '.', '_' )
 				: baseTypeInAssembly
@@ -114,7 +113,7 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 
 		private string CreateProperty( IPropertySymbol symbol )
 		{
-			var owner = OnType( symbol.ContainingType );
+			var owner = Factory.OnType( symbol.ContainingType );
 
 			var className = $"{owner}.{symbol.Name}".Replace( '.', '_' );
 
@@ -136,7 +135,7 @@ var {variableName} = new Library( ""{GetName( typeSymbol )}"", {variableName}_ty
 				if ( symbol.SetMethod == null || symbol.SetMethod.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected )
 					return $@"Terminal.Log.Warning( ""Can't set {name}, {(symbol.SetMethod == null ? "property doesnt have setter" : "property is private")}"" );";
 
-				var type = OnType( symbol.Type );
+				var type = Factory.OnType( symbol.Type );
 				return $@"{(symbol.IsStatic ? $"{owner}.{symbol.Name} = ({type})value" : $"(({owner})target).{symbol.Name} = ({type})value")};";
 			}
 
@@ -150,7 +149,7 @@ private class {className} : Property
 		Group = ""{group}"";
 		Help = @""{help}"";
 		IsStatic = {(symbol.IsStatic ? "true" : "false")};
-		Type = typeof( {OnType( symbol.Type )} );
+		Type = typeof( {Factory.OnType( symbol.Type )} );
 	}}
 
 	protected override object Get( object from )
@@ -187,53 +186,6 @@ new Function(""{GetName( symbol )}"", ""{symbol.Name}"" )
 			return builder.ToString();
 		}
 
-		private static string OnType( ITypeSymbol inputType )
-		{
-			// Build Array
-			if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
-			{
-				return OnType( arrayTypeSymbol.ElementType ) + "[]";
-			}
-
-			var typeName = new StringBuilder( inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty );
-
-			// This should be inverted
-			var currentType = inputType.ContainingType;
-			if ( currentType != null )
-			{
-				var symbols = new List<INamedTypeSymbol>();
-
-				while ( currentType != null )
-				{
-					symbols.Add( currentType );
-					currentType = currentType.ContainingType;
-				}
-
-				symbols.Reverse();
-
-				foreach ( var type in symbols )
-				{
-					typeName.Append( $"{type.Name}." );
-				}
-
-				symbols.Clear();
-			}
-
-			if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType )
-				return typeName.Append( inputType.Name ).ToString();
-
-			// Build Generic
-			var builder = new StringBuilder( "<" );
-
-			for ( var i = 0; i < nType.TypeArguments.Length; i++ )
-			{
-				var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
-				builder.Append( i == 0 ? $"{fullName}" : $",{fullName}" );
-			}
-
-			return $"{typeName.Append( inputType.Name )}{builder.Append( '>' )}";
-		}
-
 		private bool IsValidProperty( ISymbol symbol, ITypeSymbol typeSymbol )
 		{
 			return symbol.Kind == SymbolKind.Property
@@ -256,11 +208,8 @@ new Function(""{GetName( symbol )}"", ""{symbol.Name}"" )
 			       && !symbol.Name.StartsWith( "get_" )
 			       && !symbol.Name.StartsWith( "set_" )
 			       && symbol.ContainingType.Equals( typeSymbol, SymbolEqualityComparer.Default )
-			       && (symbol.GetAttributes().Any( attribute =>
-			       {
-				       var name = attribute.AttributeClass!.Name;
-				       return name.StartsWith( "Function" );
-			       } ));
+			       && symbol.GetAttributes().Any( e => e.AttributeClass!.AllInterfaces.Any( e => e.Name.StartsWith( "IComponent<Function>" ) ) ) ||
+			       symbol.GetAttributes().Any( attribute => attribute.AttributeClass!.Name.StartsWith( "Function" ) );
 		}
 
 		private string GetName( ISymbol symbol )

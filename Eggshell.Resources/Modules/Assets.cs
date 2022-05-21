@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Eggshell.IO;
 
@@ -9,13 +11,13 @@ namespace Eggshell.Resources
 	/// of resources and assets. This API will help you greatly when trying to
 	/// make data loaded at runtime and compiled at runtime.
 	/// </summary>
-	public sealed class Assets : Module
+	public sealed class Assets : Module, IEnumerable<Resource>
 	{
 		/// <summary>
 		/// A reference to all the registered resources, loaded or not. You can get
 		/// resources by its path or identifier and load them manually.
 		/// </summary>
-		public static Registry Registered { get; } = new();
+		public static Assets Registered => Get<Assets>();
 
 		// Resources API
 		// --------------------------------------------------------------------------------------- //
@@ -27,17 +29,7 @@ namespace Eggshell.Resources
 		/// </summary>
 		public static T Load<T>( int hash, Func<Resource> creation, bool persistant = false ) where T : class, IAsset, new()
 		{
-			var resource = Find( hash );
-
-			// Already Exists
-			if ( resource != null )
-			{
-				return resource.Load<T>();
-			}
-
-			// Load from stream
-			resource = Registered.Fill( hash, creation );
-			return resource.Load<T>( persistant );
+			return (Find( hash ) ?? Registered.Fill( hash, creation ))?.Load<T>( persistant );
 		}
 
 		/// <summary>
@@ -111,7 +103,6 @@ namespace Eggshell.Resources
 			Library.Create<ICompiler<T>>( library.Info )?.Compile( item );
 		}
 
-
 		// Module Logic
 		// --------------------------------------------------------------------------------------- //
 
@@ -164,6 +155,79 @@ namespace Eggshell.Resources
 			}
 			
 			*/
+		}
+
+		// Registry
+		// --------------------------------------------------------------------------------------- //
+
+		/// <summary>
+		/// Gets to get a resource by its hash / identifier. This is useful
+		/// for loading resources over the network.
+		/// </summary>
+		public Resource this[ int key ] => _storage.TryGetValue( key, out var resource ) ? resource : null;
+
+		/// <summary>
+		/// Gets a resource by its path. Make sure to call virtual before you
+		/// try and get the path, or else it'll most likely return the wrong path.
+		/// </summary>
+		public Resource this[ Pathing key ] => _storage.TryGetValue( key.Virtual().Normalise().Hash(), out var resource ) ? resource : null;
+
+		/// <summary>
+		/// Fills a slot on the resources storage by its raw identifier.
+		/// It'll return the slot that's currently being used from the hash,
+		/// if not it'll make a not slot for that resource and return that.
+		/// </summary>
+		public Resource Fill( int hash, Func<Resource> creation )
+		{
+			if ( Registered[hash] != null )
+			{
+				return Registered[hash];
+			}
+
+			var instance = creation.Invoke();
+
+			_storage.Add( instance.Identifier, instance );
+			return instance;
+		}
+
+		/// <summary>
+		/// Fills a slot on the resources storage by its path.
+		/// It'll return the slot that's currently being used from the hash,
+		/// if not it'll make a not slot for that resource and return that.
+		/// </summary>
+		public Resource Fill( Pathing path )
+		{
+			if ( Registered[path] != null )
+			{
+				return Registered[path];
+			}
+
+			var instance = new Resource( path );
+
+			_storage.Add( instance.Identifier, instance );
+			return instance;
+		}
+
+		// Internal Logic
+		// --------------------------------------------------------------------------------------- //
+
+		private readonly SortedList<int, Resource> _storage = new();
+
+		internal void Remove( Resource resource )
+		{
+			_storage.Remove( resource.Identifier );
+		}
+
+		// Enumerator
+
+		public IEnumerator<Resource> GetEnumerator()
+		{
+			return _storage.Values.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }
