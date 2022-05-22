@@ -89,7 +89,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Does this function require an instance accessor to be invoked?
 		/// </summary>
-		public bool IsStatic => Info.IsStatic;
+		public bool IsStatic { get; set; }
 
 		/// <summary>
 		/// Gets the default arguments for a function parameter list,

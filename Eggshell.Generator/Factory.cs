@@ -1,11 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Eggshell.Generator
 {
 	public class Factory
 	{
+		public static string Documentation( ISymbol symbol )
+		{
+			var syntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
+
+			if ( syntax == null || syntax.Length == 0 )
+				return "n/a";
+
+			// This is so fucking aids... dont change it
+			return string.Join( "", syntax ).Replace( "<summary>", "" ).Replace( "</summary>", "" ).Replace( "///", "" ).Replace( "//", "" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
+		}
+
 		public static string OnType( ITypeSymbol inputType )
 		{
 			// Build Array

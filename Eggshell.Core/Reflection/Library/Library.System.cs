@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Eggshell
 {
@@ -17,15 +18,17 @@ namespace Eggshell
 		{
 			Database = new();
 
-			using ( Terminal.Stopwatch( "Library Initialized" ) )
-			{
-				Database.Add( AppDomain.CurrentDomain );
-			}
+			var stopwatch = Stopwatch.StartNew();
+
+			Database.Add( AppDomain.CurrentDomain );
+
+			stopwatch.Stop();
+			Terminal.Log.Info( $"Library Ready | {stopwatch.Elapsed.TotalMilliseconds}ms" );
 		}
 
 		internal static bool IsValid( Type type )
 		{
-			return type.HasInterface( typeof( ILibrary ) ) || type.IsDefined( typeof( LibraryAttribute ), true );
+			return type.HasInterface<ILibrary>() || type.IsDefined( typeof( LibraryAttribute ), true );
 		}
 
 		/// <summary>
@@ -49,6 +52,7 @@ namespace Eggshell
 				Singletons.Add( lib.Info, value );
 			}
 
+			lib.OnRegister( value );
 			return lib;
 		}
 
@@ -56,7 +60,6 @@ namespace Eggshell
 		/// Cleans up ILibrary object, removes it from instance
 		/// callback database so the garbage collector picks it up.
 		/// </summary>
-		/// <param name="value"></param>
 		public static void Unregister( ILibrary value )
 		{
 			// Check if Library is Singleton
@@ -64,6 +67,8 @@ namespace Eggshell
 			{
 				Singletons.Remove( value.GetType() );
 			}
+
+			value.ClassInfo.OnUnregister( value );
 		}
 
 		/// <summary>

@@ -15,6 +15,8 @@ namespace Eggshell.Networking
 	{
 		public override void OnShutdown()
 		{
+			return;
+			
 			if ( !Game.HasExited && Pipe.IsConnected )
 			{
 				Writer?.WriteLine( "+quit" );

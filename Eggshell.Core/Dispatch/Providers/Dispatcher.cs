@@ -5,6 +5,13 @@ namespace Eggshell.Dispatching
 {
 	public class Dispatcher : IDispatcher
 	{
+		public Library ClassInfo { get; }
+
+		public Dispatcher()
+		{
+			ClassInfo = Library.Register( this );
+		}
+
 		private Dictionary<string, List<Function>> _events = new();
 		private Dictionary<Library, List<ILibrary>> _registry = new();
 

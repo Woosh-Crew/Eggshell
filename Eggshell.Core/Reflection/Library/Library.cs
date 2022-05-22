@@ -126,6 +126,20 @@ namespace Eggshell
 		}
 
 		/// <summary>
+		/// A Callback for when an object is created and registered
+		/// to this library. Incredibly useful for setting up instanced
+		/// based callbacks, as well as keeping track of instances.
+		/// </summary>
+		protected virtual void OnRegister( ILibrary value ) { }
+
+		/// <summary>
+		/// A Callback for when an object is trying to be unregistered
+		/// to this library. Incredibly useful for setting up instanced
+		/// based callbacks, as well as keeping track of instances.
+		/// </summary>
+		protected virtual void OnUnregister( ILibrary value ) { }
+
+		/// <summary>
 		/// The programmer friendly name of this type, that is used
 		/// to generate a deterministic hash for the ID.
 		/// </summary>

@@ -3,7 +3,7 @@ using Eggshell.Reflection;
 
 namespace Eggshell.Dispatching
 {
-	public interface IDispatcher : IDisposable
+	public interface IDispatcher : IDisposable, ILibrary
 	{
 		void Add( string eventName, Function function );
 

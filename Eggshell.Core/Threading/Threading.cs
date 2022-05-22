@@ -20,7 +20,7 @@ namespace Eggshell
 			{
 				thread.Start();
 			}
-			
+
 			return meta;
 		}
 
@@ -51,8 +51,6 @@ namespace Eggshell
 			public void Add( Meta item )
 			{
 				_storage.Add( item.Name, item );
-
-				Terminal.Log.Info( $"Adding Thread Meta {item.Name}" );
 			}
 
 			public bool Contains( Meta item )
@@ -64,8 +62,6 @@ namespace Eggshell
 			{
 				item.Closed = true;
 				_storage.Remove( item.Name );
-
-				Terminal.Log.Info( $"Removing Thread Meta {item.Name}" );
 			}
 
 			public void Clear()

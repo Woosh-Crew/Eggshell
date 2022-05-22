@@ -74,8 +74,7 @@ namespace Eggshell
 		{
 			return type.IsInterface
 				? this.FirstOrDefault( e => e.Info.HasInterface( type ) && !e.Info.IsAbstract )
-				: this.FirstOrDefault( e =>
-					(type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
+				: this.FirstOrDefault( e => (type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
 		}
 
 		/// <summary>
@@ -89,10 +88,8 @@ namespace Eggshell
 		public Library Find( Type type, Func<Library, bool> search )
 		{
 			return type.IsInterface
-				? this.FirstOrDefault( e =>
-					e.Info.HasInterface( type ) && !e.Info.IsAbstract && search.Invoke( e ) )
-				: this.FirstOrDefault( e =>
-					(type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+				? this.FirstOrDefault( e => e.Info.HasInterface( type ) && !e.Info.IsAbstract && search.Invoke( e ) )
+				: this.FirstOrDefault( e => (type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
 		}
 
 		/// <inheritdoc cref="Find{T}()"/>

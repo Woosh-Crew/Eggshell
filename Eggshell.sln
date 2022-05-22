@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{3B7A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Resources", "Eggshell.Resources\Eggshell.Resources.csproj", "{6E7A3393-F355-41C1-93B8-5089637C3C97}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projects", "Projects", "{5DDE8E81-17C6-4891-BBE6-DE3B0062AEAD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5DDE8E81-17C6-4891-BBE6-DE3B0062AEAD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{A34ABEF0-8916-4EF8-B32A-B479BB8DE6A6}"
 EndProject
