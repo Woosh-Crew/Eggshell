@@ -7,6 +7,7 @@ namespace Eggshell
 	/// Module is Eggshells object oriented application injection. Modules will
 	/// be automatically created when you initialize Eggshell
 	/// </summary>
+	[Singleton]
 	public abstract class Module : IModule
 	{
 		// Static API
@@ -19,11 +20,10 @@ namespace Eggshell
 			return All.FirstOrDefault( e => e is T ) as T;
 		}
 
-		public static T Create<T>() where T : class, IModule, new()
+		public static void Create<T>() where T : class, IModule, new()
 		{
 			var item = new T();
 			All.Add( item );
-			return item;
 		}
 
 		// Instance

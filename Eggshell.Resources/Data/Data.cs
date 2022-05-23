@@ -69,7 +69,7 @@ namespace Eggshell.Resources
 
 			public void Compile( Data data )
 			{
-				var extension = data.ClassInfo.Components.Get<FileAttribute>()?.Extension ?? data.ClassInfo.Name.ToLower();
+				var extension = data.ClassInfo.Components.Get<Archive>()?.Extension ?? data.ClassInfo.Name.ToLower();
 				var output = Files.Pathing( $"{(data.ClassInfo.Components.Get<PathAttribute>()?.ShortHand ?? "data")}://" ).Absolute();
 
 				// Create path, just in case

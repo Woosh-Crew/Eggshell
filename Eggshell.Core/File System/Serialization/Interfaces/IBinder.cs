@@ -3,7 +3,7 @@
 namespace Eggshell
 {
 	[Group( "Files" )]
-	public interface IFile : ILibrary
+	public interface IBinder : ILibrary
 	{
 		FileInfo Info { get; set; }
 	}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Eggshell.Reflection;
 
 namespace Eggshell
@@ -61,7 +62,7 @@ namespace Eggshell
 		/// It isn't recommended that you create the library manually, as
 		/// this is usually done through source generators.
 		/// </summary>
-		public Library( string name, Type type, Library parent = null )
+		public Library( string name, int id, Type type, Library parent = null )
 		{
 			Assert.IsNull( type );
 
@@ -71,7 +72,7 @@ namespace Eggshell
 			Functions = new( this );
 
 			Name = name;
-			Id = Name.Hash();
+			Id = id;
 
 			Parent = parent;
 
@@ -88,19 +89,42 @@ namespace Eggshell
 		}
 
 		/// <summary>
+		/// It isn't recommended that you create the library manually, as
+		/// this is usually done through source generators. This will automatically
+		/// generate an id for the library, based off the name (hashed) 
+		/// </summary>
+		public Library( string name, Type type, Library parent = null ) : this( name, name.Hash(), type, parent ) { }
+
+		/// <summary>
 		/// Creates an ILibrary, this just does some sanity checking before
 		/// calling the internal Construct() method, which can be overridden
 		/// or uses a constructor attribute.
 		/// </summary>
-		public ILibrary Create()
+		public virtual ILibrary Create()
 		{
-			if ( Spawnable )
+			// This gets source generated, to be compile time efficient
+
+			foreach ( var component in Components )
 			{
-				return IsSingleton( this ) && Singletons.ContainsKey( Info ) ? Singletons[Info] : Construct();
+				var instance = (component as IBinding)?.OnCreate();
+
+				if ( instance != null )
+				{
+					return instance;
+				}
 			}
 
-			Terminal.Log.Error( $"{Name} is not spawnable. Set Spawnable to true in classes meta." );
-			return null;
+			return Construct();
+		}
+
+		/// <summary>
+		/// Creates a type of T, this just does some sanity checking before
+		/// calling the internal Construct() method, which can be overridden
+		/// or uses a constructor attribute.
+		/// </summary>
+		public T Create<T>() where T : ILibrary
+		{
+			return (T)Create();
 		}
 
 		/// <summary>
@@ -110,11 +134,7 @@ namespace Eggshell
 		/// </summary>
 		protected virtual ILibrary Construct()
 		{
-			// Check if we have a custom Constructor
-			if ( Components.TryGet<ConstructorAttribute>( out var constructor ) )
-			{
-				return (ILibrary)constructor.Invoke();
-			}
+			// This gets source generated, to be compile time efficient
 
 			if ( !Info.IsAbstract )
 			{
@@ -130,14 +150,37 @@ namespace Eggshell
 		/// to this library. Incredibly useful for setting up instanced
 		/// based callbacks, as well as keeping track of instances.
 		/// </summary>
-		protected virtual void OnRegister( ILibrary value ) { }
+		protected virtual bool OnRegister( ILibrary value )
+		{
+			// This gets source generated, to be compile time efficient
+			
+			foreach ( var component in Components )
+			{
+				var potential = (component as IBinding)?.OnRegister( value ) ?? true;
+
+				if ( !potential )
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
 
 		/// <summary>
 		/// A Callback for when an object is trying to be unregistered
 		/// to this library. Incredibly useful for setting up instanced
 		/// based callbacks, as well as keeping track of instances.
 		/// </summary>
-		protected virtual void OnUnregister( ILibrary value ) { }
+		protected virtual void OnUnregister( ILibrary value )
+		{
+			// This gets source generated, to be compile time efficient
+			
+			foreach ( var component in Components )
+			{
+				(component as IBinding)?.OnUnregister( value );
+			}
+		}
 
 		/// <summary>
 		/// The programmer friendly name of this type, that is used
@@ -172,12 +215,5 @@ namespace Eggshell
 		/// your application!
 		/// </summary>
 		public string Help { get; set; }
-
-		/// <summary>
-		/// Prevents this Library from being constructed through the
-		/// library's creator. this is false on abstract classes. Or can be
-		/// disabled by you the programmer.
-		/// </summary>
-		public bool Spawnable { get; set; } = true;
 	}
 }

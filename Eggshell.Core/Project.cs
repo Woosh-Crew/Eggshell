@@ -24,8 +24,10 @@
 		/// </summary>
 		protected static void Crack( Bootstrap bootstrap )
 		{
-			bootstrap.Boot();
-			Terminal.Log.Info( "Eggshell Ready" );
+			using ( Terminal.Stopwatch( "Eggshell Ready" ) )
+			{
+				bootstrap.Boot();
+			}
 		}
 	}
 }

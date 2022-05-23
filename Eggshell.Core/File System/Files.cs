@@ -18,7 +18,6 @@ namespace Eggshell
 		//
 		// API
 		//
-
 		public static Pathing Pathing( string path )
 		{
 			return new( path );
@@ -27,23 +26,6 @@ namespace Eggshell
 		public static Pathing Pathing( FileInfo path )
 		{
 			return new( path.FullName );
-		}
-
-		public static T Grab<T>( Pathing path ) where T : class, IFile
-		{
-			path.Absolute();
-
-			Assert.IsFalse( path.Exists(), "File doesn't exist" );
-
-			var info = new FileInfo( path );
-			var library = Library.Database.Find<T>( e => e.Components.Get<FileAttribute>()?.Extension == info.Extension[1..] );
-
-			Assert.IsNull( library, "No Valid Loaders for this File" );
-
-			var file = Library.Create<T>( library.Info );
-			file.Info = info;
-
-			return file;
 		}
 
 		/// <inheritdoc cref="Save{T}(T,string)"/>

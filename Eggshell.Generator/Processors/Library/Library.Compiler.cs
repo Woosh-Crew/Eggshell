@@ -21,7 +21,7 @@ namespace Eggshell.Generator
 			Queued = tree.GetRoot()
 				.DescendantNodesAndSelf()
 				.OfType<ClassDeclarationSyntax>()
-				.Select( x => ModelExtensions.GetDeclaredSymbol( Model, x ) )
+				.Select( x => Model.GetDeclaredSymbol( x ) )
 				.OfType<ITypeSymbol>()
 				.Where( x => x.AllInterfaces.Contains( libraryInterface ) )
 				.ToImmutableHashSet();

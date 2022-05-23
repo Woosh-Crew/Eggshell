@@ -46,6 +46,7 @@ namespace Eggshell.Generator
 		{
 			// Init Library Generators
 			//	Register<LibrarySetup>(); /* This is disabled, because you I want it to be init in a constructor */  
+			Register<BinderCompiler>();
 			Register<LibraryCompiler>();
 			Register<ModuleCompiler>();
 		}

@@ -60,7 +60,7 @@ namespace Eggshell.Resources
 			Library library = typeof( T );
 
 			// Load default resource, if its not there
-			if ( !library.Components.TryGet( out FileAttribute files ) || files.Fallback.IsEmpty() )
+			if ( !library.Components.TryGet( out Archive files ) || files.Fallback.IsEmpty() )
 			{
 				return null;
 			}

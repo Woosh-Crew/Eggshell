@@ -40,7 +40,7 @@ namespace Eggshell
 			}
 
 			// Replace if its a Singleton
-			if ( item is ILibrary lib && lib.ClassInfo.Components.Has<SingletonAttribute>() && TryGet( item.GetType(), out var comp ) )
+			if ( item is ILibrary lib && lib.ClassInfo.Components.Has<Singleton>() && TryGet( item.GetType(), out var comp ) )
 			{
 				Terminal.Log.Warning( $"Replacing Component [{lib.ClassInfo.Name}]. Was Singleton" );
 				Replace( comp, item );

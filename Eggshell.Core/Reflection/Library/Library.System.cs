@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Eggshell
@@ -12,8 +11,6 @@ namespace Eggshell
 		/// </summary>
 		public static Libraries Database { get; private set; }
 
-		private static Dictionary<Type, ILibrary> Singletons { get; } = new();
-
 		static Library()
 		{
 			Database = new();
@@ -23,7 +20,7 @@ namespace Eggshell
 			Database.Add( AppDomain.CurrentDomain );
 
 			stopwatch.Stop();
-			Terminal.Log.Info( $"Library Ready | {stopwatch.Elapsed.TotalMilliseconds}ms" );
+			Terminal.Log.Info( $"Library Ready | {stopwatch.Elapsed.TotalMilliseconds} ms" );
 		}
 
 		internal static bool IsValid( Type type )
@@ -41,19 +38,7 @@ namespace Eggshell
 			Library lib = value.GetType();
 			Assert.IsNull( lib );
 
-			if ( IsSingleton( lib ) )
-			{
-				if ( Singletons.ContainsKey( lib.Info ) )
-				{
-					Terminal.Log.Error( $"You're trying to register another Singleton [{lib.Name}]" );
-					return null;
-				}
-
-				Singletons.Add( lib.Info, value );
-			}
-
-			lib.OnRegister( value );
-			return lib;
+			return lib.OnRegister( value ) ? lib : null;
 		}
 
 		/// <summary>
@@ -62,22 +47,7 @@ namespace Eggshell
 		/// </summary>
 		public static void Unregister( ILibrary value )
 		{
-			// Check if Library is Singleton
-			if ( IsSingleton( value.ClassInfo ) )
-			{
-				Singletons.Remove( value.GetType() );
-			}
-
 			value.ClassInfo.OnUnregister( value );
-		}
-
-		/// <summary>
-		/// Checks if the lib has a singleton component,
-		/// and an instance of it somewhere.
-		/// </summary>
-		public static bool IsSingleton( Library lib )
-		{
-			return lib.Components.Has<SingletonAttribute>() && !lib.Info.HasInterface( typeof( IComponent ) );
 		}
 
 		/// <summary> <inheritdoc cref="Create"/> and returns T </summary>
