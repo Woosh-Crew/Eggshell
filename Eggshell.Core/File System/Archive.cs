@@ -9,8 +9,6 @@ namespace Eggshell
 	/// </summary>
 	public class Archive : IBinding
 	{
-		public Archive( string hello, string penis = "yes" ) { }
-
 		/// <summary>
 		/// What file should we load by default if loading one failed.
 		/// </summary>
