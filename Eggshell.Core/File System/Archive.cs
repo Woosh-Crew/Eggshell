@@ -12,7 +12,8 @@ namespace Eggshell
 		/// <summary>
 		/// What file should we load by default if loading one failed.
 		/// </summary>
-		public string Fallback { get; set; }
+		[property : Override( "public string Fallback { get; set; }" )]
+		public Pathing Fallback { get; set; }
 
 		/// <summary>
 		/// The default extension for this archive.

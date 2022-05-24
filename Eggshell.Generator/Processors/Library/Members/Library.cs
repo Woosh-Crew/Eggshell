@@ -125,12 +125,18 @@ private class {className} : Library
 				return $@"Terminal.Log.Error(""Can't create {Name}, class is abstract""); return null;";
 			}
 
+			if ( Symbol.IsStatic )
+			{
+				return $@"Terminal.Log.Error(""Can't create {Name}, class is static""); return null;";
+			}
+
 			if ( Symbol.InstanceConstructors.Length > 0 && Symbol.InstanceConstructors.Any( e => e.Parameters.Length > 0 ) )
 			{
 				return $@"Terminal.Log.Error(""Can't create {Name}, class is has no parameterless constructor""); return null;";
 			}
 
-			return $"return new {Class}();";
+			var potential = Symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Constructor" ) )?.ConstructorArguments[0].Value;
+			return potential?.ToString() ?? $"return new {Class}();";
 		}
 
 		private string OnComponents()
@@ -181,12 +187,19 @@ private class {className} : Library
 		{
 			var builder = new StringBuilder();
 
-
 			builder.Append( $"new {Factory.OnType( attribute.AttributeClass ).Replace( "Attribute", "" )}(" );
 
 			foreach ( var argument in attribute.ConstructorArguments )
 			{
-				builder.Append( argument.Value );
+				var arg = argument.Value;
+
+				// This is aids...
+				if ( argument.Type!.Name.Equals( "string", StringComparison.OrdinalIgnoreCase ) )
+				{
+					arg = $@"""{arg}""";
+				}
+
+				builder.Append( arg );
 			}
 
 			builder.Append( "){" );
@@ -200,7 +213,7 @@ private class {className} : Library
 				{
 					arg = $@"""{arg}""";
 				}
-				
+
 				builder.AppendLine( $"{args.Key} = {arg}," );
 			}
 

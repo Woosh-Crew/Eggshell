@@ -23,7 +23,7 @@ namespace Eggshell.Generator
 				.OfType<ClassDeclarationSyntax>()
 				.Select( x => Model.GetDeclaredSymbol( x ) )
 				.OfType<ITypeSymbol>()
-				.Where( x => x.AllInterfaces.Contains( libraryInterface ) )
+				.Where( x => x.AllInterfaces.Contains( libraryInterface ) || x.GetAttributes().Any( e => e.AttributeClass!.Name.StartsWith( "Library" ) ) )
 				.ToImmutableHashSet();
 
 			return Queued.Count > 0;
