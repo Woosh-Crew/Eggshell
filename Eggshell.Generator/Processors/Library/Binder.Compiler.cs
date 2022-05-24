@@ -89,9 +89,10 @@ namespace Eggshell.Generator
 					}
 
 					if ( i != symbol.Parameters.Length - 1 )
+					{
 						constructor.Append( ", " );
+					}
 				}
-
 
 				builder.AppendLine( constructor.Append( ") { }" ).ToString() );
 			}

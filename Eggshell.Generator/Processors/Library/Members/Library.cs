@@ -189,8 +189,9 @@ private class {className} : Library
 
 			builder.Append( $"new {Factory.OnType( attribute.AttributeClass ).Replace( "Attribute", "" )}(" );
 
-			foreach ( var argument in attribute.ConstructorArguments )
+			for ( var i = 0; i < attribute.ConstructorArguments.Length; i++ )
 			{
+				var argument = attribute.ConstructorArguments[i];
 				var arg = argument.Value;
 
 				// This is aids...
@@ -200,6 +201,11 @@ private class {className} : Library
 				}
 
 				builder.Append( arg );
+
+				if ( i != attribute.ConstructorArguments.Length - 1 )
+				{
+					builder.Append( ", " );
+				}
 			}
 
 			builder.Append( "){" );

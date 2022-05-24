@@ -1,6 +1,6 @@
 ﻿namespace Eggshell.Tests
 {
-	[Archive( Fallback = "game://testing.txt" ), Constructor( "return Eggshell.Tests.Testing.Create( this );" )]
+	[Archive( "", Fallback = "game://testing.txt" ), Constructor( "return Eggshell.Tests.Testing.Create( this );" )]
 	public class Testing : ILibrary
 	{
 		public Library ClassInfo { get; }
