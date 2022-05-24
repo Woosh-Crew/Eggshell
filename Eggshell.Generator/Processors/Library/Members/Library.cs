@@ -27,7 +27,7 @@ namespace Eggshell.Generator
 [CompilerGenerated]
 private class {className} : Library
 {{
-	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()} ,typeof( {Class} ), parent )
+	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()}, typeof( {Class} ), parent )
 	{{
 		Title = ""{Title}"";
 		Group = ""{Group}"";

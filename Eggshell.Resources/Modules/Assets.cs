@@ -108,6 +108,7 @@ namespace Eggshell.Resources
 
 		public override void OnReady()
 		{
+			/*
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
 			{
 				foreach ( var file in Files.Pathing( $"{pathing.ShortHand}://" ).All() )
@@ -115,6 +116,7 @@ namespace Eggshell.Resources
 					Registered.Fill( file );
 				}
 			}
+			*/
 		}
 
 		public override void OnShutdown()
