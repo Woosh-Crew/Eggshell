@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Eggshell.Dispatching;
 using Eggshell.Reflection;
 
-namespace Eggshell.Dispatching
+namespace Eggshell
 {
 	public class Dispatcher : IDispatcher
 	{
@@ -15,14 +16,14 @@ namespace Eggshell.Dispatching
 		private Dictionary<string, List<Function>> _events = new();
 		private Dictionary<Library, List<ILibrary>> _registry = new();
 
-		public void Add( string eventName, Function function )
+		public void Add( string name, Function function )
 		{
-			if ( !_events.ContainsKey( eventName ) )
+			if ( !_events.ContainsKey( name ) )
 			{
-				_events.Add( eventName, new() );
+				_events.Add( name, new() );
 			}
 
-			_events[eventName]?.Add( function );
+			_events[name]?.Add( function );
 		}
 
 		public void Run( string name )

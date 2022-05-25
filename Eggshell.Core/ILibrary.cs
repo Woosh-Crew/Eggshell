@@ -2,7 +2,7 @@ namespace Eggshell
 {
 	/// <summary>
 	/// Stores class information, used for networking, meta data, etc.
-	/// Which can be accessed in the <see cref="Library"/>.<see cref="Library.Database"/>
+	/// Which can be accessed in the Library.Database
 	/// </summary>
 	public interface ILibrary
 	{
@@ -13,6 +13,10 @@ namespace Eggshell
 		/// </summary>
 		Library ClassInfo { get; }
 
+		/// <summary>
+		/// Deletes this object from the library registry. Override this to call
+		/// additional logic when deleting an ILibrary object.
+		/// </summary>
 		void Delete()
 		{
 			Library.Unregister( this );
