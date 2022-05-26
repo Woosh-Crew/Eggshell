@@ -72,9 +72,13 @@ namespace Eggshell
 		/// </summary>
 		public Library Find( Type type )
 		{
-			return type.IsInterface
-				? this.FirstOrDefault( e => e.Info.HasInterface( type ) && !e.Info.IsAbstract )
-				: this.FirstOrDefault( e => (type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
+			if ( type.IsAbstract || type.IsInterface )
+			{
+				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract );
+			}
+
+			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract );
+			return potential ?? type;
 		}
 
 		/// <summary>
@@ -87,9 +91,13 @@ namespace Eggshell
 		/// </summary>
 		public Library Find( Type type, Func<Library, bool> search )
 		{
-			return type.IsInterface
-				? this.FirstOrDefault( e => e.Info.HasInterface( type ) && !e.Info.IsAbstract && search.Invoke( e ) )
-				: this.FirstOrDefault( e => (type == e.Info || e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+			if ( type.IsAbstract || type.IsInterface )
+			{
+				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+			}
+
+			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+			return potential ?? type;
 		}
 
 		/// <inheritdoc cref="Find{T}()"/>
