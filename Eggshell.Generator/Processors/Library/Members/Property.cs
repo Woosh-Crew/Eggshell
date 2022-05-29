@@ -81,6 +81,7 @@ private class {className} : Property
 		{
 			return symbol.Kind == SymbolKind.Property
 			       && !symbol.Name.StartsWith( "this" )
+			       && !symbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Skip" ) )
 			       && !symbol.IsOverride
 			       && symbol.ContainingType.Equals( typeSymbol, SymbolEqualityComparer.Default )
 			       && (symbol.DeclaredAccessibility == Accessibility.Public || symbol.GetAttributes().Any( attribute =>
