@@ -25,8 +25,7 @@ namespace Eggshell.Generator
 			Group = OnGroup( symbol );
 			Title = OnTitle( symbol );
 			Name = OnName( symbol );
-
-			Help = Factory.Documentation( symbol );
+			Help = OnHelp( symbol );
 		}
 
 		protected virtual string OnName( ISymbol symbol )
@@ -42,6 +41,11 @@ namespace Eggshell.Generator
 				return (string)attribute.ConstructorArguments[0].Value;
 
 			return CultureInfo.CurrentCulture.TextInfo.ToTitleCase( string.Concat( symbol.Name.Select( x => char.IsUpper( x ) ? " " + x : x.ToString() ) ).TrimStart( ' ' ) );
+		}
+
+		protected virtual string OnHelp( ISymbol symbol )
+		{
+			return (string)symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) )?.ConstructorArguments[0].Value ?? Factory.Documentation( symbol );
 		}
 
 		protected virtual string OnGroup( ISymbol symbol )

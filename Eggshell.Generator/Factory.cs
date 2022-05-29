@@ -12,7 +12,7 @@ namespace Eggshell.Generator
 		{
 			var syntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
 
-			if ( syntax == null || syntax.Length == 0 )
+			if ( syntax == null || syntax.Length == 0 || !syntax.Contains( "<summary>" ) )
 				return "n/a";
 
 			// This is so fucking aids... dont change it

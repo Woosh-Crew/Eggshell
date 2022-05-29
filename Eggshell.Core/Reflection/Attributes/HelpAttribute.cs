@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Eggshell
 {
@@ -6,8 +6,8 @@ namespace Eggshell
 	/// Reflection Component that changes the Tile value on a Library or Property.
 	/// </summary>
 	[AttributeUsage( AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Method, Inherited = false )]
-	public sealed class TitleAttribute : Attribute
+	public sealed class HelpAttribute : Attribute
 	{
-		public TitleAttribute( string title ) { }
+		public HelpAttribute( string help ) { }
 	}
 }
