@@ -6,7 +6,8 @@ namespace Eggshell
 	/// An icon that represents a class. Useful for GUI where a file
 	/// would usually need an icon (like .fbx or .wav, etc).
 	/// </summary>
-	public class Icon : IBinding
+	[Binding( Type = typeof( Library ) )]
+	public partial class Icon
 	{
 		/// <summary>
 		/// What icon id should we load. (Depends on the application but
@@ -19,9 +20,5 @@ namespace Eggshell
 		/// prioritise that over the path.
 		/// </summary>
 		public string Path { get; set; }
-
-		// IComponent
-
-		public void OnAttached( Library item ) { }
 	}
 }

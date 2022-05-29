@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Eggshell.Generator\Eggshell.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="../Eggshell.Generator/Eggshell.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netstandard2.0" />
         <ProjectReference Include="../Eggshell.Core/Eggshell.Core.csproj" />
         <ProjectReference Include="../Eggshell.Resources/Eggshell.Resources.csproj" />
     </ItemGroup>

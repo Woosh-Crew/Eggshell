@@ -17,8 +17,6 @@
 		public static void Main( string[] args )
 		{
 			Crack( new() );
-			
-			Terminal.Log.Info( "Wassup" );
 		}
 	}
 }

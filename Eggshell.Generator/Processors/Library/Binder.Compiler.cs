@@ -13,14 +13,12 @@ namespace Eggshell.Generator
 
 		public override bool IsProcessable( SyntaxTree tree )
 		{
-			var binding = Compilation.GetTypeByMetadataName( "Eggshell.Reflection.IBinding" );
-
 			Queued = tree.GetRoot()
 				.DescendantNodesAndSelf()
 				.OfType<ClassDeclarationSyntax>()
 				.Select( x => Model.GetDeclaredSymbol( x ) )
 				.OfType<INamedTypeSymbol>()
-				.Where( x => x.AllInterfaces.Contains( binding ) && !x.BaseType.Name.StartsWith( "Attribute" ) )
+				.Where( x => x.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) ) )
 				.ToImmutableHashSet();
 
 			return Queued.Count > 0;
@@ -59,6 +57,16 @@ namespace Eggshell.Generator
 
 			return builder.ToString();
 		}
+
+		private string OnBody( INamedTypeSymbol symbol )
+		{
+			if ( symbol.GetMembers( "OnAttached" ).IsEmpty )
+			{
+				return $@"public void OnAttached( Library item ) {{ }}";
+			}
+
+			return string.Empty;
+		}	
 
 		private string OnConstructor( INamedTypeSymbol typeSymbol )
 		{
@@ -109,7 +117,7 @@ using Eggshell.Reflection;
 
 namespace {typeSymbol.ContainingNamespace}
 {{
-	[AttributeUsage( AttributeTargets.Class )]
+	[AttributeUsage( AttributeTargets.Class ), Binding]
 	public class {typeSymbol.Name}Attribute : Attribute, IBinding
 	{{
 		{OnConstructor( typeSymbol )}
@@ -117,6 +125,11 @@ namespace {typeSymbol.ContainingNamespace}
 		{OnProperties( typeSymbol )}
 
 		public void OnAttached( Library item ) {{ }}
+	}}
+
+	partial class {typeSymbol.Name} : IBinding
+	{{
+		{OnBody(typeSymbol)}
 	}}
 }}";
 		}

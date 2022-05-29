@@ -2,7 +2,8 @@
 
 namespace Eggshell
 {
-	public class Singleton : IBinding
+	[Binding( Type = typeof( Library ) )]
+	public partial class Singleton
 	{
 		public Library Owner { get; private set; }
 		public ILibrary Instance { get; private set; }

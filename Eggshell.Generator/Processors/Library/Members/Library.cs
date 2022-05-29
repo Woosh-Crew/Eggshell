@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Eggshell.Generator
 {
@@ -130,9 +129,9 @@ private class {className} : Library
 				return $@"Terminal.Log.Error(""Can't create {Name}, class is static""); return null;";
 			}
 
-			if ( Symbol.InstanceConstructors.Length > 0 && Symbol.InstanceConstructors.Any( e => e.Parameters.Length > 0 ) )
+			if ( Symbol.InstanceConstructors.All( e => e.Parameters.Length > 0 || e.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected ) )
 			{
-				return $@"Terminal.Log.Error(""Can't create {Name}, class is has no parameterless constructor""); return null;";
+				return $@"Terminal.Log.Error(""Can't create {Name}, class is has no publicly accessible parameterless constructor""); return null;";
 			}
 
 			var potential = Symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Constructor" ) )?.ConstructorArguments[0].Value;
@@ -147,20 +146,36 @@ private class {className} : Library
 
 				while ( true )
 				{
-					foreach ( var attribute in symbol.GetAttributes().Where( e => e.AttributeClass!.AllInterfaces.Any( e => e.Name.StartsWith( "IBinding" ) ) ) )
+					foreach ( var attribute in symbol.GetAttributes().Where( e => IsValid( e.AttributeClass ) ) )
 					{
 						yield return attribute;
 					}
 
-					if ( symbol.BaseType != null && symbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) ) )
-					{
-						symbol = symbol.BaseType;
-					}
-					else
+					if ( symbol.BaseType == null || !symbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) ) )
 					{
 						break;
 					}
+
+					symbol = symbol.BaseType;
 				}
+			}
+
+			bool IsValid( INamedTypeSymbol symbol )
+			{
+				// Normal Symbol
+				if ( symbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) ) )
+				{
+					return true;
+				}
+
+				// Weird shit, because roslyn is retarded
+
+				if ( symbol.Name.Contains( "Attribute" ) )
+				{
+					return false;
+				}
+
+				return Generator.Current.Compilation.GetTypeByMetadataName( Factory.OnType( symbol ) ).GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) );
 			}
 
 			var builder = new StringBuilder();
@@ -255,7 +270,7 @@ private class {className} : Library
 			if ( attribute is { ConstructorArguments.Length: > 0 } )
 				return (string)attribute.ConstructorArguments[0].Value;
 
-			return base.OnName( symbol );
+			return $"{(Group.IsEmpty() ? $"{Group}." : string.Empty)}{base.OnName( symbol )}";
 		}
 
 		protected override string OnGroup( ISymbol symbol )

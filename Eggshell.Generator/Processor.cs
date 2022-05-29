@@ -9,10 +9,10 @@ namespace Eggshell.Generator
 	public abstract class Processor
 	{
 		protected Generator Generator { get; private set; }
-		protected SemanticModel Model => Generator.Context.Compilation.GetSemanticModel( Scope );
-		protected SyntaxTree Scope => Generator.Scope;
-		protected Compilation Compilation => Generator.Context.Compilation;
-		protected GeneratorExecutionContext Context => Generator.Context;
+		public SemanticModel Model => Generator.Context.Compilation.GetSemanticModel( Scope );
+		public SyntaxTree Scope => Generator.Scope;
+		public Compilation Compilation => Generator.Context.Compilation;
+		public GeneratorExecutionContext Context => Generator.Context;
 
 		internal void Register( Generator generator )
 		{

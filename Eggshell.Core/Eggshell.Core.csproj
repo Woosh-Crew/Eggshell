@@ -13,7 +13,7 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <OutputPath>..\Builds\Release\</OutputPath>
-      <DocumentationFile>..\Builds\Release\Eggshell.Core.xml</DocumentationFile>
+      <DocumentationFile></DocumentationFile>
       <DefineConstants>TRACE, EGGSHELL</DefineConstants>
     </PropertyGroup>
 

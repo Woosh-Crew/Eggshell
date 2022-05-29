@@ -7,7 +7,8 @@ namespace Eggshell
 	/// An archive is a statically typed file. We use this in conjunction
 	/// with the library system to get types based on their extension.
 	/// </summary>
-	public class Archive : IBinding
+	[Binding( Type = typeof( Library ) )]
+	public partial class Archive
 	{
 		/// <summary>
 		/// What file should we load by default if loading one failed.
@@ -24,9 +25,5 @@ namespace Eggshell
 		/// The serialization type for this archive.
 		/// </summary>
 		public Serialization Serialization { get; set; }
-
-		// IComponent
-
-		public void OnAttached( Library item ) { }
 	}
 }

@@ -22,9 +22,9 @@ namespace Eggshell.Generator
 		{
 			Symbol = symbol;
 
-			Name = OnName( symbol );
-			Title = OnTitle( symbol );
 			Group = OnGroup( symbol );
+			Title = OnTitle( symbol );
+			Name = OnName( symbol );
 
 			Help = Factory.Documentation( symbol );
 		}

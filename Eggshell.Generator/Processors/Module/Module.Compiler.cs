@@ -16,13 +16,14 @@ namespace Eggshell.Generator
 			var module = Compilation.GetTypeByMetadataName( "Eggshell.IModule" );
 
 			modules = tree.GetRoot()
-				.DescendantNodesAndSelf()
-				.OfType<ClassDeclarationSyntax>()
-				.Select( x => Model.GetDeclaredSymbol( x ) )
-				.OfType<ITypeSymbol>()
-				.Where( x => x.AllInterfaces.Contains( module ) && !x.IsAbstract )
-				.ToImmutableHashSet();
-
+					.DescendantNodesAndSelf()
+					.OfType<ClassDeclarationSyntax>()
+					.Select( x => Model.GetDeclaredSymbol( x ) )
+					.OfType<ITypeSymbol>()
+					.Where( x => x.AllInterfaces.Contains( module ) && !x.IsAbstract )
+					.OrderBy( x => x.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Order" ) )?.ConstructorArguments[0].Value ?? 0 )
+					.ToImmutableHashSet();
+			
 			return modules.Count > 0;
 		}
 
@@ -68,4 +69,5 @@ namespace Eggshell.Generated
 }}";
 		}
 	}
+
 }

@@ -12,7 +12,7 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <OutputPath>..\Builds\Release\</OutputPath>
-      <DocumentationFile>..\Builds\Release\Eggshell.Resources.xml</DocumentationFile>
+      <DocumentationFile></DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

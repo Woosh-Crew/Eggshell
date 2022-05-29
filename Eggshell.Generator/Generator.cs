@@ -8,47 +8,25 @@ namespace Eggshell.Generator
 	public class Generator : ISourceGenerator
 	{
 		public List<Exception> Exceptions { get; } = new();
-		public List<Processor> Processors { get; } = new();
 
-		public void Register( params Processor[] processors )
+		public Processor[] Processors { get; } = new Processor[]
 		{
-			foreach ( var processor in processors )
-			{
-				processor.Register( this );
-				Processors.Add( processor );
-			}
-		}
+			new BinderCompiler(),
+			new LibraryCompiler(),
+			new ModuleCompiler()
+		};
 
-		public void Register<T>() where T : Processor, new()
-		{
-			var newT = new T();
-			newT.Register( this );
-			Processors.Add( newT );
-		}
-
-		public void Register( Type type )
-		{
-			var newT = (Processor)Activator.CreateInstance( type );
-
-			if ( newT == null )
-			{
-				return;
-			}
-
-			newT.Register( this );
-			Processors.Add( newT );
-		}
+		public static Processor Current { get; private set; }
 
 		// Main Generator
 		// --------------------------------------------------------------------------------------- //
 
 		public virtual void Initialize( GeneratorInitializationContext context )
 		{
-			// Init Library Generators
-			//	Register<LibrarySetup>(); /* This is disabled, because you I want it to be init in a constructor */  
-			Register<BinderCompiler>();
-			Register<LibraryCompiler>();
-			Register<ModuleCompiler>();
+			foreach ( var processor in Processors )
+			{
+				processor.Register( this );
+			}
 		}
 
 		public void Execute( GeneratorExecutionContext context )
@@ -65,7 +43,11 @@ namespace Eggshell.Generator
 					try
 					{
 						// This is awesome
-						(process.IsProcessable( syntaxTree ) ? process : null)?.OnProcess();
+						if ( process.IsProcessable( syntaxTree ) )
+						{
+							Current = process;
+							Current.OnProcess();
+						}
 					}
 					catch ( Exception e )
 					{
