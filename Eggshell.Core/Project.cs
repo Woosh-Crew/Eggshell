@@ -1,4 +1,6 @@
-﻿namespace Eggshell
+﻿using System;
+
+namespace Eggshell
 {
 	/// <summary>
 	/// Entry point to your Eggs, You'd want to
@@ -8,6 +10,11 @@
 	/// </summary>
 	public abstract class Project : Module
 	{
+		/// <summary>
+		/// Has Eggshell already been booted up and initialized?
+		/// </summary>
+		protected static bool Booted { get; private set; }
+
 		/// <summary>
 		/// Uses Eggshells reflection system to find a
 		/// bootstrap and uses that to initialize all
@@ -24,9 +31,24 @@
 		/// </summary>
 		protected static void Crack( Bootstrap bootstrap )
 		{
-			using ( Terminal.Stopwatch( "Eggshell Ready" ) )
+			if ( Booted )
 			{
-				bootstrap.Boot();
+				Terminal.Log.Warning( "Already booted Eggshell Project" );
+				return;
+			}
+
+			try
+			{
+				using ( Terminal.Stopwatch( "Eggshell Ready" ) )
+				{
+					bootstrap.Boot();
+					Booted = true;
+				}
+			}
+			catch ( Exception e )
+			{
+				Booted = false;
+				Terminal.Log.Exception( e );
 			}
 		}
 	}

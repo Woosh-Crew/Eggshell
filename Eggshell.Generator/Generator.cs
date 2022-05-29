@@ -12,6 +12,7 @@ namespace Eggshell.Generator
 		public Processor[] Processors { get; } = new Processor[]
 		{
 			new BinderCompiler(),
+			new PropertyCompiler(),
 			new LibraryCompiler(),
 			new ModuleCompiler()
 		};

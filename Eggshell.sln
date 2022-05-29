@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Eggshell.Native", "Eggshell.Native\Eggshell.Native.vcxproj", "{F3D86293-D769-4C3B-9AC3-6F1935530F81}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Generator", "Eggshell.Generator\Eggshell.Generator.csproj", "{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eggshell.Core", "Eggshell.Core\Eggshell.Core.csproj", "{27C96D3C-AFF1-4398-A06F-991AA5698E03}"
@@ -26,14 +24,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Debug|Win32.Build.0 = Debug|Win32
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Debug|x64.ActiveCfg = Debug|x64
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Debug|x64.Build.0 = Debug|x64
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Release|Win32.ActiveCfg = Release|Win32
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Release|Win32.Build.0 = Release|Win32
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Release|x64.ActiveCfg = Release|x64
-		{F3D86293-D769-4C3B-9AC3-6F1935530F81}.Release|x64.Build.0 = Release|x64
 		{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}.Debug|Win32.Build.0 = Debug|Any CPU
 		{88B2ACA0-5F8E-4BF1-A0C0-C4F6115B54E1}.Debug|x64.ActiveCfg = Debug|Any CPU
