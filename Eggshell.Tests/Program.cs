@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#define EGGSHELL
+
+using System.Collections;
 
 namespace Eggshell.Tests
 {
@@ -19,6 +21,10 @@ namespace Eggshell.Tests
 		public static void Main( string[] args )
 		{
 			Crack( new() );
+
+			// Update
+			Bootstrap.Update();
+			Bootstrap.Update();
 			Bootstrap.Update();
 			Bootstrap.Update();
 			Bootstrap.Update();
@@ -31,17 +37,27 @@ namespace Eggshell.Tests
 
 		public override void OnReady()
 		{
-			Terminal.Log.Info( "Hello World" );
 			Coroutine.Start( Action() );
 		}
 
+		public override void OnUpdate()
+		{
+			_index++;
+		}
+
+		private int _index;
+
 		public IEnumerator Action()
 		{
-			Terminal.Log.Info( "First" );
+			Terminal.Log.Info( "Starting" );
 
-			yield return null;
+			_index = 0;
 
-			Terminal.Log.Info( "Second" );
+			yield return new WaitUntil( () => _index == 5 );
+			Terminal.Log.Info( $"We're at {_index}" );
+
+			yield return new WaitUntil( () => _index == 10 );
+			Terminal.Log.Info( $"We're at {_index}" );
 		}
 	}
 }

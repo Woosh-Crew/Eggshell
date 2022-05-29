@@ -1,21 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Eggshell.Coroutines;
 
 namespace Eggshell
 {
-	public class Wait : IEnumerator
-	{
-		public object Current { get; }
-
-		public bool MoveNext()
-		{
-			return false;
-		}
-
-		public void Reset() { }
-	}
-
 	public class Coroutine : Module
 	{
 		// Coroutine API
@@ -28,12 +17,9 @@ namespace Eggshell
 			Get<Coroutine>().Running.Add( enumerator );
 		}
 
-		public static void Start( Func<IEnumerator> func )
+		public static void Remove( IEnumerator enumerator )
 		{
-			var enumerator = func.Invoke();
-			enumerator.MoveNext();
-
-			Get<Coroutine>().Running.Add( enumerator );
+			Get<Coroutine>().Running.Remove( enumerator );
 		}
 
 		// Internal Module
@@ -43,13 +29,11 @@ namespace Eggshell
 
 		public override void OnUpdate()
 		{
-			base.OnUpdate();
-
 			for ( var i = Running.Count; i > 0; i-- )
 			{
-				var remove = Running[i - 1].MoveNext();
+				var running = Running[i - 1];
 
-				if ( remove )
+				if ( (!(running.Current as IYield)?.Wait() ?? true) && !running.MoveNext() )
 				{
 					Running.RemoveAt( i - 1 );
 				}
