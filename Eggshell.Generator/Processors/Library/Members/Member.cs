@@ -24,13 +24,14 @@ namespace Eggshell.Generator
 
 			Group = OnGroup( symbol );
 			Title = OnTitle( symbol );
+			
 			Name = OnName( symbol );
 			Help = OnHelp( symbol );
 		}
 
 		protected virtual string OnName( ISymbol symbol )
 		{
-			return symbol.Name.ToProgrammerCase();
+			return $"{(!Group.IsEmpty() ? $"{Group}." : string.Empty)}{symbol.Name.ToProgrammerCase()}".ToLower();
 		}
 
 		protected virtual string OnTitle( ISymbol symbol )

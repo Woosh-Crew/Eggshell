@@ -270,7 +270,7 @@ private class {className} : Library
 			if ( attribute is { ConstructorArguments.Length: > 0 } )
 				return (string)attribute.ConstructorArguments[0].Value;
 
-			return $"{(Group.IsEmpty() ? $"{Group}." : string.Empty)}{base.OnName( symbol )}";
+			return base.OnName( symbol );
 		}
 
 		protected override string OnGroup( ISymbol symbol )
