@@ -74,10 +74,10 @@ namespace Eggshell
 		{
 			if ( type.IsAbstract || type.IsInterface )
 			{
-				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract );
+				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.HasInterface( type ) : e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
 			}
 
-			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract );
+			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.HasInterface( type ) : e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract );
 			return potential ?? type;
 		}
 
@@ -93,10 +93,10 @@ namespace Eggshell
 		{
 			if ( type.IsAbstract || type.IsInterface )
 			{
-				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+				return this.FirstOrDefault( e => (type.IsInterface ? e.Info.HasInterface( type ) : e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
 			}
 
-			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.IsSubclassOf( type ) : e.Info.HasInterface( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
+			var potential = this.FirstOrDefault( e => e.Info != type && (type.IsInterface ? e.Info.HasInterface( type ) : e.Info.IsSubclassOf( type )) && !e.Info.IsAbstract && search.Invoke( e ) );
 			return potential ?? type;
 		}
 
