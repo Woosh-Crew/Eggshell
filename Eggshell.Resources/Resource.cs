@@ -9,7 +9,7 @@ namespace Eggshell.Resources
 	/// A resource holds a reference and its state to an
 	/// asset. It uses a stream for loading the asset.
 	/// </summary>
-	public sealed class Resource : ILibrary
+	public sealed class Resource : IObject
 	{
 		public Library ClassInfo { get; }
 

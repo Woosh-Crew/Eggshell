@@ -14,7 +14,7 @@ namespace Eggshell
 		}
 
 		private Dictionary<string, List<Function>> _events = new();
-		private Dictionary<Library, List<ILibrary>> _registry = new();
+		private Dictionary<Library, List<IObject>> _registry = new();
 
 		public void Add( string name, Function function )
 		{
@@ -53,7 +53,7 @@ namespace Eggshell
 			}
 		}
 
-		public void Register( ILibrary item )
+		public void Register( IObject item )
 		{
 			var type = item.GetType();
 
@@ -68,7 +68,7 @@ namespace Eggshell
 			}
 		}
 
-		public void Unregister( ILibrary item )
+		public void Unregister( IObject item )
 		{
 			if ( _registry.TryGetValue( item.GetType(), out var all ) )
 			{

@@ -16,7 +16,7 @@ namespace Eggshell.Generator
 
 		public override bool IsProcessable( SyntaxTree tree )
 		{
-			var libraryInterface = Compilation.GetTypeByMetadataName( "Eggshell.ILibrary" );
+			var libraryInterface = Compilation.GetTypeByMetadataName( "Eggshell.IObject" );
 
 			Queued = tree.GetRoot()
 				.DescendantNodesAndSelf()
@@ -61,7 +61,7 @@ namespace Eggshell.Generator
 			Processed.Add( name );
 
 			// Item has base type, cache it first.
-			var hasBaseType = typeSymbol.BaseType != null && typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) );
+			var hasBaseType = typeSymbol.BaseType != null && typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) );
 
 			var baseTypeInAssembly = typeSymbol.BaseType?.ContainingAssembly.Equals( Context.Compilation.Assembly, SymbolEqualityComparer.Default ) ?? false;
 
@@ -74,7 +74,7 @@ namespace Eggshell.Generator
 				? $"Instance_{baseTypeName.Replace( '.', '_' )}"
 				: baseTypeInAssembly
 					? "null"
-					: typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) )
+					: typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) )
 						? $"typeof({baseTypeName})"
 						: "null	";
 

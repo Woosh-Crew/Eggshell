@@ -5,7 +5,7 @@ using System.Collections;
 namespace Eggshell.Tests
 {
 	[Archive( Fallback = "game://testing.txt" )]
-	public class Testing : ILibrary
+	public class Testing : IObject
 	{
 		public Library ClassInfo { get; }
 

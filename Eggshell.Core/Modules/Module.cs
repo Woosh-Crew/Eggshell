@@ -9,13 +9,13 @@ namespace Eggshell
 	[Singleton]
 	public abstract class Module : IModule
 	{
-		// Static API
-		// --------------------------------------------------------------------------------------- //
-		
-		public static IEnumerable<IModule> All => _all;
-
 		private static IModule _cached;
 		private static readonly List<IModule> _all = new();
+
+		// Static API
+		// --------------------------------------------------------------------------------------- //
+
+		public static IEnumerable<IModule> All => _all;
 
 		/// <summary>
 		/// Try's to get a module by its type and will return it if it could
@@ -73,6 +73,7 @@ namespace Eggshell
 		public Module()
 		{
 			ClassInfo = Library.Register( this );
+			Assert.IsNull( ClassInfo );
 		}
 
 		public virtual bool OnRegister() { return true; }

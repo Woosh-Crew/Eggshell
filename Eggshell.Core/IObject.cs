@@ -4,7 +4,7 @@ namespace Eggshell
 	/// Stores class information, used for networking, meta data, etc.
 	/// Which can be accessed in the Library.Database
 	/// </summary>
-	public interface ILibrary
+	public interface IObject
 	{
 		/// <summary>
 		/// ClassInfo holds this classes meta data, that is stored in the Library Cache.
@@ -15,7 +15,7 @@ namespace Eggshell
 
 		/// <summary>
 		/// Deletes this object from the library registry. Override this to call
-		/// additional logic when deleting an ILibrary object.
+		/// additional logic when deleting an IObject object.
 		/// </summary>
 		void Delete()
 		{

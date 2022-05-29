@@ -8,7 +8,7 @@ namespace Eggshell
 	/// application as well as responsible for controlling them. This is overrideable
 	/// so you can use this in existing applications / frameworks / engines incredibly easy.
 	/// </summary>
-	public class Bootstrap : ILibrary
+	public class Bootstrap : IObject
 	{
 		public Library ClassInfo { get; }
 

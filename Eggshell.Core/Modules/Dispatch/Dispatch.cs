@@ -55,22 +55,22 @@ namespace Eggshell
 		}
 
 		/// <summary>
-		/// Registers an instanced ILibrary to receive dispatch events.
+		/// Registers an instanced IObject to receive dispatch events.
 		/// (Make sure to unregister the object when finished, or else
 		/// it wont be collected by the GC)
 		/// </summary>
-		public static void Register<T>( T item ) where T : class, ILibrary
+		public static void Register<T>( T item ) where T : class, IObject
 		{
 			Assert.IsNull( item );
 			Provider.Register( item );
 		}
 
 		/// <summary>
-		/// Unregisters an instanced ILibrary from the dispatch system.
+		/// Unregisters an instanced IObject from the dispatch system.
 		/// (Make sure to call this after you're finished with a registered
 		/// object, or else the GC wont collect it)
 		/// </summary>
-		public static void Unregister<T>( T item ) where T : class, ILibrary
+		public static void Unregister<T>( T item ) where T : class, IObject
 		{
 			Assert.IsNull( item );
 			Provider.Unregister( item );

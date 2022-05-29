@@ -25,7 +25,7 @@ namespace Eggshell
 
 		internal static bool IsValid( Type type )
 		{
-			return type.HasInterface<ILibrary>() || type.IsDefined( typeof( LibraryAttribute ), true );
+			return type.HasInterface<IObject>() || type.IsDefined( typeof( LibraryAttribute ), true );
 		}
 
 		/// <summary>
@@ -33,7 +33,7 @@ namespace Eggshell
 		/// Which allows it to receive instance callbacks and
 		/// returns its library instance.
 		/// </summary>
-		public static Library Register( ILibrary value )
+		public static Library Register( IObject value )
 		{
 			Library lib = value.GetType();
 			Assert.IsNull( lib );
@@ -42,10 +42,10 @@ namespace Eggshell
 		}
 
 		/// <summary>
-		/// Cleans up ILibrary object, removes it from instance
+		/// Cleans up IObject object, removes it from instance
 		/// callback database so the garbage collector picks it up.
 		/// </summary>
-		public static void Unregister( ILibrary value )
+		public static void Unregister( IObject value )
 		{
 			value.ClassInfo.OnUnregister( value );
 		}

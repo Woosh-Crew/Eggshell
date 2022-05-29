@@ -9,7 +9,7 @@ namespace Eggshell.Reflection
 	/// own class generated for it. So it can be ultra optimised
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
-	public abstract class Property : ILibrary, IMember<PropertyInfo>
+	public abstract class Property : IObject, IMember<PropertyInfo>
 	{
 		/// <summary> 
 		/// The PropertyInfo that this property was generated for. 
@@ -31,7 +31,7 @@ namespace Eggshell.Reflection
 		public Library Parent { get; set; }
 
 		/// <summary>
-		/// Property's ILibrary implementation for Library. as ironic
+		/// Property's IObject implementation for Library. as ironic
 		/// as that sounds. Its used for getting meta about the Property
 		/// </summary>
 		public Library ClassInfo => typeof( Property );

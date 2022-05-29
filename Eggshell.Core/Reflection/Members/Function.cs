@@ -9,7 +9,7 @@ namespace Eggshell.Reflection
 	/// that can be inspected and changed.
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
-	public class Function : ILibrary, IMember<MethodInfo>
+	public class Function : IObject, IMember<MethodInfo>
 	{
 		/// <summary> 
 		/// The MethodInfo that this function was generated for. 
@@ -31,7 +31,7 @@ namespace Eggshell.Reflection
 		public Library Parent { get; set; }
 
 		/// <summary>
-		/// Function's ILibrary implementation for Library. as ironic
+		/// Function's IObject implementation for Library. as ironic
 		/// as that sounds. Its used for getting meta about the Property
 		/// </summary>
 		public Library ClassInfo => typeof( Property );
@@ -118,7 +118,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function
 		/// </summary>
-		public object Invoke( ILibrary target )
+		public object Invoke( IObject target )
 		{
 			return Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
@@ -126,7 +126,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function with a return type of T
 		/// </summary>
-		public T Invoke<T>( ILibrary target )
+		public T Invoke<T>( IObject target )
 		{
 			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( null ) );
 		}
@@ -134,7 +134,7 @@ namespace Eggshell.Reflection
 		/// <summary>
 		/// Invokes this function with an array of parameters
 		/// </summary>
-		public virtual object Invoke( ILibrary target, params object[] parameters )
+		public virtual object Invoke( IObject target, params object[] parameters )
 		{
 			return Info.Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}
@@ -143,7 +143,7 @@ namespace Eggshell.Reflection
 		/// Invokes this function with an array of parameters and returns the
 		/// type of T
 		/// </summary>
-		public T Invoke<T>( ILibrary target, params object[] parameters )
+		public T Invoke<T>( IObject target, params object[] parameters )
 		{
 			return (T)Invoke( IsStatic ? null : target, GetDefaultArgs( parameters ) );
 		}

@@ -13,7 +13,7 @@ namespace Eggshell
 	/// accessors to the database.
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
-	public class Libraries : ILibrary, IEnumerable<Library>
+	public class Libraries : IObject, IEnumerable<Library>
 	{
 		private readonly SortedList<int, Library> _storage = new();
 		public Library ClassInfo => typeof( Libraries );

@@ -8,7 +8,7 @@ namespace Eggshell.Dispatching
 	/// provider to the Dispatcher itself. This allows you to override
 	/// how the dispatcher works.
 	/// </summary>
-	public interface IDispatcher : IDisposable, ILibrary
+	public interface IDispatcher : IDisposable, IObject
 	{
 		/// <summary>
 		/// Add this function to the event stack using this string as
@@ -32,13 +32,13 @@ namespace Eggshell.Dispatching
 		/// Register this object to receive instance based dispatch
 		/// messages from the dispatcher.
 		/// </summary>
-		void Register( ILibrary item );
+		void Register( IObject item );
 		
 		/// <summary>
 		/// Unregister this object to no longer receive dispatch messages,
 		/// make sure to call this when destroying an object, or else GC
 		/// wont clean it up as it still has references
 		/// </summary>
-		void Unregister( ILibrary item );
+		void Unregister( IObject item );
 	}
 }

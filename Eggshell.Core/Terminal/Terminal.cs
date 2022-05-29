@@ -32,25 +32,30 @@ namespace Eggshell
 		public static bool Developer { get; }
 
 		/// <summary>
+		/// Should we report the stopwatch logs, or any other terminal
+		/// specific things.
+		/// </summary>
+		public static bool Report { get; set; } = true;
+
+		/// <summary>
 		/// Runs a stopwatch on a IDisposable Scope. Use this in a using() expression
 		/// to record how long it took to execute that code block.
 		/// </summary>
 		public static IDisposable Stopwatch( string message = null, bool alwaysReport = false )
 		{
-			return ReportStopwatch || alwaysReport ? new TimedScope( message ) : null;
+			return Report || alwaysReport ? new TimedScope( message ) : null;
 		}
 
 		static Terminal()
 		{
-			Developer = Environment.GetCommandLineArgs().Contains( "-dev" );
-			
+			var args = Environment.GetCommandLineArgs();
+			Developer = args.Contains( "-dev" ) || args.Contains( "-debug" ) || args.Contains( "-editor" );
+
 			Log = new Logger();
 			Command = new Commander();
 		}
 
 		// Debug
-
-		private static bool ReportStopwatch { get; set; } = true;
 
 		private class TimedScope : IDisposable
 		{

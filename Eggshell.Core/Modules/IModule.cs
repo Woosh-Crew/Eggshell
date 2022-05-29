@@ -5,7 +5,7 @@
 	/// on application startup (when you crack the egg). Modules allow incredibly
 	/// easy dependency injection, as well as easily creating scalable applications 
 	/// </summary>
-	public interface IModule : ILibrary
+	public interface IModule : IObject
 	{
 		/// <summary>
 		/// Tells the bootstrap if we should initialize this module

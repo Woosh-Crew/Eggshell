@@ -2,7 +2,7 @@
 
 namespace Eggshell.Resources
 {
-	public interface IAsset : ILibrary
+	public interface IAsset : IObject
 	{
 		Resource Resource { set; }
 		bool Setup( string extension );

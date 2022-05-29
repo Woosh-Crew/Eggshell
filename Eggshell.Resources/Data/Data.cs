@@ -63,7 +63,7 @@ namespace Eggshell.Resources
 		// Compiler
 
 		[Library( "data.compiler" )]
-		internal class Compiler : ICompiler<Data>, ILibrary
+		internal class Compiler : ICompiler<Data>, IObject
 		{
 			public Library ClassInfo => typeof( Compiler );
 

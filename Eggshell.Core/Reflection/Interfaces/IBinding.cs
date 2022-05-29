@@ -11,19 +11,19 @@
 		/// Should we register this object to the library registry? If
 		/// false, it'll destroy itself. If true we should be using this object 
 		/// </summary>
-		bool OnRegister( ILibrary value ) { return true; }
+		bool OnRegister( IObject value ) { return true; }
 
 		/// <summary>
 		/// Cleanup any resources when this object gets removed from
 		/// the registry (when it is deleted).
 		/// </summary>
-		void OnUnregister( ILibrary value ) { }
+		void OnUnregister( IObject value ) { }
 
 		/// <summary>
 		/// What should we do when this object is created through the library
 		/// system? Should we use a custom constructor? 
 		/// </summary>
 		/// <returns></returns>
-		ILibrary OnCreate() { return null; }
+		IObject OnCreate() { return null; }
 	}
 }

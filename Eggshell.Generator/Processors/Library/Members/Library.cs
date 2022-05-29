@@ -43,17 +43,17 @@ private class {className} : Library
 	}}
 
 	// Overrides
-	public override ILibrary Create()
+	public override IObject Create()
 	{{
 		{OnCreate()}
 	}}
 
-	protected override ILibrary Construct()
+	protected override IObject Construct()
 	{{
 		{OnConstructor()}
 	}}
 
-	protected override bool OnRegister( ILibrary value )
+	protected override bool OnRegister( IObject value )
 	{{
 		{OnRegister()}
 	}}
@@ -151,7 +151,7 @@ private class {className} : Library
 						yield return attribute;
 					}
 
-					if ( symbol.BaseType == null || !symbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "ILibrary" ) ) )
+					if ( symbol.BaseType == null || !symbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) ) )
 					{
 						break;
 					}

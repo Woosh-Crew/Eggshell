@@ -1,6 +1,6 @@
 ﻿namespace Eggshell.Entities
 {
-	public class Entity : ILibrary
+	public class Entity : IObject
 	{
 		public Library ClassInfo { get; }
 

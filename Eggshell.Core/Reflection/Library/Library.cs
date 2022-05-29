@@ -12,7 +12,7 @@ namespace Eggshell
 	/// shit because of this. Such as easily doing C# / C++ calls.
 	/// </summary>
 	[Serializable, Group( "Reflection" )]
-	public partial class Library : ILibrary, IMeta
+	public partial class Library : IObject, IMeta
 	{
 		/// <summary>
 		/// The type this library was generated for, caching
@@ -34,7 +34,7 @@ namespace Eggshell
 		public List<Library> Children { get; } = new();
 
 		/// <summary>
-		/// Library's ILibrary implementation for Library. as ironic
+		/// Library's IObject implementation for Library. as ironic
 		/// as that sounds. Its used for getting meta about Library
 		/// </summary>
 		public Library ClassInfo => typeof( Library );
@@ -96,11 +96,11 @@ namespace Eggshell
 		public Library( string name, Type type, Library parent = null ) : this( name, name.Hash(), type, parent ) { }
 
 		/// <summary>
-		/// Creates an ILibrary, this just does some sanity checking before
+		/// Creates an IObject, this just does some sanity checking before
 		/// calling the internal Construct() method, which can be overridden
 		/// or uses a constructor attribute.
 		/// </summary>
-		public virtual ILibrary Create()
+		public virtual IObject Create()
 		{
 			// This gets source generated, to be compile time efficient
 
@@ -122,23 +122,23 @@ namespace Eggshell
 		/// calling the internal Construct() method, which can be overridden
 		/// or uses a constructor attribute.
 		/// </summary>
-		public T Create<T>() where T : ILibrary
+		public T Create<T>() where T : IObject
 		{
 			return (T)Create();
 		}
 
 		/// <summary>
-		/// Constructs this ILibrary, can be overriden to provide custom logic.
+		/// Constructs this IObject, can be overriden to provide custom logic.
 		/// such as using a custom constructor, or setting off events when
 		/// this library has been constructed. Use wisely!
 		/// </summary>
-		protected virtual ILibrary Construct()
+		protected virtual IObject Construct()
 		{
 			// This gets source generated, to be compile time efficient
 
 			if ( !Info.IsAbstract )
 			{
-				return (ILibrary)Activator.CreateInstance( Info );
+				return (IObject)Activator.CreateInstance( Info );
 			}
 
 			Terminal.Log.Error( $"Can't construct {Name}, is abstract and doesn't have constructor predefined." );
@@ -150,7 +150,7 @@ namespace Eggshell
 		/// to this library. Incredibly useful for setting up instanced
 		/// based callbacks, as well as keeping track of instances.
 		/// </summary>
-		protected virtual bool OnRegister( ILibrary value )
+		protected virtual bool OnRegister( IObject value )
 		{
 			// This gets source generated, to be compile time efficient
 			
@@ -172,7 +172,7 @@ namespace Eggshell
 		/// to this library. Incredibly useful for setting up instanced
 		/// based callbacks, as well as keeping track of instances.
 		/// </summary>
-		protected virtual void OnUnregister( ILibrary value )
+		protected virtual void OnUnregister( IObject value )
 		{
 			// This gets source generated, to be compile time efficient
 			

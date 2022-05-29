@@ -6,7 +6,7 @@ namespace Eggshell
 	public partial class Singleton
 	{
 		public Library Owner { get; private set; }
-		public ILibrary Instance { get; private set; }
+		public IObject Instance { get; private set; }
 
 		// IComponent
 
@@ -17,12 +17,12 @@ namespace Eggshell
 
 		// IBinding
 
-		public ILibrary OnCreate()
+		public IObject OnCreate()
 		{
 			return Instance;
 		}
 
-		public bool OnRegister( ILibrary value )
+		public bool OnRegister( IObject value )
 		{
 			if ( Instance != null )
 			{
@@ -34,7 +34,7 @@ namespace Eggshell
 			return true;
 		}
 
-		public void OnUnregister( ILibrary value )
+		public void OnUnregister( IObject value )
 		{
 			if ( Instance == value )
 			{
