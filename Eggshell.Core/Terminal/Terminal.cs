@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Eggshell.Debugging.Commands;
 using Eggshell.Debugging.Logging;
+using Eggshell.Overlays;
 
 namespace Eggshell
 {
@@ -21,9 +22,16 @@ namespace Eggshell
 
 		/// <summary>
 		/// Add your own extension methods if need be, since this is an
-		/// instanced class. 
+		/// instanced class. Usually controlled by the bootstrap
 		/// </summary>
 		public static ILogger Log { get; set; }
+		
+		/// <summary>
+		/// Overlays are things rendered over everything that represent
+		/// debug information. This is usually null and depends on what the
+		/// bootstrap does to initialize it.
+		/// </summary>
+		public static IOverlays Overlays { get; set; }
 
 		/// <summary>
 		/// Returns true if the instance was launched in developer mode,

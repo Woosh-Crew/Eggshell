@@ -75,14 +75,5 @@ namespace Eggshell
 				all.Remove( item );
 			}
 		}
-
-		public void Dispose()
-		{
-			_registry?.Clear();
-			_registry = null;
-
-			_events?.Clear();
-			_events = null;
-		}
 	}
 }

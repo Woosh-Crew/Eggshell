@@ -8,7 +8,7 @@ namespace Eggshell.Dispatching
 	/// provider to the Dispatcher itself. This allows you to override
 	/// how the dispatcher works.
 	/// </summary>
-	public interface IDispatcher : IDisposable, IObject
+	public interface IDispatcher : IObject
 	{
 		/// <summary>
 		/// Add this function to the event stack using this string as

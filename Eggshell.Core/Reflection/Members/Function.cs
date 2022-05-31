@@ -61,7 +61,7 @@ namespace Eggshell.Reflection
 		public string Name { get; }
 
 		/// <summary>
-		/// The deterministic id created from <see cref="Property.Name"/>,
+		/// The deterministic id created from <see cref="Property{T}.Name"/>,
 		/// which is used in a Binary Tree / Sorted List to get functions
 		/// by name.
 		/// </summary>

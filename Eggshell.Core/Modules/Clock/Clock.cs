@@ -1,5 +1,6 @@
 ﻿namespace Eggshell
 {
+	[Injectable]
 	public class Clock : Module
 	{
 		public virtual float Now { get; set; }
