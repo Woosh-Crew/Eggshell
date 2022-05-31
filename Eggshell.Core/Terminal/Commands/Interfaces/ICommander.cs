@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Eggshell.Debugging.Commands
+namespace Eggshell.Debugging
 {
 	public interface ICommander
 	{

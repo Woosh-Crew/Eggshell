@@ -1,4 +1,4 @@
-﻿namespace Eggshell.Overlays
+﻿namespace Eggshell.Debugging
 {
 	public interface IOverlays { }
 }

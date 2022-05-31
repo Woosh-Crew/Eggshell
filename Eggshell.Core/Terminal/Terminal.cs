@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Eggshell.Debugging.Commands;
-using Eggshell.Debugging.Logging;
-using Eggshell.Overlays;
+using Eggshell.Debugging;
 
 namespace Eggshell
 {

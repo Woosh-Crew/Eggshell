@@ -1,6 +1,6 @@
 using System;
 
-namespace Eggshell.Debugging.Logging
+namespace Eggshell.Debugging
 {
 	public struct Entry
 	{
