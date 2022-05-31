@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace Eggshell.Generator
@@ -11,16 +12,33 @@ namespace Eggshell.Generator
 	{
 		public Property( ISymbol symbol ) : base( symbol )
 		{
-			Owner = Factory.OnType( symbol.ContainingType );
+			Owner = Factory.OnType( symbol.ContainingType, symbol.ContainingType.IsGenericType );
+
+			if ( symbol.ContainingType.IsGenericType )
+			{
+				var type = symbol.ContainingType;
+
+				// Build Generic
+				var builder = new StringBuilder( "<" );
+
+				for ( var i = 0; i < type.TypeArguments.Length; i++ )
+				{
+					var para = type.TypeArguments[i];
+					builder.Append( i == 0 ? $"{para}" : $",{para}" );
+				}
+
+				Owner += builder.Append( '>' ).ToString();
+			}
 		}
 
 		public override string Compile( out string className )
 		{
-			className = $"{Owner}.{Symbol.Name}".Replace( '.', '_' );
+			className = $"{Factory.OnType( Symbol.ContainingType, true )}.{Symbol.Name}".Replace( '.', '_' );
+			var generic = Factory.OnType( Symbol.Type );
 
 			return $@"
 [CompilerGenerated]
-private class {className} : Property
+private class {className} : Property<{generic}>
 {{
 	public {className}() : base( ""{Name}"", ""{Symbol.Name}"" )
 	{{
@@ -31,12 +49,12 @@ private class {className} : Property
 		Type = typeof( {Factory.OnType( Symbol.Type )} );
 	}}
 
-	protected override object Get( object from )
+	protected override {generic} Get( object from )
 	{{
 		{OnGetter()}
 	}}
 
-	protected override void Set( object value, object target )
+	protected override void Set( object target, {generic} value )
 	{{
 		{OnSetter()}
 	}}
@@ -72,7 +90,7 @@ private class {className} : Property
 				return $@"Terminal.Log.Warning( ""Can't set {Name}, {(Symbol.SetMethod == null ? "property doesnt have setter" : "property is private")}"" );";
 
 			var type = Factory.OnType( Symbol.Type );
-			return $@"{(Symbol.IsStatic ? $"{Owner}.{Symbol.Name} = ({type})value" : $"(({Owner})target).{Symbol.Name} = ({type})value")};";
+			return $@"{(Symbol.IsStatic ? $"{Owner}.{Symbol.Name} = value" : $"(({Owner})target).{Symbol.Name} = value")};";
 		}
 
 		// Static

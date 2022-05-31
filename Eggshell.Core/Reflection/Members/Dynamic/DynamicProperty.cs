@@ -2,21 +2,74 @@
 
 namespace Eggshell.Reflection
 {
-	public class DynamicProperty : Property
+	public delegate T Getter<out T>( object target );
+
+	public delegate void Setter<in T>( object target, T value );
+
+	[Skip]
+	public class DynamicProperty<T> : Property<T>
 	{
 		public DynamicProperty( string name ) : base( name, null ) { }
 
-		public Func<object, object> Getter { get; set; }
-		public Action<object, object> Setter { get; set; }
+		public Getter<T> Getter { get; set; }
+		public Setter<T> Setter { get; set; }
 
-		protected override object Get( object from )
+		protected override T Get( object from )
 		{
-			return Getter?.Invoke( from );
+			return Getter == null ? default : Getter.Invoke( from );
 		}
 
-		protected override void Set( object value, object target )
+		protected override void Set( object target, T value )
 		{
-			Setter.Invoke( value, target );
+			Setter?.Invoke( target, value );
+		}
+	}
+
+	[Skip]
+	public class NativeProperty<T> : Property<T>
+	{
+		public NativeProperty( string name ) : base( name, null ) { }
+
+		protected override T Get( object from )
+		{
+			throw new NotImplementedException();
+		}
+
+		protected override void Set( object from, T value )
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	[Skip]
+	public class StaticProperty<T> : Property<T>
+	{
+		public Action<T> OnChanged { get; set; }
+
+		public override T Value
+		{
+			get => _value;
+			set
+			{
+				_value = value;
+				OnChanged?.Invoke( value );
+			}
+		}
+
+		public StaticProperty( string name ) : base( name, null ) { }
+
+		// Property
+
+		private T _value;
+
+		protected override T Get( object from )
+		{
+			return Value;
+		}
+
+		protected override void Set( object from, T value )
+		{
+			Value = value;
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace Eggshell.Reflection
 		/// Function's IObject implementation for Library. as ironic
 		/// as that sounds. Its used for getting meta about the Property
 		/// </summary>
-		public Library ClassInfo => typeof( Property );
+		public Library ClassInfo => typeof( Function );
 
 		/// <summary>
 		/// It isn't recommended that you create a function manually, as

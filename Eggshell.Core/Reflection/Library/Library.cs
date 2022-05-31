@@ -50,13 +50,13 @@ namespace Eggshell
 		/// Properties are variables that the library owns. This is
 		/// usually mutable value types if the property has a setter
 		/// </summary>
-		public Members<Property> Properties { get; }
+		[Skip] public Members<IProperty> Properties { get; }
 
 		/// <summary>
 		/// Functions are tasks that the library does broken up into
 		/// groups so its easier to digest how a program works.
 		/// </summary>
-		public Members<Function> Functions { get; }
+		[Skip] public Members<Function> Functions { get; }
 
 		/// <summary>
 		/// It isn't recommended that you create the library manually, as
@@ -153,7 +153,7 @@ namespace Eggshell
 		protected virtual bool OnRegister( IObject value )
 		{
 			// This gets source generated, to be compile time efficient
-			
+
 			foreach ( var component in Components )
 			{
 				var potential = (component as IBinding)?.OnRegister( value ) ?? true;
@@ -175,7 +175,7 @@ namespace Eggshell
 		protected virtual void OnUnregister( IObject value )
 		{
 			// This gets source generated, to be compile time efficient
-			
+
 			foreach ( var component in Components )
 			{
 				(component as IBinding)?.OnUnregister( value );

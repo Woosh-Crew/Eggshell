@@ -58,7 +58,6 @@ namespace Eggshell
 
 			if ( !item.OnRegister() )
 			{
-				Terminal.Log.Warning( $"{item.ClassInfo.Title} couldn't be registered" );
 				return;
 			}
 

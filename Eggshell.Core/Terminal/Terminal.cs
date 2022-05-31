@@ -30,6 +30,13 @@ namespace Eggshell
 		/// meaning there was a launch arg of -dev.
 		/// </summary>
 		public static bool Developer { get; }
+		
+		/// <summary>
+		/// Returns true if the instance was launched in some sort of editor
+		/// that can be used to edit assets and compile them. Set by the bootstrap
+		/// (Such as launching Eggshell in the Unity Editor)
+		/// </summary>
+		public static bool Editor { get; set;  }
 
 		/// <summary>
 		/// Should we report the stopwatch logs, or any other terminal

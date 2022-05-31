@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Eggshell.Reflection
 {
-	public class Members<T> : IEnumerable<T> where T : class, IMember
+	[Skip]
+	public sealed class Members<T> : IEnumerable<T> where T : class, IMember
 	{
 		private readonly SortedList<int, T> _storage = new();
 		public Library Parent { get; }
@@ -33,6 +34,11 @@ namespace Eggshell.Reflection
 			{
 				Add( prop );
 			}
+		}
+		
+		public TMember Get<TMember>( string id ) where TMember : class, T
+		{
+			return (TMember)this[id];
 		}
 
 		// Enumerator

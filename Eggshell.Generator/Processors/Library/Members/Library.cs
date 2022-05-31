@@ -20,7 +20,7 @@ namespace Eggshell.Generator
 		public override string Compile( out string className )
 		{
 			// Class name doesn't matter
-			className = Class.Replace( '.', '_' );
+			className = Factory.OnType( Symbol, true ).Replace( '.', '_' );
 
 			return $@"
 [CompilerGenerated]

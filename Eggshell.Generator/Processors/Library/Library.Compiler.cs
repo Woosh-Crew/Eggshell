@@ -55,7 +55,7 @@ namespace Eggshell.Generator
 		{
 			var name = Factory.OnType( typeSymbol );
 
-			if ( Processed.Contains( name ) )
+			if ( Processed.Contains( name ) || typeSymbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Skip" ) ) )
 				return;
 
 			Processed.Add( name );
@@ -63,7 +63,8 @@ namespace Eggshell.Generator
 			// Item has base type, cache it first.
 			var hasBaseType = typeSymbol.BaseType != null && typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) );
 
-			var baseTypeInAssembly = typeSymbol.BaseType?.ContainingAssembly.Equals( Context.Compilation.Assembly, SymbolEqualityComparer.Default ) ?? false;
+			var baseTypeInAssembly = (typeSymbol.BaseType?.ContainingAssembly.Equals( Context.Compilation.Assembly, SymbolEqualityComparer.Default ) ?? false) &&
+			                         !typeSymbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Skip" ) );
 
 			if ( hasBaseType && baseTypeInAssembly )
 				Create( typeSymbol.BaseType );
@@ -71,10 +72,10 @@ namespace Eggshell.Generator
 			// Dont touch it, its so aids
 			var baseTypeName = Factory.OnType( typeSymbol.BaseType );
 			var baseTypeText = hasBaseType && baseTypeInAssembly
-				? $"Instance_{baseTypeName.Replace( '.', '_' )}"
+				? $"Instance_{Factory.OnType( typeSymbol.BaseType, true ).Replace( '.', '_' )}"
 				: baseTypeInAssembly
 					? "null"
-					: typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) )
+					: typeSymbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) ) && !typeSymbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Skip" ) )
 						? $"typeof({baseTypeName})"
 						: "null	";
 
