@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Eggshell.Debugging
+namespace Eggshell.Diagnostics
 {
 	public sealed class Logger : ILogger
 	{

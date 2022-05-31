@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Eggshell.Debugging
+namespace Eggshell.Diagnostics
 {
 	internal sealed class Commander : ICommander
 	{

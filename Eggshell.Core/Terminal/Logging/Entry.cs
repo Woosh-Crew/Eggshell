@@ -1,6 +1,6 @@
 using System;
 
-namespace Eggshell.Debugging
+namespace Eggshell.Diagnostics
 {
 	public struct Entry
 	{

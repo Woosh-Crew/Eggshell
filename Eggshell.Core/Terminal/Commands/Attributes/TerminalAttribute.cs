@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Eggshell.Debugging;
+using Eggshell.Diagnostics;
 using Eggshell.Reflection;
 
 namespace Eggshell

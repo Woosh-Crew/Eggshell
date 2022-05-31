@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using Eggshell.Reflection;
 
-namespace Eggshell.Debugging
+namespace Eggshell.Diagnostics
 {
 	public struct Command
 	{

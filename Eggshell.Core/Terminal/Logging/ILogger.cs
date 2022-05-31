@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Eggshell.Debugging;
+using Eggshell.Diagnostics;
 
-namespace Eggshell.Debugging
+namespace Eggshell.Diagnostics
 {
 	public interface ILogger
 	{
