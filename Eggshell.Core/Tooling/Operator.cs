@@ -53,7 +53,8 @@ namespace Eggshell
 		}
 
 		// Helpers
-
+		// --------------------------------------------------------------------------------------- //
+		
 		/// <summary>
 		/// Runs an operator based off its Library name, with a predefined
 		/// action which represents the callback.
@@ -102,7 +103,8 @@ namespace Eggshell
 			return Library.Database[name]?.Create<T>();
 		}
 
-		// Operator
+		// Operator Instance
+		// --------------------------------------------------------------------------------------- //
 
 		public Library ClassInfo => GetType();
 
