@@ -28,19 +28,73 @@ namespace Eggshell
 	[Library( "tools.operator" )]
 	public abstract class Operator : IObject
 	{
+		/// <summary>
+		/// Runs an operator based off its Library name. Not caring about
+		/// any callback that it could potentially have.
+		/// </summary>
 		public static void Run( string name )
 		{
-			Library.Database[name]?.Create<Operator>().Execute();
+			Find<Operator>( name ).Execute();
 		}
 
+		/// <summary>
+		/// Runs an operator based off its Library name, with a delegate
+		/// generic arg, representing the callback that is invoked.
+		/// </summary>
 		public static void Run<T>( string name, T callback ) where T : Delegate
 		{
-			Library.Database[name]?.Create<Operator<T>>().Execute( callback );
+			Find<Operator<T>>( name ).Execute( callback );
 		}
-		
-		public Library ClassInfo => GetType();
+
+		// Helpers
+
+		/// <summary>
+		/// Runs an operator based off its Library name, with a predefined
+		/// action which represents the callback.
+		/// </summary>
+		public static void Run( string name, Action callback )
+		{
+			Find<Operator<Action>>( name ).Execute( callback );
+		}
+
+		/// <summary>
+		/// Runs an operator based off its Library name, with a predefined
+		/// action with the generic args based off the ones fed through the
+		/// method, which represents the callback.
+		/// </summary>
+		public static void Run<T>( string name, Action<T> callback )
+		{
+			Find<Operator<Action<T>>>( name ).Execute( callback );
+		}
+
+		/// <summary>
+		/// Runs an operator based off its Library name, with a predefined
+		/// action with the generic args based off the ones fed through the
+		/// method, which represents the callback.
+		/// </summary>
+		public static void Run<T1, T2>( string name, Action<T1, T2> callback )
+		{
+			Find<Operator<Action<T1, T2>>>( name ).Execute( callback );
+		}
+
+		/// <summary>
+		/// Runs an operator based off its Library name, with a predefined
+		/// action with the generic args based off the ones fed through the
+		/// method, which represents the callback.
+		/// </summary>
+		public static void Run<T1, T2, T3>( string name, Action<T1, T2, T3> callback )
+		{
+			Find<Operator<Action<T1, T2, T3>>>( name ).Execute( callback );
+		}
+
+		public static T Find<T>( string name ) where T : Operator
+		{
+			return Library.Database[name]?.Create<T>();
+		}
 
 		// Operator
+
+		public Library ClassInfo => GetType();
 
 		public virtual bool Valid() { return true; }
 
