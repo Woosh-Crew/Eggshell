@@ -32,7 +32,7 @@ namespace Eggshell
 		/// </summary>
 		IRoutine[] Inject() { return null; }
 	}
-	
+
 	/// <summary>
 	/// Routines might sound similar to coroutine, but they are completely different.
 	/// Routines are a set of functions that fire based of a series of callbacks,
@@ -41,21 +41,29 @@ namespace Eggshell
 	/// </summary>
 	public sealed class Routines : Module
 	{
-			public Action Started { get; set; }
-		public Action Finished { get; set; }
-
-		// Debug
-
 		public Stopwatch Timing { get; private set; }
 
 		// Current
 
+		public Action Finished { get; set; }
 		public IRoutine Current { get; private set; }
 		public float Progress => Current.Progress;
 
 		// States
 
-		public void Start( params IRoutine[] request )
+		public static void Start( Action finished, params IRoutine[] request )
+		{
+			Get<Routines>().Finished = finished;
+			Start( request );
+		}
+
+		public static void Start( Action finished, params Func<IRoutine>[] request )
+		{
+			Get<Routines>().Finished = finished;
+			Start( request );
+		}
+
+		public static void Start( params IRoutine[] request )
 		{
 			var final = new Request[request.Length];
 
@@ -64,10 +72,10 @@ namespace Eggshell
 				final[i] = new( request[i] );
 			}
 
-			Start( final );
+			Get<Routines>().Start( final );
 		}
 
-		public void Start( params Func<IRoutine>[] request )
+		public static void Start( params Func<IRoutine>[] request )
 		{
 			var final = new Request[request.Length];
 
@@ -76,10 +84,10 @@ namespace Eggshell
 				final[i] = new( request[i] );
 			}
 
-			Start( final );
+			Get<Routines>().Start( final );
 		}
 
-		public void Start( params Request[] request )
+		private void Start( params Request[] request )
 		{
 			Assert.IsEmpty( request );
 			Assert.IsNotNull( Stack, "Already loading something" );
@@ -91,7 +99,6 @@ namespace Eggshell
 			Amount = Stack.Count;
 
 			Load();
-			Started?.Invoke();
 		}
 
 		private void Finish()
@@ -99,6 +106,7 @@ namespace Eggshell
 			Timing.Stop();
 			Finished?.Invoke();
 
+			Finished = null;
 			Stack = null;
 			Current = null;
 			Amount = 0;
@@ -190,7 +198,7 @@ namespace Eggshell
 			Load();
 		}
 
-		public class Request
+		private class Request
 		{
 			public bool Injected { get; internal set; }
 
