@@ -23,7 +23,7 @@ namespace Eggshell
 		/// get stripped if not in debug mode. 
 		/// </summary>
 		[Conditional( "DEBUG" ), Conditional( "EGGSHELL" ), Conditional( "LOGGING" )]
-		public static void Log<T>( this string message )
+		public static void Log( this string message )
 		{
 			Terminal.Log.Info( message );
 		}
