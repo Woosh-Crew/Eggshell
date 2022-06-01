@@ -41,28 +41,45 @@ namespace Eggshell
 	/// </summary>
 	public sealed class Routines : Module
 	{
-		public Stopwatch Timing { get; private set; }
+		// Static API
+		// --------------------------------------------------------------------------------------- //
 
-		// Current
+		/// <summary>
+		/// The progress of the current routine being processed. In the future this will be updated
+		/// to be the progress of the whole routine.
+		/// </summary>
+		public static float Progress => Get<Routines>().Current.Progress;
 
-		public Action Finished { get; set; }
-		public IRoutine Current { get; private set; }
-		public float Progress => Current.Progress;
+		/// <summary>
+		/// The help / loading text for the current routine that is being processed. Use this in
+		/// your UI if you are using routines for loading maps.
+		/// </summary>
+		public static string Text => Get<Routines>().Current.Text;
 
-		// States
-
+		/// <summary>
+		/// Starts a new routine based on an array of requests (params) with an optional callback
+		/// parameter for when the routine is finished. 
+		/// </summary>
 		public static void Start( Action finished, params IRoutine[] request )
 		{
 			Get<Routines>().Finished = finished;
 			Start( request );
 		}
 
+		/// <summary>
+		/// Starts a new routine based on an array of func requests (params) with an optional
+		/// callback parameter for when the routine is finished. 
+		/// </summary>
 		public static void Start( Action finished, params Func<IRoutine>[] request )
 		{
 			Get<Routines>().Finished = finished;
 			Start( request );
 		}
 
+		/// <summary>
+		/// Starts a new routine based on an array of requests. Nothing special other than
+		/// that. Its advised you use Func version where you can.
+		/// </summary>
 		public static void Start( params IRoutine[] request )
 		{
 			var final = new Request[request.Length];
@@ -75,6 +92,10 @@ namespace Eggshell
 			Get<Routines>().Start( final );
 		}
 
+		/// <summary>
+		/// Starts a new routine based on an array of func requests. Will invoke the func when
+		/// its time for it to inject.
+		/// </summary>
 		public static void Start( params Func<IRoutine>[] request )
 		{
 			var final = new Request[request.Length];
@@ -86,6 +107,17 @@ namespace Eggshell
 
 			Get<Routines>().Start( final );
 		}
+
+		/// <summary>
+		/// The time it took for the last routine that was running to completely finish. This
+		/// is mostly used as debugging information.
+		/// </summary>
+		public Stopwatch Timing { get; private set; }
+		
+		private Action Finished { get; set; }
+		private IRoutine Current { get; set; }
+
+		// States
 
 		private void Start( params Request[] request )
 		{
