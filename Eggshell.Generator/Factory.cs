@@ -19,7 +19,7 @@ namespace Eggshell.Generator
 			return string.Join( "", syntax ).Replace( "<summary>", "" ).Replace( "</summary>", "" ).Replace( "///", "" ).Replace( "//", "" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
 		}
 
-		public static string OnType( ITypeSymbol inputType, bool ignoreGeneric = false )
+		public static string OnType( ITypeSymbol inputType, bool ignoreGeneric = false, bool fillGenerics = true )
 		{
 			// Build Array
 			if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
@@ -53,6 +53,11 @@ namespace Eggshell.Generator
 
 			if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType || ignoreGeneric )
 				return typeName.Append( inputType.Name ).ToString();
+
+			if ( !fillGenerics )
+			{
+				return $"{typeName.Append( inputType.Name )}<>";
+			}
 
 			// Build Generic
 			var builder = new StringBuilder( "<" );

@@ -20,13 +20,13 @@ namespace Eggshell.Generator
 		public override string Compile( out string className )
 		{
 			// Class name doesn't matter
-			className = Factory.OnType( Symbol, true ).Replace( '.', '_' );
+			className = Factory.OnType( Symbol, false ).Replace( '.', '_' ).Replace( '<', '_' ).Replace( '>', '_' );
 
 			return $@"
 [CompilerGenerated]
 private class {className} : Library
 {{
-	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()}, typeof( {Class} ), parent )
+	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()}, typeof( {Factory.OnType( Symbol, fillGenerics : false )} ), parent )
 	{{
 		Title = ""{Title}"";
 		Group = ""{Group}"";
