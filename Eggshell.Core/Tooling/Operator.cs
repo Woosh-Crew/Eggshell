@@ -13,6 +13,12 @@ namespace Eggshell
 	{
 		public void Execute( T callback )
 		{
+			if ( !Valid() )
+			{
+				Terminal.Log.Warning( $"Couldn't Execute {ClassInfo.Title}, Operator wasn't valid" );
+				return;
+			}
+
 			OnExecute( callback );
 		}
 
@@ -87,6 +93,10 @@ namespace Eggshell
 			Find<Operator<Action<T1, T2, T3>>>( name ).Execute( callback );
 		}
 
+		/// <summary>
+		/// Finds an operator based off the inputted name, creates it and
+		/// returns the arg of T. So you can manually invoke it.
+		/// </summary>
 		public static T Find<T>( string name ) where T : Operator
 		{
 			return Library.Database[name]?.Create<T>();
@@ -100,6 +110,12 @@ namespace Eggshell
 
 		public void Execute()
 		{
+			if ( !Valid() )
+			{
+				Terminal.Log.Warning( $"Couldn't Execute {ClassInfo.Title}, Operator wasn't valid" );
+				return;
+			}
+
 			OnExecute();
 		}
 
