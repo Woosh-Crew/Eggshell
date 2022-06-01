@@ -19,6 +19,16 @@ namespace Eggshell
 	public static class LoggerExtensions
 	{
 		/// <summary>
+		/// Logs a generic string straight to the active eggshell terminal logger. Will automatically
+		/// get stripped if not in debug mode. 
+		/// </summary>
+		[Conditional( "DEBUG" ), Conditional( "EGGSHELL" ), Conditional( "LOGGING" )]
+		public static void Log<T>( this string message )
+		{
+			Terminal.Log.Info( message );
+		}
+
+		/// <summary>
 		/// Adds a custom entry to the log output, Useful for debug callbacks to the steamworks api
 		/// or any custom framework that has its own logger, and you need to add a custom label to it.
 		/// </summary>
