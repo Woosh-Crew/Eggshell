@@ -34,6 +34,12 @@ namespace Eggshell
 
 		public void Add( IComponent<T> item )
 		{
+			if ( item == null )
+			{
+				Terminal.Log.Warning( $"Trying to add a component that was null to {_owner}" );
+				return;
+			}
+
 			if ( !item.CanAttach( _owner ) )
 			{
 				return;
@@ -77,7 +83,7 @@ namespace Eggshell
 		public TComp Get<TComp>() where TComp : class
 		{
 			var index = 0;
-			while (index <= _storage.Count - 1)
+			while ( index <= _storage.Count - 1 )
 			{
 				var item = _storage[index];
 
@@ -95,7 +101,7 @@ namespace Eggshell
 		public IComponent<T> Get( Type type )
 		{
 			var index = 0;
-			while (index <= _storage.Count - 1)
+			while ( index <= _storage.Count - 1 )
 			{
 				var item = _storage[index];
 
@@ -163,7 +169,7 @@ namespace Eggshell
 		public bool Has( Type type )
 		{
 			var index = 0;
-			while (index <= _storage.Count - 1)
+			while ( index <= _storage.Count - 1 )
 			{
 				var item = _storage[index];
 
