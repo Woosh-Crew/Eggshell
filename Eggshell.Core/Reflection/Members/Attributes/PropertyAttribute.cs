@@ -2,6 +2,6 @@
 
 namespace Eggshell
 {
-	[AttributeUsage( AttributeTargets.Property | AttributeTargets.Field )]
-	public class PropertyAttribute : Attribute { }
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class PropertyAttribute : Attribute { }
 }

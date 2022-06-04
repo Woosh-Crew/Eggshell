@@ -2,18 +2,18 @@
 
 namespace Eggshell
 {
-	/// <summary>
-	/// Allows a member to have injected components into it. Basically
-	/// builds the source tree to allow custom logic to be injected
-	/// </summary>
-	[Binding( Type = typeof( Library ) )]
-	public partial class Order
-	{
-		[Skip] public int Value { get; }
+    /// <summary>
+    /// Allows a member to have injected components into it. Basically
+    /// builds the source tree to allow custom logic to be injected
+    /// </summary>
+    [Binding(Type = typeof(Library))]
+    public partial class Order
+    {
+        [Skip] public int Value { get; }
 
-		public Order( int order )
-		{
-			Value = order;
-		}
-	}
+        public Order(int order)
+        {
+            Value = order;
+        }
+    }
 }

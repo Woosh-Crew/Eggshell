@@ -5,15 +5,15 @@ using Eggshell.Reflection;
 
 namespace Eggshell
 {
-	/// <summary>
-	/// A Terminal is either a Var or Function that can be invoked through Eggshells
-	/// debugging library. This allows us to easily change the values or invoke functions
-	/// inside libraries, instanced or not.
-	/// </summary>
-	[AttributeUsage( AttributeTargets.Property | AttributeTargets.Method, Inherited = false )]
-	public sealed class TerminalAttribute : Attribute
-	{
-		/* 
+    /// <summary>
+    /// A Terminal is either a Var or Function that can be invoked through Eggshells
+    /// debugging library. This allows us to easily change the values or invoke functions
+    /// inside libraries, instanced or not.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, Inherited = false)]
+    public sealed class TerminalAttribute : Attribute
+    {
+        /* 
 		public void OnAttached( Function item )
 		{
 			if ( !item.Info.IsStatic )
@@ -67,5 +67,5 @@ namespace Eggshell
 			Terminal.Command.Push( command );
 		}
 		*/
-	}
+    }
 }

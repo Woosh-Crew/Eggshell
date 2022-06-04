@@ -5,97 +5,97 @@ using Eggshell.Diagnostics;
 
 namespace Eggshell
 {
-	/// <summary>
-	/// Eggshell's core Debugging Library. Has support for
-	/// logging, commands, overlays, and other utility features.
-	/// </summary>
-	[Library, Group( "Debug" )]
-	public static class Terminal
-	{
-		/// <summary>
-		/// Command Console. Use Run(string, object[]) to run a command.
-		/// Your game can have its own Console provider.
-		/// </summary>
-		public static ICommander Command { get; set; }
+    /// <summary>
+    /// Eggshell's core Debugging Library. Has support for
+    /// logging, commands, overlays, and other utility features.
+    /// </summary>
+    [Library, Group("Debug")]
+    public static class Terminal
+    {
+        /// <summary>
+        /// Command Console. Use Run(string, object[]) to run a command.
+        /// Your game can have its own Console provider.
+        /// </summary>
+        public static ICommander Command { get; set; }
 
-		/// <summary>
-		/// Add your own extension methods if need be, since this is an
-		/// instanced class. Usually controlled by the bootstrap
-		/// </summary>
-		public static ILogger Log { get; set; }
-		
-		/// <summary>
-		/// Overlays are things rendered over everything that represent
-		/// debug information. This is usually null and depends on what the
-		/// bootstrap does to initialize it.
-		/// </summary>
-		public static IOverlays Overlays { get; set; }
+        /// <summary>
+        /// Add your own extension methods if need be, since this is an
+        /// instanced class. Usually controlled by the bootstrap
+        /// </summary>
+        public static ILogger Log { get; set; }
 
-		/// <summary>
-		/// Returns true if the instance was launched in developer mode,
-		/// meaning there was a launch arg of -dev.
-		/// </summary>
-		public static bool Developer { get; }
-		
-		/// <summary>
-		/// Returns true if the instance was launched in some sort of editor
-		/// that can be used to edit assets and compile them. Set by the bootstrap
-		/// (Such as launching Eggshell in the Unity Editor)
-		/// </summary>
-		public static bool Editor { get; set;  }
+        /// <summary>
+        /// Overlays are things rendered over everything that represent
+        /// debug information. This is usually null and depends on what the
+        /// bootstrap does to initialize it.
+        /// </summary>
+        public static IOverlays Overlays { get; set; }
 
-		/// <summary>
-		/// Should we report the stopwatch logs, or any other terminal
-		/// specific things.
-		/// </summary>
-		public static bool Report { get; set; } = true;
+        /// <summary>
+        /// Returns true if the instance was launched in developer mode,
+        /// meaning there was a launch arg of -dev.
+        /// </summary>
+        public static bool Developer { get; }
 
-		/// <summary>
-		/// Runs a stopwatch on a IDisposable Scope. Use this in a using() expression
-		/// to record how long it took to execute that code block.
-		/// </summary>
-		public static IDisposable Stopwatch( string message = null, bool alwaysReport = false )
-		{
-			return Report || alwaysReport ? new TimedScope( message ) : null;
-		}
+        /// <summary>
+        /// Returns true if the instance was launched in some sort of editor
+        /// that can be used to edit assets and compile them. Set by the bootstrap
+        /// (Such as launching Eggshell in the Unity Editor)
+        /// </summary>
+        public static bool Editor { get; set; }
 
-		static Terminal()
-		{
-			var args = Environment.GetCommandLineArgs();
-			Developer = args.Contains( "-dev" ) || args.Contains( "-debug" ) || args.Contains( "-editor" );
+        /// <summary>
+        /// Should we report the stopwatch logs, or any other terminal
+        /// specific things.
+        /// </summary>
+        public static bool Report { get; set; } = true;
 
-			Log = new Logger();
-			Command = new Commander();
-		}
+        /// <summary>
+        /// Runs a stopwatch on a IDisposable Scope. Use this in a using() expression
+        /// to record how long it took to execute that code block.
+        /// </summary>
+        public static IDisposable Stopwatch(string message = null, bool alwaysReport = false)
+        {
+            return Report || alwaysReport ? new TimedScope(message) : null;
+        }
 
-		// Debug
+        static Terminal()
+        {
+            var args = Environment.GetCommandLineArgs();
+            Developer = args.Contains("-dev") || args.Contains("-debug") || args.Contains("-editor");
 
-		private class TimedScope : IDisposable
-		{
-			private readonly Stopwatch _stopwatch;
-			private readonly string _message;
+            Log = new Logger();
+            Command = new Commander();
+        }
 
-			public TimedScope( string message )
-			{
-				_message = message;
+        // Debug
 
-				_stopwatch = System.Diagnostics.Stopwatch.StartNew();
-			}
+        private class TimedScope : IDisposable
+        {
+            private readonly Stopwatch _stopwatch;
+            private readonly string _message;
 
-			public void Dispose()
-			{
-				_stopwatch.Stop();
+            public TimedScope(string message)
+            {
+                _message = message;
 
-				var time = _stopwatch.Elapsed.Seconds > 0 ? $"{_stopwatch.Elapsed.TotalSeconds} seconds" : $"{_stopwatch.Elapsed.TotalMilliseconds} ms";
+                _stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            }
 
-				if ( string.IsNullOrEmpty( _message ) )
-				{
-					Log.Info( time );
-					return;
-				}
+            public void Dispose()
+            {
+                _stopwatch.Stop();
 
-				Log.Info( $"{_message} | {time}" );
-			}
-		}
-	}
+                var time = _stopwatch.Elapsed.Seconds > 0 ? $"{_stopwatch.Elapsed.TotalSeconds} seconds" : $"{_stopwatch.Elapsed.TotalMilliseconds} ms";
+
+                if (string.IsNullOrEmpty(_message))
+                {
+                    Log.Info(time);
+                    return;
+                }
+
+                Log.Info($"{_message} | {time}");
+            }
+        }
+    }
 }

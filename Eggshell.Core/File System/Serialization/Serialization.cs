@@ -1,8 +1,8 @@
 ﻿namespace Eggshell.IO
 {
-	public enum Serialization
-	{
-		Binary,
-		Json
-	}
+    public enum Serialization
+    {
+        Binary,
+        Json
+    }
 }

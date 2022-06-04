@@ -1,12 +1,12 @@
 ﻿namespace Eggshell
 {
-	public interface IComponent<in T> : IComponent where T : class
-	{
-		bool CanAttach( T item ) { return true; }
+    public interface IComponent<in T> : IComponent where T : class
+    {
+        bool CanAttach(T item) { return true; }
 
-		void OnAttached( T item );
-		void OnDetached() { }
-	}
+        void OnAttached(T item);
+        void OnDetached() { }
+    }
 
-	public interface IComponent { }
+    public interface IComponent { }
 }

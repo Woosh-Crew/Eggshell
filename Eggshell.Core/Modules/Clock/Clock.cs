@@ -1,10 +1,10 @@
 ﻿namespace Eggshell
 {
-	[Injectable]
-	public class Clock : Module
-	{
-		public virtual float Now { get; set; }
-		public virtual float Scale { get; set; }
-		public virtual float Delta { get; set; }
-	}
+    [Injectable]
+    public class Clock : Module
+    {
+        public virtual float Now { get; set; }
+        public virtual float Scale { get; set; }
+        public virtual float Delta { get; set; }
+    }
 }

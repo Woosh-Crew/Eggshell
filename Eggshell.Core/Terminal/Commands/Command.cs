@@ -4,66 +4,66 @@ using Eggshell.Reflection;
 
 namespace Eggshell.Diagnostics
 {
-	public struct Command
-	{
-		private Action<object[]> _action;
+    public struct Command
+    {
+        private Action<object[]> _action;
 
-		public IMember Member { get; internal set; }
-		public MemberInfo Info { get; internal set; }
+        public IMember Member { get; internal set; }
+        public MemberInfo Info { get; internal set; }
 
-		public Type[] Parameters { get; internal set; }
+        public Type[] Parameters { get; internal set; }
 
-		public Command WithAction( Action<object[]> action )
-		{
-			_action = action;
-			return this;
-		}
+        public Command WithAction(Action<object[]> action)
+        {
+            _action = action;
+            return this;
+        }
 
-		public void Invoke( object[] args )
-		{
-			_action?.Invoke( args );
-		}
+        public void Invoke(object[] args)
+        {
+            _action?.Invoke(args);
+        }
 
-		// 
-		// Interpreter
-		//
+        // 
+        // Interpreter
+        //
 
-		internal static object[] ConvertArgs( MemberInfo info, string[] args )
-		{
-			// Set all args to lowercase
-			for ( var i = 0; i < args.Length; i++ )
-			{
-				args[i] = args[i].ToLower();
-			}
+        internal static object[] ConvertArgs(MemberInfo info, string[] args)
+        {
+            // Set all args to lowercase
+            for (var i = 0; i < args.Length; i++)
+            {
+                args[i] = args[i].ToLower();
+            }
 
-			// If were a property - Only convert first arg
-			if ( info is PropertyInfo property )
-			{
-				return null;
-				// return args.Length > 0 ? new[] { Converter<,>.Convert( args[0], property.PropertyType ) } : null;
-			}
+            // If were a property - Only convert first arg
+            if (info is PropertyInfo property)
+            {
+                return null;
+                // return args.Length > 0 ? new[] { Converter<,>.Convert( args[0], property.PropertyType ) } : null;
+            }
 
-			// Now if were a method, convert all args
-			if ( info is MethodInfo method )
-			{
-				var parameters = method.GetParameters();
+            // Now if were a method, convert all args
+            if (info is MethodInfo method)
+            {
+                var parameters = method.GetParameters();
 
-				if ( parameters.Length == 0 )
-				{
-					return null;
-				}
+                if (parameters.Length == 0)
+                {
+                    return null;
+                }
 
-				var finalArgs = new object[parameters.Length];
+                var finalArgs = new object[parameters.Length];
 
-				for ( var i = 0; i < parameters.Length; i++ )
-				{
-					// finalArgs[i] = i >= args.Length ? parameters[i].DefaultValue : Converter<,>.Convert( args[i], parameters[i].ParameterType );
-				}
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    // finalArgs[i] = i >= args.Length ? parameters[i].DefaultValue : Converter<,>.Convert( args[i], parameters[i].ParameterType );
+                }
 
-				return finalArgs;
-			}
+                return finalArgs;
+            }
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 }
