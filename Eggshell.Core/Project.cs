@@ -11,7 +11,8 @@ namespace Eggshell
     public abstract class Project : Module
     {
         /// <summary>
-        /// Has Eggshell already been booted up and initialized?
+        /// Has Eggshell already been booted up and initialized? From
+        /// a preexisting bootstrap?
         /// </summary>
         protected static bool Booted { get; private set; }
 
@@ -29,7 +30,7 @@ namespace Eggshell
         /// </summary>
         protected static void Crack()
         {
-            Crack(Library.Create<Bootstrap>(Library.Database.Find<Bootstrap>()));
+            Crack(Library.Database.Find<Bootstrap>().Create());
         }
 
         /// <summary>

@@ -22,7 +22,8 @@ namespace Eggshell
         // --------------------------------------------------------------------------------------- //
 
         /// <summary>
-        /// Finds a library by its deterministic Id
+        /// Finds a library by its deterministic Id, which is generated
+        /// at compile time, from the classroom
         /// </summary>
         public Library this[int hash]
         {
@@ -41,7 +42,8 @@ namespace Eggshell
         }
 
         /// <summary>
-        /// Finds a library by its name
+        /// Finds a library by its name, which that string gets converted
+        /// converted to its determinsitic int id (hashed string)
         /// </summary>
         public Library this[string key]
         {
@@ -60,7 +62,8 @@ namespace Eggshell
         }
 
         /// <summary>
-        /// Finds a library by its type
+        /// Finds a library by its type, where it just does a linq operation to
+        /// find the first type that equals the one in the library
         /// </summary>
         public Library this[Type key] => _storage.Values.FirstOrDefault(e => e.Info == key);
 
@@ -100,10 +103,10 @@ namespace Eggshell
             return potential ?? type;
         }
 
-        /// <inheritdoc cref="Find{T}()"/>
-        public Library Find<T>() where T : class
+        /// <inheritdoc cref="Find(Type)"/>
+        public Library<T> Find<T>() where T : class, IObject
         {
-            return Find(typeof(T));
+            return (Library<T>)Find(typeof(T));
         }
 
         /// <inheritdoc cref="Find(Type, Func{Library, bool})"/>
