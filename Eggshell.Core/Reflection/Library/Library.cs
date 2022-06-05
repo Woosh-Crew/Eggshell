@@ -4,6 +4,11 @@ using Eggshell.Reflection;
 
 namespace Eggshell
 {
+    /// <summary>
+    /// This is the library class, that Eggshell source generators use to generate
+    /// the reflection data. That way it can be bound to a type without causing any
+    /// problems...
+    /// </summary>
     public abstract class Library<T> : Library where T : class, IObject
     {
         public Library(string name, int id, Type type, Library parent = null) : base(name, id, type, parent) { }

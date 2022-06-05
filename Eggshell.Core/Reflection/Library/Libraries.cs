@@ -35,7 +35,7 @@ namespace Eggshell
                 }
                 catch (KeyNotFoundException)
                 {
-                    Terminal.Log.Error($"Classname ID [{hash}], was not found in Library Database");
+                    Terminal.Log.Error($"ClassInfo ID [{hash}], was not found in Library Database");
                     return null;
                 }
             }
@@ -43,7 +43,7 @@ namespace Eggshell
 
         /// <summary>
         /// Finds a library by its name, which that string gets converted
-        /// converted to its determinsitic int id (hashed string)
+        /// converted to its deterministic int id (hashed string)
         /// </summary>
         public Library this[string key]
         {
@@ -55,7 +55,7 @@ namespace Eggshell
                 }
                 catch (KeyNotFoundException)
                 {
-                    Terminal.Log.Error($"Classname {key}, was not found in Library Database");
+                    Terminal.Log.Error($"ClassInfo {key}, was not found in Library Database");
                     return null;
                 }
             }
@@ -110,9 +110,9 @@ namespace Eggshell
         }
 
         /// <inheritdoc cref="Find(Type, Func{Library, bool})"/>
-        public Library Find<T>(Func<Library, bool> search) where T : class
+        public Library<T> Find<T>(Func<Library, bool> search) where T : class, IObject
         {
-            return Find(typeof(T), search);
+            return (Library<T>)Find(typeof(T), search);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Eggshell
         /// the type T, or will get types that implement the inputted
         /// interface. 
         /// </summary>
-        public IEnumerable<Library> All<T>() where T : class
+        public IEnumerable<Library> All<T>() where T : class, IObject
         {
             var type = typeof(T);
             return type.IsInterface ? this.Where(e => e.Info.HasInterface<T>()) : this.Where(e => e.Info.IsSubclassOf(type));
