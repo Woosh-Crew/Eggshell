@@ -5,51 +5,6 @@ using Eggshell.Reflection;
 namespace Eggshell
 {
     /// <summary>
-    /// This is the library class, that Eggshell source generators use to generate
-    /// the reflection data. That way it can be bound to a type without causing any
-    /// problems...
-    /// </summary>
-    public abstract class Library<T> : Library where T : class, IObject
-    {
-        public Library(string name, int id, Type type, Library parent = null) : base(name, id, type, parent) { }
-
-        // Register
-
-        protected virtual bool OnRegister(T value)
-        {
-            return true;
-        }
-
-        protected sealed override bool OnRegister(IObject value)
-        {
-            return OnRegister((T)value);
-        }
-
-        // Unregister
-
-        protected virtual void OnUnregister(T value)
-        {
-        }
-
-        protected override void OnUnregister(IObject value)
-        {
-            OnUnregister((T)value);
-        }
-
-        // Creation
-
-        public virtual new T Create()
-        {
-            return (T)base.Create();
-        }
-
-        public virtual new T Construct()
-        {
-            return (T)base.Construct();
-        }
-    }
-
-    /// <summary>
     /// Libraries are used for storing meta data on a type, this includes
     /// Title, Name, Group, Icons, etc. You can also add your own data
     /// using components. We can do a lotta cool and performant

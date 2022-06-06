@@ -30,7 +30,7 @@ namespace Eggshell
         /// </summary>
         protected static void Crack()
         {
-            Crack(Library.Database.Find<Bootstrap>().Create());
+            Crack(Library.Database.Find<Bootstrap>().Create<Bootstrap>());
         }
 
         /// <summary>

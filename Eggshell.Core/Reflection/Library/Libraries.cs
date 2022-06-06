@@ -104,15 +104,15 @@ namespace Eggshell
         }
 
         /// <inheritdoc cref="Find(Type)"/>
-        public Library<T> Find<T>() where T : class, IObject
+        public Library Find<T>() where T : class, IObject
         {
-            return (Library<T>)Find(typeof(T));
+            return Find(typeof(T));
         }
 
         /// <inheritdoc cref="Find(Type, Func{Library, bool})"/>
-        public Library<T> Find<T>(Func<Library, bool> search) where T : class, IObject
+        public Library Find<T>(Func<Library, bool> search) where T : class, IObject
         {
-            return (Library<T>)Find(typeof(T), search);
+            return Find(typeof(T), search);
         }
 
         /// <summary>
