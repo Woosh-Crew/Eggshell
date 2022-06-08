@@ -118,7 +118,7 @@ namespace Eggshell
         /// <summary>
         /// Gets all Libraries with the given components
         /// </summary>
-        public IEnumerable<Library> With<T>() where T : IComponent<Library>
+        public IEnumerable<Library> With<T>() where T : class, IComponent<Library>
         {
             return this.Where(e => e.Components.Has<T>());
         }

@@ -2,9 +2,9 @@
 
 namespace Eggshell.Resources
 {
-	public class Origin : IComponent<Resource>
-	{
-		public Pathing Path { get; set; }
-		public void OnAttached( Resource item ) { }
-	}
+    public class Origin : IComponent<Resource>
+    {
+        public Resource Attached { get; set; }
+        public Pathing Path { get; set; }
+    }
 }

@@ -1,28 +1,44 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Eggshell
 {
+    /// <summary>
+    /// A Simple components database container, that easily allows any class to have a set of 
+    /// components, that can easily be accessed at anytime. Great for dependency injection
+    /// </summary>
     public class Components<T> : IEnumerable<IComponent<T>> where T : class
     {
+        public T Owner { get; }
+
+        /// <summary>
+        /// Creates an new components database. This should be done in your classes
+        /// constructor, so there always is a database.
+        /// </summary>
         public Components(T item)
         {
-            _owner = item;
+            Owner = item;
         }
 
-        // Database
+        /// <summary>
+        /// Clears all the components from the registry when it is deconstructed, to
+        /// make sure no logic gets fucked up (Might not? not sure, just in-case)
+        /// </summary>
+        ~Components()
+        {
+            Clear();
+        }
 
-        private readonly T _owner;
-        private readonly List<IComponent<T>> _storage = new();
+        private List<IComponent<T>> _storage;
+        protected List<IComponent<T>> Storage => _storage ??= new();
 
         // Enumerator
+        // --------------------------------------------------------------------------------------- //
 
         public IEnumerator<IComponent<T>> GetEnumerator()
         {
-            // This shouldn't box. _store.GetEnumerator Does. but Enumerable.Empty shouldn't.
-            return _storage.GetEnumerator();
+            return _storage == null ? (IEnumerator<IComponent<T>>)Array.Empty<IComponent<T>>().GetEnumerator() : Storage.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -31,64 +47,112 @@ namespace Eggshell
         }
 
         // Controllers
+        // --------------------------------------------------------------------------------------- //
 
-        public void Add(IComponent<T> item)
+        /// <summary>
+        /// Adds a component to the components registry, checks if its a singleton
+        /// component, if was replaces old with new.
+        /// </summary>
+        public TComp Add<TComp>(TComp item) where TComp : class, IComponent<T>
         {
             if (item == null)
             {
-                Terminal.Log.Warning($"Trying to add a component that was null to {_owner}");
-                return;
+                Terminal.Log.Warning($"Trying to add a component that was null to {Owner}");
+                return null;
             }
 
-            if (!item.CanAttach(_owner))
+            if (item.Attached != null)
             {
-                return;
+                Terminal.Log.Error($"Component is already attached to something {Owner}");
+                return null;
+            }
+
+            if (!item.Attachable(Owner))
+            {
+                return null;
             }
 
             // Replace if its a Singleton
             if (item is IObject lib && lib.ClassInfo.Components.Has<Singleton>() && TryGet(item.GetType(), out var comp))
             {
                 Terminal.Log.Warning($"Replacing Component [{lib.ClassInfo.Name}]. Was Singleton");
-                Replace(comp, item);
-                return;
+                return Replace(comp, item);
             }
 
-            _storage.Add(item);
-            item.OnAttached(_owner);
+            item.Attached = Owner;
+
+            Storage.Add(item);
+            item.OnAttached();
+
+            return item;
         }
 
+        /// <summary>
+        /// Checks if the components database already contains that component.
+        /// returns true if it is in it.
+        /// </summary>
         public bool Contains(IComponent<T> item)
         {
-            return _storage.Contains(item);
+            return Storage.Contains(item);
         }
 
+        /// <summary>
+        /// Detaches and removes a component from the components database. 
+        /// </summary>
         public void Remove(IComponent<T> item)
         {
-            item.OnDetached();
-            _storage.Remove(item);
+            Detach(item);
+            Storage.Remove(item);
         }
 
+        /// <summary>
+        /// Detaches and removes all components from the components database.
+        /// Make sure to call this on deconstruction!
+        /// </summary>
         public void Clear()
         {
-            foreach (var comp in _storage)
+            foreach ( var comp in Storage )
             {
-                comp.OnDetached();
+                Detach(comp);
             }
 
-            _storage.Clear();
+            Storage.Clear();
         }
 
-        // Utility
+        /// <summary>
+        /// Detaches a component from the registry / database. Used internally
+        /// so users cant fuck up they shit.
+        /// </summary>
+        private static void Detach(IComponent<T> item)
+        {
+            item.OnDetached();
+            item.Attached = null;
+        }
 
+        // Accessors API
+        // --------------------------------------------------------------------------------------- //
+
+        private IComponent<T> _cached;
+
+        /// <summary>
+        /// Gets a component from the database based off the inputted type of T.
+        /// Caches the result so you can do prototype shit, without the performance
+        /// cost.
+        /// </summary>
         public TComp Get<TComp>() where TComp : class
         {
-            var index = 0;
-            while (index <= _storage.Count - 1)
+            if (_cached is TComp cache)
             {
-                var item = _storage[index];
+                return cache;
+            }
 
+            var index = 0;
+            while (index <= Storage.Count - 1)
+            {
+                var item = Storage[index];
                 if (item is TComp comp)
                 {
+                    _cached = item;
                     return comp;
                 }
 
@@ -98,12 +162,16 @@ namespace Eggshell
             return null;
         }
 
+        /// <summary>
+        /// Gets a component from the database based off the inputted type. Only checks
+        /// if the types match, Not if its a subtype of the type
+        /// </summary>
         public IComponent<T> Get(Type type)
         {
             var index = 0;
-            while (index <= _storage.Count - 1)
+            while (index <= Storage.Count - 1)
             {
-                var item = _storage[index];
+                var item = Storage[index];
 
                 if (item.GetType() == type)
                 {
@@ -116,72 +184,73 @@ namespace Eggshell
             return null;
         }
 
-        // Create
-
+        /// <summary>
+        /// Creates and adds a component to the components registry. Great for quickly
+        /// adding components that have a parameterless constructor
+        /// </summary>
         public TComp Create<TComp>() where TComp : class, IComponent<T>, new()
         {
-            var newComp = new TComp();
-            Add(newComp);
-            return newComp;
+            return Add(new TComp());
         }
 
-        // Replace
-
-        public void Replace(IComponent<T> old, IComponent<T> newComp)
+        /// <summary>
+        /// Replaces a component with a new component, by removing the old form the database
+        /// and then adding the new one.
+        /// </summary>
+        public TComp Replace<TComp>(IComponent<T> old, TComp newComp) where TComp : class, IComponent<T>
         {
             if (old == null || newComp == null)
             {
-                Terminal.Log.Error($"Components aren't valid");
-                return;
+                Terminal.Log.Error("Components aren't valid");
+                return null;
             }
 
             if (!Contains(old))
             {
                 Terminal.Log.Error($"Components doesnt contain {old}");
-                return;
+                return null;
             }
 
             Remove(old);
-            Add(newComp);
+            return Add(newComp);
         }
 
-        // Try Get
-
+        /// <summary>
+        /// Trys to get the component of type T, and returns true if it could be found. Spews
+        /// the out parameter with the found component, or else it is null
+        /// </summary>
         public bool TryGet<TComp>(out TComp output) where TComp : class
         {
             output = Get<TComp>();
             return output != null;
         }
 
+        /// <summary>
+        /// Trys to get the component of type that is inputed, and returns true if it could
+        /// be found. Spews the out parameter with the found component, or else it is null
+        /// </summary>
         public bool TryGet(Type type, out IComponent<T> output)
         {
             output = Get(type);
             return output != null;
         }
 
-        // Has
-
-        public bool Has<TComp>()
+        /// <summary>
+        /// Checks to see if the database contains the inputted type of T. (Behind the scenes
+        /// it gets the components, and returns if it was null or not)
+        /// </summary>
+        public bool Has<TComp>() where TComp : class, IComponent<T>
         {
-            return Has(typeof(TComp));
+            return Get<TComp>() != null;
         }
-
+        
+        /// <summary>
+        /// Checks to see if the database contains the inputted type. (Behind the scenes
+        /// it gets the components, and returns if it was null or not)
+        /// </summary>
         public bool Has(Type type)
         {
-            var index = 0;
-            while (index <= _storage.Count - 1)
-            {
-                var item = _storage[index];
-
-                if (item.GetType() == type || item.GetType().IsSubclassOf(type))
-                {
-                    return true;
-                }
-
-                index++;
-            }
-
-            return false;
+            return Get(type) != null;
         }
     }
 }

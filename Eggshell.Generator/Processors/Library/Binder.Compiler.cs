@@ -60,9 +60,9 @@ namespace Eggshell.Generator
 
 		private string OnBody( INamedTypeSymbol symbol )
 		{
-			if ( symbol.GetMembers( "OnAttached" ).IsEmpty )
+			if ( symbol.GetMembers( "Attached" ).IsEmpty )
 			{
-				return $@"public void OnAttached( Library item ) {{ }}";
+				return $@"public Library Attached {{ get; set; }}";
 			}
 
 			return string.Empty;
@@ -120,11 +120,11 @@ namespace {typeSymbol.ContainingNamespace}
 	[AttributeUsage( AttributeTargets.Class ), Binding]
 	public class {typeSymbol.Name}Attribute : Attribute, IBinding
 	{{
+		public Library Attached {{ get; set; }}
+
 		{OnConstructor( typeSymbol )}
 
 		{OnProperties( typeSymbol )}
-
-		public void OnAttached( Library item ) {{ }}
 	}}
 
 	partial class {typeSymbol.Name} : IBinding

@@ -15,7 +15,9 @@ namespace Eggshell
             Path = path;
         }
 
-        public void OnAttached(Library item)
+        public Library Attached { get; set; }
+
+        public void OnAttached()
         {
             Pathing.Add(ShortHand, Path);
         }
