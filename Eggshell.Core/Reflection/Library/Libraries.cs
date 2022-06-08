@@ -116,9 +116,18 @@ namespace Eggshell
         }
 
         /// <summary>
+        /// Gets all Components of T from every library
+        /// </summary>
+        public IEnumerable<T> With<T>() where T : class, IComponent<Library>
+        {
+            return this.Select(e => e.Components.Get<T>());
+        }
+
+
+        /// <summary>
         /// Gets all Libraries with the given components
         /// </summary>
-        public IEnumerable<Library> With<T>() where T : class, IComponent<Library>
+        public IEnumerable<Library> Has<T>() where T : class, IComponent<Library>
         {
             return this.Where(e => e.Components.Has<T>());
         }
@@ -172,7 +181,7 @@ namespace Eggshell
                 return;
             }
 
-            foreach (var type in assembly.GetTypes())
+            foreach ( var type in assembly.GetTypes() )
             {
                 if (Library.IsValid(type))
                 {
@@ -186,7 +195,7 @@ namespace Eggshell
             var main = typeof(Library).Assembly;
             Add(main);
 
-            foreach (var assembly in domain.GetAssemblies())
+            foreach ( var assembly in domain.GetAssemblies() )
             {
                 if (assembly != main)
                 {

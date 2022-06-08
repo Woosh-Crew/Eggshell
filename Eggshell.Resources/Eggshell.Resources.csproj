@@ -12,7 +12,8 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <OutputPath>..\Builds\Release\</OutputPath>
-      <DocumentationFile></DocumentationFile>
+      <DocumentationFile>..\Builds\Release\Eggshell.Resources.xml</DocumentationFile>
+      <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

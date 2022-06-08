@@ -75,10 +75,14 @@ namespace Eggshell
             Assert.IsNull(ClassInfo);
         }
 
-        public virtual bool OnRegister() { return true; }
+        bool IModule.OnRegister() => OnRegister();
+        void IModule.OnReady() => OnReady();
+        void IModule.OnUpdate() => OnUpdate();
+        void IModule.OnShutdown() => OnShutdown();
 
-        public virtual void OnReady() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnShutdown() { }
+        protected virtual bool OnRegister() { return true; }
+        protected virtual void OnReady() { }
+        protected virtual void OnUpdate() { }
+        protected virtual void OnShutdown() { }
     }
 }

@@ -41,7 +41,7 @@ namespace Eggshell
 
         private List<IEnumerator> Running { get; } = new();
 
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             for (var i = Running.Count; i > 0; i--)
             {

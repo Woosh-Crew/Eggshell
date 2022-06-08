@@ -106,7 +106,7 @@ namespace Eggshell.Resources
 		// Module Logic
 		// --------------------------------------------------------------------------------------- //
 
-		public override void OnReady()
+		protected override void OnReady()
 		{
 			/*
 			foreach ( var pathing in Library.Database.All<IAsset>().Select( e => e.Components.Get<PathAttribute>() ) )
@@ -119,7 +119,7 @@ namespace Eggshell.Resources
 			*/
 		}
 
-		public override void OnShutdown()
+		protected override void OnShutdown()
 		{
 			foreach ( var resource in Registered )
 			{

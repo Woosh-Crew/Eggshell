@@ -79,17 +79,17 @@ namespace Eggshell
         // Predefined Dispatches
         // --------------------------------------------------------------------------------------- //
 
-        public override void OnReady()
+        protected override void OnReady()
         {
             Run("eggshell.ready");
         }
 
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             Run("eggshell.update");
         }
 
-        public override void OnShutdown()
+        protected override void OnShutdown()
         {
             Run("eggshell.shutdown");
         }
