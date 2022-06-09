@@ -22,6 +22,16 @@ namespace Eggshell
         }
 
         /// <summary>
+        /// Creates an new components database with a inputted list, useful for
+        /// when you want to have control over the list (say for networking). This
+        /// should be done in your classes constructor, so there always is a database.
+        /// </summary>
+        public Components(T item, List<IComponent<T>> components) : this(item)
+        {
+            _storage = components;
+        }
+
+        /// <summary>
         /// Clears all the components from the registry when it is deconstructed, to
         /// make sure no logic gets fucked up (Might not? not sure, just in-case)
         /// </summary>
@@ -243,7 +253,7 @@ namespace Eggshell
         {
             return Get<TComp>() != null;
         }
-        
+
         /// <summary>
         /// Checks to see if the database contains the inputted type. (Behind the scenes
         /// it gets the components, and returns if it was null or not)
