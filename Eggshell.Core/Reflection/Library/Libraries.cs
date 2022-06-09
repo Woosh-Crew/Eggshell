@@ -123,6 +123,14 @@ namespace Eggshell
             return this.Select(e => e.Components.Get<T>());
         }
 
+        /// <summary>
+        /// Gets all Components of T from every library, following a search
+        /// pattern.
+        /// </summary>
+        public IEnumerable<T> With<T>(Func<Library, bool> search) where T : class, IComponent<Library>
+        {
+            return this.Where(search).Select(e => e.Components.Get<T>());
+        }
 
         /// <summary>
         /// Gets all Libraries with the given components
@@ -130,6 +138,15 @@ namespace Eggshell
         public IEnumerable<Library> Has<T>() where T : class, IComponent<Library>
         {
             return this.Where(e => e.Components.Has<T>());
+        }
+
+        /// <summary>
+        /// Gets all Libraries with the given components, following a search
+        /// pattern.
+        /// </summary>
+        public IEnumerable<Library> Has<T>(Func<Library, bool> search) where T : class, IComponent<Library>
+        {
+            return this.Where(e => search.Invoke(e) && e.Components.Has<T>());
         }
 
         /// <summary>

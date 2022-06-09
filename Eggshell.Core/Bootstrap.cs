@@ -67,12 +67,22 @@ namespace Eggshell
         protected virtual void OnModules()
         {
             // Cache Modules using Reflection
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
             {
                 assembly.GetType("Eggshell.Generated.Modules")?
                     .GetMethod("Cache", BindingFlags.Static | BindingFlags.NonPublic)?
                     .Invoke(null, null);
             }
+        }
+
+        /// <summary>
+        /// Everytime a module requests to be created, it'll call this. So you
+        /// can override which modules are meant to be initialized at a bootstrap
+        /// level. Incredibly useful for removing modules, without breaking anything;
+        /// </summary>
+        public virtual bool OnValidate(IModule module)
+        {
+            return true;
         }
 
         /// <summary>
@@ -82,7 +92,7 @@ namespace Eggshell
         /// </summary>
         protected virtual void OnBooted()
         {
-            foreach (var module in Module.All)
+            foreach ( var module in Module.All )
             {
                 module.OnReady();
             }
@@ -96,7 +106,7 @@ namespace Eggshell
         /// </summary>
         protected virtual void OnUpdate()
         {
-            foreach (var module in Module.All)
+            foreach ( var module in Module.All )
             {
                 module.OnUpdate();
             }
@@ -111,7 +121,7 @@ namespace Eggshell
         /// </summary>
         protected virtual void OnShutdown()
         {
-            foreach (var module in Module.All)
+            foreach ( var module in Module.All )
             {
                 module.OnShutdown();
             }

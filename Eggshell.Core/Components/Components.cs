@@ -63,8 +63,10 @@ namespace Eggshell
         /// Adds a component to the components registry, checks if its a singleton
         /// component, if was replaces old with new.
         /// </summary>
-        public TComp Add<TComp>(TComp item) where TComp : class, IComponent<T>
+        public virtual TComp Add<TComp>(TComp item) where TComp : class, IComponent<T>
         {
+            Assert.IsNull(Owner);
+
             if (item == null)
             {
                 Terminal.Log.Warning($"Trying to add a component that was null to {Owner}");
@@ -133,7 +135,7 @@ namespace Eggshell
         /// Detaches a component from the registry / database. Used internally
         /// so users cant fuck up they shit.
         /// </summary>
-        private static void Detach(IComponent<T> item)
+        protected static void Detach(IComponent<T> item)
         {
             item.OnDetached();
             item.Attached = null;
@@ -142,16 +144,16 @@ namespace Eggshell
         // Accessors API
         // --------------------------------------------------------------------------------------- //
 
-        private IComponent<T> _cached;
+        protected IComponent<T> Cached { get; set; }
 
         /// <summary>
         /// Gets a component from the database based off the inputted type of T.
         /// Caches the result so you can do prototype shit, without the performance
         /// cost.
         /// </summary>
-        public TComp Get<TComp>() where TComp : class
+        public virtual TComp Get<TComp>() where TComp : class
         {
-            if (_cached is TComp cache)
+            if (Cached is TComp cache)
             {
                 return cache;
             }
@@ -162,7 +164,7 @@ namespace Eggshell
                 var item = Storage[index];
                 if (item is TComp comp)
                 {
-                    _cached = item;
+                    Cached = item;
                     return comp;
                 }
 
@@ -176,7 +178,7 @@ namespace Eggshell
         /// Gets a component from the database based off the inputted type. Only checks
         /// if the types match, Not if its a subtype of the type
         /// </summary>
-        public IComponent<T> Get(Type type)
+        public virtual IComponent<T> Get(Type type)
         {
             var index = 0;
             while (index <= Storage.Count - 1)

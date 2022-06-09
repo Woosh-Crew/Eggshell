@@ -49,8 +49,9 @@ namespace Eggshell
             {
                 using (Terminal.Stopwatch("Eggshell Ready"))
                 {
-                    bootstrap.Boot();
                     Bootstrap = bootstrap;
+                    
+                    bootstrap.Boot();
                     Booted = true;
                 }
             }

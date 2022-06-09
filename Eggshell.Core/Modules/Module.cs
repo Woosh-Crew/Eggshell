@@ -55,8 +55,7 @@ namespace Eggshell
                 return;
             }
 
-
-            if (!item.OnRegister())
+            if (!item.OnRegister() || !Project.Bootstrap.OnValidate(item))
             {
                 return;
             }

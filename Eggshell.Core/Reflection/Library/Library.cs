@@ -103,7 +103,7 @@ namespace Eggshell
         {
             // This gets source generated, to be compile time efficient
 
-            foreach (var component in Components)
+            foreach ( var component in Components )
             {
                 var instance = (component as IBinding)?.OnCreate();
 
@@ -153,7 +153,7 @@ namespace Eggshell
         {
             // This gets source generated, to be compile time efficient
 
-            foreach (var component in Components)
+            foreach ( var component in Components )
             {
                 var potential = (component as IBinding)?.OnRegister(value) ?? true;
 
@@ -175,10 +175,29 @@ namespace Eggshell
         {
             // This gets source generated, to be compile time efficient
 
-            foreach (var component in Components)
+            foreach ( var component in Components )
             {
                 (component as IBinding)?.OnUnregister(value);
             }
+        }
+
+        /// <summary>
+        /// Checks to see if this library inherits from T, useful for making
+        /// sure you are casting to the right type.
+        /// </summary>
+        public virtual bool Inherits<T>()
+        {
+            var type = typeof(T);
+            return type.IsInterface ? Info.HasInterface(type) : Info.IsSubclassOf(type);
+        }
+
+        /// <summary>
+        /// Checks to see if this library inherits from T, useful for making
+        /// sure you are casting to the right type.
+        /// </summary>
+        public virtual bool Inherits(Type type)
+        {
+            return type.IsInterface ? Info.HasInterface(type) : Info.IsSubclassOf(type);
         }
 
         /// <summary>
