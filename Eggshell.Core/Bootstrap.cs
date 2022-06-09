@@ -31,7 +31,27 @@ namespace Eggshell
         {
             OnStart();
             OnModules();
+
+            Ready();
+        }
+
+        /// <summary>
+        /// Invoke ready, to run the OnReady call chain on all modules. You
+        /// can override this on the OnBooted method. 
+        /// </summary>
+        public void Ready()
+        {
             OnBooted();
+        }
+
+        /// <summary>
+        /// Invoke ready, to run the OnFocus call chain on all modules. You
+        /// can override this on the OnFocus method. Make sure to call this
+        /// in your own bootstrap, as its not called by default! 
+        /// </summary>
+        public void Focus(bool value)
+        {
+            OnFocus(value);
         }
 
         /// <summary>
@@ -95,6 +115,14 @@ namespace Eggshell
             foreach ( var module in Module.All )
             {
                 module.OnReady();
+            }
+        }
+
+        protected virtual void OnFocus(bool value)
+        {
+            foreach ( var module in Module.All )
+            {
+                module.OnFocused(value);
             }
         }
 

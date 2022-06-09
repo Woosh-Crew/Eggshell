@@ -27,6 +27,13 @@
         void OnUpdate();
 
         /// <summary>
+        /// A callback for when the application has changed its focus
+        /// value. Gets called when the application looses or gains
+        /// focus. Use this for pausing operations, if need be.
+        /// </summary>
+        void OnFocused(bool focused);
+
+        /// <summary>
         /// Called when the application is shutting down, or the module
         /// is being removed from the stack. Make sure to unregister
         /// and dispose everything this module made from this function!
