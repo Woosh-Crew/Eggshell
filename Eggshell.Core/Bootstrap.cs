@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
+using Eggshell.Coroutines;
 
 namespace Eggshell
 {
@@ -34,6 +36,9 @@ namespace Eggshell
 
             Ready();
         }
+
+        // Dispatchers
+        // --------------------------------------------------------------------------------------- //
 
         /// <summary>
         /// Invoke ready, to run the OnReady call chain on all modules. You
@@ -72,7 +77,26 @@ namespace Eggshell
             OnShutdown();
         }
 
-        // Boot Callbacks
+        // Callbacks
+        // --------------------------------------------------------------------------------------- //
+
+        /// <summary>
+        /// Callbacks specific for the bootstrap, these mostly only get called as
+        /// the project is bootstrapping. great for injecting high level logic into
+        /// low level code, or for pissing off modules you dont need in your project
+        /// </summary>
+        public interface Callbacks
+        {
+            /// <summary>
+            /// Everytime a module requests to be created, it'll call this. So you
+            /// can override which modules are meant to be initialized at a bootstrap
+            /// level. Incredibly useful for removing modules, without breaking anything;
+            /// </summary>
+            bool OnModule(IModule module);
+        }
+
+        // Overrides for Extendability
+        // --------------------------------------------------------------------------------------- //
 
         /// <summary>
         /// OnStart is called by Boot() before any of the modules have been
@@ -96,28 +120,32 @@ namespace Eggshell
         }
 
         /// <summary>
-        /// Everytime a module requests to be created, it'll call this. So you
-        /// can override which modules are meant to be initialized at a bootstrap
-        /// level. Incredibly useful for removing modules, without breaking anything;
-        /// </summary>
-        public virtual bool OnValidate(IModule module)
-        {
-            return true;
-        }
-
-        /// <summary>
         /// Called when eggshell is ready, and the bootstrap has done what it
         /// needs to do. This should call OnReady on all modules, so they can
         /// start there systems.
         /// </summary>
         protected virtual void OnBooted()
         {
-            foreach ( var module in Module.All )
+            var all = Module._all;
+
+            for (var i = all.Count; i >= 1; i--)
             {
-                module.OnReady();
+                var running = all[i - 1];
+
+                if (all.Any(e => (e as Callbacks)?.OnModule(running) == false))
+                {
+                    all.RemoveAt(i - 1);
+                    continue;
+                }
+
+                running.OnReady();
             }
         }
 
+        /// <summary>
+        /// Called when the application changes its focus. Tells all the modules
+        /// that the focus has changed.
+        /// </summary>
         protected virtual void OnFocus(bool value)
         {
             foreach ( var module in Module.All )
@@ -125,8 +153,6 @@ namespace Eggshell
                 module.OnFocused(value);
             }
         }
-
-        // Update Callbacks
 
         /// <summary>
         /// The update loop for your application, by default this will call
@@ -139,8 +165,6 @@ namespace Eggshell
                 module.OnUpdate();
             }
         }
-
-        // Shutdown Callbacks
 
         /// <summary>
         /// Called when the application is quitting / shutting down. Use this

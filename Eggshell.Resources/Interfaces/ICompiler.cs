@@ -1,6 +1,6 @@
 ﻿namespace Eggshell.Resources
 {
-	public interface ICompiler<in T>
+	public interface ICompiler<in T> : IObject
 	{
 		void Compile( T asset );
 	}

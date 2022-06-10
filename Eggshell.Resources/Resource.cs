@@ -5,6 +5,11 @@ using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
+    public struct Handle<T> where T : class, IAsset
+    {
+
+    }
+
     /// <summary>
     /// A resource holds a reference and its state to an
     /// asset. It uses a stream for loading the asset.
@@ -19,12 +24,12 @@ namespace Eggshell.Resources
             Components = new(this);
         }
 
-        internal Resource(Pathing path) : this(path.Virtual().Normalise().Hash(), path.Name(false), path.Extension(), () => path.Info<FileInfo>().OpenRead())
+        public Resource(Pathing path) : this(path.Virtual().Normalise().Hash(), path.Name(false), path.Extension(), () => path.Info<FileInfo>().OpenRead())
         {
             Components.Create<Origin>().Path = path;
         }
 
-        internal Resource(int hash, string name, string extension, Func<Stream> stream) : this()
+        public Resource(int hash, string name, string extension, Func<Stream> stream) : this()
         {
             Name = name;
             Identifier = hash;

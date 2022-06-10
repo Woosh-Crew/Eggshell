@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Eggshell
 {
@@ -11,11 +12,15 @@ namespace Eggshell
     public abstract class Module : IModule
     {
         private static IModule _cached;
-        private static readonly List<IModule> _all = new();
+        internal static readonly List<IModule> _all = new();
 
         // Static API
         // --------------------------------------------------------------------------------------- //
 
+        /// <summary>
+        /// All the registered modules, that have been created by using the Create()
+        /// function. You should use this for calling module only callbacks.
+        /// </summary>
         public static IEnumerable<IModule> All => _all;
 
         /// <summary>
@@ -52,11 +57,11 @@ namespace Eggshell
 
             if (item.ClassInfo == null)
             {
-                Terminal.Log.Warning("ClassInfo for Module was null");
+                Terminal.Log.Warning($"ClassInfo for Module [{typeof(T).Name}] was null");
                 return;
             }
 
-            if (!item.OnRegister() || !Project.Bootstrap.OnValidate(item))
+            if (!item.OnRegister())
             {
                 return;
             }
@@ -69,7 +74,7 @@ namespace Eggshell
 
         public Library ClassInfo { get; }
 
-        public Module()
+        protected Module()
         {
             ClassInfo = Library.Register(this);
             Assert.IsNull(ClassInfo);
