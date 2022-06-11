@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Eggshell
 {
@@ -44,6 +43,16 @@ namespace Eggshell
             }
 
             return null;
+        }
+        
+        /// <summary>
+        /// Try's to get a module by its type and will return it if it could
+        /// find it in the registry. Will return null if it couldn't find it.
+        /// </summary>
+        public static bool TryGet<T>(out T value) where T : class, IModule
+        {
+            value = Get<T>();
+            return value != null;
         }
 
         /// <summary>
