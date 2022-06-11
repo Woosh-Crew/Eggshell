@@ -135,16 +135,33 @@ namespace Eggshell
         /// Detaches a component from the registry / database. Used internally
         /// so users cant fuck up they shit.
         /// </summary>
-        protected static void Detach(IComponent<T> item)
+        protected void Detach(IComponent<T> item)
         {
             item.OnDetached();
             item.Attached = null;
+
+            if (Cached == item)
+            {
+                Cached = null;
+            }
         }
 
         // Accessors API
         // --------------------------------------------------------------------------------------- //
 
         protected IComponent<T> Cached { get; set; }
+
+        /// <summary>
+        /// Gets the number of components that have been registered to this components
+        /// database, use in conjunction with the indexer.
+        /// </summary>
+        public int Count => _storage.Count;
+
+        /// <summary>
+        /// A Simple array index accessor for the Components, so you can iterate
+        /// over them without collecting garbage from IEnumerable.
+        /// </summary>
+        public IComponent<T> this[int key] => _storage[key];
 
         /// <summary>
         /// Gets a component from the database based off the inputted type of T.
@@ -225,6 +242,30 @@ namespace Eggshell
 
             Remove(old);
             return Add(newComp);
+        }
+
+        /// <summary>
+        /// Replaces a component with a new component, by removing the old form the database
+        /// and then adding the new one.
+        /// </summary>
+        public TNew Replace<TOld, TNew>() where TNew : class, IComponent<T>, new() where TOld : class, IComponent<T>
+        {
+            var old = Get<TOld>();
+
+            if (old == null)
+            {
+                Terminal.Log.Error("Components aren't valid");
+                return null;
+            }
+
+            if (!Contains(old))
+            {
+                Terminal.Log.Error($"Components doesnt contain {old}");
+                return null;
+            }
+
+            Remove(old);
+            return Create<TNew>();
         }
 
         /// <summary>
