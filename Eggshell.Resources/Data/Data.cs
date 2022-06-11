@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
@@ -70,7 +71,7 @@ namespace Eggshell.Resources
 			public void Compile( Data data )
 			{
 				var extension = data.ClassInfo.Components.Get<Archive>()?.Extension ?? data.ClassInfo.Name.ToLower();
-				var output = Files.Pathing( $"{(data.ClassInfo.Components.Get<PathAttribute>()?.ShortHand ?? "data")}://" ).Absolute();
+				var output = Files.Pathing( $"{(data.ClassInfo.Components.Get<Pathable>()?.Short ?? "data")}://" ).Absolute();
 
 				// Create path, just in case
 				output.Create();

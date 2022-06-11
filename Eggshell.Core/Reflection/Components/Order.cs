@@ -9,6 +9,10 @@ namespace Eggshell
     [Binding(Type = typeof(Library))]
     public partial class Order
     {
+        /// <summary>
+        /// The value that was created by the attribute that signifies
+        /// what order this class or what ever should be in.
+        /// </summary>
         [Skip] public int Value { get; }
 
         public Order(int order)

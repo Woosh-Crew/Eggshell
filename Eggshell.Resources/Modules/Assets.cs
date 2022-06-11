@@ -41,9 +41,9 @@ namespace Eggshell.Resources
             Library library = typeof(T);
 
             // Apply shorthand, if path doesn't have one
-            if (!path.IsValid() && library.Components.TryGet<PathAttribute>(out var attribute))
+            if (!path.IsValid() && library.Components.TryGet<Pathable>(out var attribute))
             {
-                path = $"{attribute.ShortHand}://" + path;
+                path = $"{attribute.Short}://" + path;
             }
 
             var resource = Find(path.Virtual().Normalise());
@@ -107,11 +107,9 @@ namespace Eggshell.Resources
 
         protected override void OnReady()
         {
-            return;
-            
-            foreach ( var pathing in Library.Database.With<PathAttribute>() )
+            foreach ( var pathable in Library.Database.With<Pathable>() )
             {
-                foreach ( var file in Files.Pathing($"{pathing.ShortHand}://").All() )
+                foreach ( var file in pathable.Full.All() )
                 {
                     Fill(file);
                 }

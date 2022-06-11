@@ -134,6 +134,9 @@ namespace Eggshell
 
                 if (all.Any(e => (e as Callbacks)?.OnModule(running) == false))
                 {
+                    // Unregister so the singleton pisses off
+                    Library.Unregister(running);
+                    
                     all.RemoveAt(i - 1);
                     continue;
                 }
