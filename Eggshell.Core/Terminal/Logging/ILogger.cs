@@ -36,7 +36,7 @@ namespace Eggshell
         {
             provider?.Add(new()
             {
-                Message = message.ToString(),
+                Message = message?.ToString() ?? "Null",
                 Trace = string.IsNullOrWhiteSpace(stack) ? Environment.StackTrace : stack,
                 Level = level,
             });
