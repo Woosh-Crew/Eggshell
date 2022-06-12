@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
-    public struct Handle<T> where T : class, IAsset
-    {
-
-    }
-
     /// <summary>
     /// A resource holds a reference and its state to an
     /// asset. It uses a stream for loading the asset.
@@ -23,12 +17,7 @@ namespace Eggshell.Resources
             ClassInfo = Library.Register(this);
             Components = new(this);
         }
-
-        public Resource(Pathing path) : this(path.Virtual().Normalise().Hash(), path.Name(false), path.Extension(), () => path.Info<FileInfo>().OpenRead())
-        {
-            Components.Create<Origin>().Path = path;
-        }
-
+        
         public Resource(int hash, string name, string extension, Func<Stream> stream) : this()
         {
             Name = name;
@@ -37,14 +26,19 @@ namespace Eggshell.Resources
             Stream = stream;
         }
 
+        public Resource(Pathing path) : this(
+            path.Absolute().Virtual().Normalise().Hash(),      // ID
+            path.Name(false),                       // Resource Name
+            path.Extension(),                       // Extension
+            () => path.Info<FileInfo>().OpenRead()  // Stream
+        )
+        {
+            Components.Create<Origin>().Path = path;
+        }
+
         public override int GetHashCode()
         {
             return Identifier;
-        }
-
-        public override string ToString()
-        {
-            return $"loaded:[{IsLoaded}]id:[{Identifier}]";
         }
 
         // Identification
@@ -82,7 +76,7 @@ namespace Eggshell.Resources
         /// Is this resource currently loaded in memory? (Just checks
         /// if the source doesn't equal null)
         /// </summary>
-        public bool IsLoaded => Source != null;
+        public bool IsLoaded => Asset != null;
 
         // References
 
@@ -90,13 +84,7 @@ namespace Eggshell.Resources
         /// The source asset that is cached when the resource finishes
         /// loading. Usually used for duplicating instances of it.
         /// </summary>
-        public IAsset Source { get; private set; }
-
-        /// <summary>
-        /// All instances of the source asset that has been cloned. You
-        /// get one of these when you load an asset.
-        /// </summary>
-        public List<IAsset> Instances { get; private set; }
+        public IAsset Asset { get; private set; }
 
         /// <summary>
         /// The stream that will load the target asset. (Such as when
@@ -114,21 +102,6 @@ namespace Eggshell.Resources
         // Management
 
         /// <summary>
-        /// Overrides the source asset to be the supplied value. Doesn't work
-        /// if the source is already loaded. (Duhh..)
-        /// </summary>
-        public void Override<T>(T value) where T : class, IAsset, new()
-        {
-            if (IsLoaded)
-            {
-                Terminal.Log.Error("Tried overriding a source resource, when it was already loaded.");
-                return;
-            }
-
-            Create(value);
-        }
-
-        /// <summary>
         /// Grabs the loaded asset from memory or will open a stream
         /// and load the asset, then return an instance of the asset
         /// </summary>
@@ -136,29 +109,32 @@ namespace Eggshell.Resources
         {
             Persistant ^= persistant;
 
-            // Invalid File
-            Source ??= Create<T>();
-            if (Source == null)
+            if (IsLoaded)
             {
+                // Already loaded
+                return (T)Asset;
+            }
+
+            var asset = Create<T>();
+            if (asset == null)
+            {
+                // Invalid File
                 Terminal.Log.Error("Invalid type for Resource, not loading.");
                 return null;
             }
 
-            if (!IsLoaded)
-            {
-                using var stopwatch = Terminal.Stopwatch($"Loaded Resource [{Name}, {Identifier}]");
-                using var stream = Stream.Invoke();
-                Source.Load(stream);
-            }
+            using var stopwatch = Terminal.Stopwatch($"Loaded Resource [{Name}, {Identifier}]");
+            using var stream = Stream.Invoke();
+            asset.Load(stream);
 
-            return Clone<T>();
+            return (T)(Asset = asset);
         }
 
         /// <summary>
         /// Unloads this asset from memory, if it is not persistent.
         /// (Pass through true as an arg to forcefully unload it)
         /// </summary>
-        public void Unload(bool forcefully)
+        public void Unload(bool forcefully = false)
         {
             if (!IsLoaded)
             {
@@ -166,73 +142,35 @@ namespace Eggshell.Resources
                 return;
             }
 
-            foreach ( var instance in Instances )
+            if (!forcefully && Persistant)
             {
-                if (instance == Source)
-                {
-                    continue;
-                }
-
-                instance.Delete();
+                // Can't Unload
+                return;
             }
 
-            Instances.Clear();
+            Terminal.Log.Info($"Unloading Resource [{Name}, {Identifier}]");
 
-            if (forcefully || !Persistant)
-            {
-                Terminal.Log.Info($"Unloading Resource [{Name}, {Identifier}]");
+            Asset.Unload();
+            Asset.Delete();
 
-                Source.Unload();
-                Source.Delete();
-
-                Source = null;
-            }
-        }
-
-        /// <summary>
-        /// Deletes this resource. You shouldn't need to do this unless
-        /// you know what you are doing. Can't be deleted if its loaded.
-        /// </summary>
-        public void Delete()
-        {
-            Assert.IsTrue(IsLoaded, "Can't delete a loaded resource");
-            Assets.Registered.Remove(this);
-        }
-
-        // Internal Logic
-
-        private T Clone<T>() where T : class, IAsset, new()
-        {
-            var instance = Source.Clone();
-
-            if (instance == null || instance == Source)
-            {
-                return (T)Source;
-            }
-
-            Instances ??= new();
-            Instances.Add(instance);
-            instance.Resource = this;
-
-            return (T)instance;
+            Asset = null;
         }
 
         private T Create<T>(T value = null) where T : class, IAsset, new()
         {
-            Assert.IsTrue(Source != null);
+            Assert.IsTrue(Asset != null);
 
-            Source = value;
-            Source ??= new T();
+            var asset = value;
+            asset ??= new();
 
-            if (!Source.Setup(Extension))
+            if (!asset.Setup(Extension))
             {
                 // Invalid File, don't load
-                Source = null;
                 return null;
             }
 
-            Source.Resource = this;
-            return Source as T;
+            asset.Resource = this;
+            return asset;
         }
     }
 }

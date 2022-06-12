@@ -79,7 +79,7 @@ namespace Eggshell.Resources
         public static Resource Find(Pathing path, bool fill = true)
         {
             path = path.Virtual().Normalise();
-            return Registered[path] != null ? Registered[path] : (path.Exists() && fill ? Registered.Fill(path) : null);
+            return Registered[path] != null ? Registered[path] : path.Exists() && path.IsFile() && fill ? Registered.Fill(path) : null;
         }
 
         /// <summary>
@@ -91,17 +91,6 @@ namespace Eggshell.Resources
             return Registered[hash];
         }
 
-        // Compiler API
-        // --------------------------------------------------------------------------------------- //
-
-        public static void Compile<T>(T item)
-        {
-            var library = Library.Database.Find<ICompiler<T>>();
-            Assert.IsNull(library);
-
-            library.Create<ICompiler<T>>()?.Compile(item);
-        }
-        
         // Module Logic
         // --------------------------------------------------------------------------------------- //
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Eggshell.IO
 {
@@ -35,7 +37,7 @@ namespace Eggshell.IO
                 }
 
                 // Find, based off path
-                foreach (var pathing in Path)
+                foreach ( var pathing in Path )
                 {
                     var potential = Files.Pathing(pathing).Absolute();
                     if ((potential + $"/{path}").Exists())
@@ -61,7 +63,7 @@ namespace Eggshell.IO
 
         static Pathing()
         {
-            Add("process", Environment.CurrentDirectory);
+            Add("process", Process.GetCurrentProcess().MainModule?.FileName);
         }
 
         // Reason why its a func, is cause some of these values are null
@@ -171,7 +173,7 @@ namespace Eggshell.IO
 
             if (path.Contains('<'))
             {
-                foreach (var (key, value) in Keywords)
+                foreach ( var (key, value) in Keywords )
                 {
                     if (!path.Contains($"<{key}"))
                     {
@@ -249,9 +251,9 @@ namespace Eggshell.IO
             var potential = string.Empty;
             var shorthand = string.Empty;
 
-            foreach (var (key, value) in Shorthand.All)
+            foreach ( var (key, value) in Shorthand.All )
             {
-                foreach (var input in value.Path)
+                foreach ( var input in value.Path )
                 {
                     var pathing = Files.Pathing(input).Absolute();
 
@@ -399,6 +401,36 @@ namespace Eggshell.IO
                 return false;
             }
         }
+        
+        /// <summary>
+        /// Checks if the current path is a directory
+        /// </summary>
+        public bool IsDirectory()
+        {
+            try
+            {
+                return Meta().IsDirectory;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Checks if the current path is a file
+        /// </summary>
+        public bool IsFile()
+        {
+            try
+            {
+                return Meta().IsFile;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// Will check if the File or Directory exists
@@ -446,7 +478,8 @@ namespace Eggshell.IO
         /// </summary>
         public string Name(bool withExtension = true)
         {
-            return withExtension ? Path.GetFileName(Output) : Path.GetFileNameWithoutExtension(Output);
+            var output = ((Pathing)Output).Absolute();
+            return withExtension ? Path.GetFileName(output) : Path.GetFileNameWithoutExtension(output);
         }
 
         /// <summary>
@@ -455,7 +488,8 @@ namespace Eggshell.IO
         /// </summary>
         public string Extension()
         {
-            return Path.GetExtension(Output)?.Substring(1);
+            var output = ((Pathing)Output).Absolute();
+            return Path.GetExtension(output)?.Substring(1);
         }
 
         /// <summary>
