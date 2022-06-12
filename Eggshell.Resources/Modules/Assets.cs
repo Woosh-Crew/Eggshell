@@ -107,6 +107,8 @@ namespace Eggshell.Resources
 
         protected override void OnReady()
         {
+            return;
+            
             foreach ( var pathable in Library.Database.With<Pathable>() )
             {
                 foreach ( var file in pathable.Full.All() )
