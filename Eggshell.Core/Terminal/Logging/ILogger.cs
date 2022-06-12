@@ -49,6 +49,11 @@ namespace Eggshell
         [Conditional("DEBUG"), Conditional("EGGSHELL"), Conditional("LOGGING")]
         public static void Info<T>(this ILogger provider, T message, string stack = null)
         {
+            if (!Terminal.Report)
+            {
+                return;
+            }
+
             provider?.Entry(message, "Info", stack);
         }
 
@@ -59,6 +64,11 @@ namespace Eggshell
         [Conditional("DEBUG"), Conditional("EGGSHELL"), Conditional("LOGGING")] // Maybe?
         public static void Warning<T>(this ILogger provider, T message, string stack = null)
         {
+            if (!Terminal.Report)
+            {
+                return;
+            }
+            
             provider?.Entry(message, "Warning", stack);
         }
 

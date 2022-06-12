@@ -1,69 +1,58 @@
-using System;
-using System.Reflection;
-using Eggshell.Reflection;
+﻿using System;
 
 namespace Eggshell.Diagnostics
 {
-    public struct Command
+    public interface ICommand
     {
-        private Action<object[]> _action;
+        string Name { get; }
+        string Help { get; }
 
-        public IMember Member { get; internal set; }
-        public MemberInfo Info { get; internal set; }
+        object Invoke(string[] args);
+    }
 
-        public Type[] Parameters { get; internal set; }
+    public sealed class Command : ICommand
+    {
+        public string Name { get; }
+        public string Help { get; }
 
-        public Command WithAction(Action<object[]> action)
+        private IParameter[] Arguments { get; }
+        private Func<object[], object> Invoker { get; }
+
+        public Command(string name, string help, Func<object[], object> invoker, IParameter[] arguments)
         {
-            _action = action;
-            return this;
+            Invoker = invoker;
+            Arguments = arguments;
+
+            Name = name;
+            Help = help ?? "n/a";
         }
 
-        public void Invoke(object[] args)
+        public object Invoke(string[] args)
         {
-            _action?.Invoke(args);
+            return Invoker.Invoke(Process(args));
         }
 
-        // 
-        // Interpreter
-        //
-
-        internal static object[] ConvertArgs(MemberInfo info, string[] args)
+        private object[] Process(string[] args)
         {
+            if (Arguments == null || Arguments.Length == 0)
+            {
+                return Array.Empty<object>();
+            }
+
             // Set all args to lowercase
             for (var i = 0; i < args.Length; i++)
             {
                 args[i] = args[i].ToLower();
             }
 
-            // If were a property - Only convert first arg
-            if (info is PropertyInfo property)
+            var finalArgs = new object[Arguments.Length];
+
+            for (var i = 0; i < Arguments.Length; i++)
             {
-                return null;
-                // return args.Length > 0 ? new[] { Converter<,>.Convert( args[0], property.PropertyType ) } : null;
+                finalArgs[i] = i >= args.Length ? Arguments[i].Default : args[i].Convert(Arguments[i].Type);
             }
 
-            // Now if were a method, convert all args
-            if (info is MethodInfo method)
-            {
-                var parameters = method.GetParameters();
-
-                if (parameters.Length == 0)
-                {
-                    return null;
-                }
-
-                var finalArgs = new object[parameters.Length];
-
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    // finalArgs[i] = i >= args.Length ? parameters[i].DefaultValue : Converter<,>.Convert( args[i], parameters[i].ParameterType );
-                }
-
-                return finalArgs;
-            }
-
-            return null;
+            return finalArgs;
         }
     }
 }

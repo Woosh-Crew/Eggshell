@@ -61,7 +61,7 @@ namespace Eggshell.Reflection
         public string Name { get; }
 
         /// <summary>
-        /// The deterministic id created from <see cref="Property{T}.Name"/>,
+        /// The deterministic id created from <see cref="Property.Name"/>,
         /// which is used in a Binary Tree / Sorted List to get functions
         /// by name.
         /// </summary>
@@ -113,6 +113,22 @@ namespace Eggshell.Reflection
             }
 
             return args;
+        }
+
+        /// <summary>
+        /// Invokes this function statically.
+        /// </summary>
+        public object Invoke(object[] parameters)
+        {
+            return !IsStatic ? null : Invoke(null, parameters);
+        }
+
+        /// <summary>
+        /// Invokes this function statically.
+        /// </summary>
+        public object Invoke()
+        {
+            return !IsStatic ? null : Invoke(target : null);
         }
 
         /// <summary>

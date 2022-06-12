@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Eggshell.IO
 {
@@ -63,14 +62,14 @@ namespace Eggshell.IO
 
         static Pathing()
         {
-            Add("process", Process.GetCurrentProcess().MainModule?.FileName);
+            Add("process", Files.Pathing(Process.GetCurrentProcess().MainModule?.FileName).Absolute(true));
         }
 
         // Reason why its a func, is cause some of these values are null
         // when the static constructor gets called, so we use the func instead
         private static readonly Dictionary<string, Func<string[], string>> Keywords = new()
         {
-            ["user"] = (_) => Environment.UserName,
+            ["user"] = _ => Environment.UserName,
         };
 
         /// <summary>
@@ -401,7 +400,7 @@ namespace Eggshell.IO
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Checks if the current path is a directory
         /// </summary>
@@ -416,7 +415,7 @@ namespace Eggshell.IO
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Checks if the current path is a file
         /// </summary>

@@ -47,7 +47,18 @@ namespace Eggshell.Resources
             }
 
             var resource = Find(path.Virtual().Normalise());
-            return resource != null ? resource.Load<T>(persistant) : Fallback<T>();
+
+            try
+            {
+                return resource != null ? resource.Load<T>(persistant) : Fallback<T>();
+            }
+            catch (Exception e)
+            {
+                Terminal.Log.Error($"Loading Asset [{path.Virtual().Normalise()}] Failed");
+                Terminal.Log.Exception(e);
+                
+                return null;
+            }
         }
 
         /// <summary>
@@ -79,7 +90,11 @@ namespace Eggshell.Resources
         public static Resource Find(Pathing path, bool fill = true)
         {
             path = path.Virtual().Normalise();
-            return Registered[path] != null ? Registered[path] : path.Exists() && path.IsFile() && fill ? Registered.Fill(path) : null;
+            return Registered[path] != null
+                ? Registered[path]
+                : path.Exists() && path.IsFile() && fill
+                    ? Registered.Fill(path)
+                    : null;
         }
 
         /// <summary>
@@ -97,7 +112,7 @@ namespace Eggshell.Resources
         protected override void OnReady()
         {
             return;
-            
+
             foreach ( var pathable in Library.Database.With<Pathable>() )
             {
                 foreach ( var file in pathable.Full.All() )

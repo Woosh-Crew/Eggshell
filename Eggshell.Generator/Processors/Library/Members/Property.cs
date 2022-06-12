@@ -49,7 +49,7 @@ private class {className} : Property<{generic}>
 		Type = typeof( {Factory.OnType( Symbol.Type )} );
 	}}
 
-	protected override {generic} Get( object from )
+	protected override object Get( object from )
 	{{
 		{OnGetter()}
 	}}

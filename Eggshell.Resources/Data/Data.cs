@@ -25,7 +25,7 @@ namespace Eggshell.Resources
         void IAsset.Load(Stream stream)
         {
             using var reader = new BinaryReader(stream);
-            Assert.IsTrue(reader.ReadInt32() != ClassInfo.Id);
+            Assert.IsTrue(reader.ReadInt32() != ClassInfo.Id, $"File {Resource.Name} is not a \"{ClassInfo.Title}\" asset.");
 
             OnLoad();
         }

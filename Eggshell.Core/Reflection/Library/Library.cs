@@ -49,7 +49,7 @@ namespace Eggshell
         /// Properties are variables that the library owns. This is
         /// usually mutable value types if the property has a setter
         /// </summary>
-        [Skip] public Members<IProperty> Properties { get; }
+        [Skip] public Members<Property> Properties { get; }
 
         /// <summary>
         /// Functions are tasks that the library does broken up into

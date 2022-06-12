@@ -3,15 +3,64 @@ using System.Reflection;
 
 namespace Eggshell.Reflection
 {
-    /// <summary>
-    /// An interface that supplies a generic less property
-    /// for interacting with, if you don't know the type.
-    /// </summary>
-    public interface IProperty : IMember<PropertyInfo>
+    [Serializable, Group("Reflection"), Skip]
+    public abstract class Property<T> : Property
     {
-        object Get(object from);
-        void Set(object value, object target);
-        object this[object from] { get; set; }
+        protected Property(string name, string origin) : base(name, origin) { }
+
+        /// <summary>
+        /// Tells the target instance to change the properties value
+        /// by the input of "from".
+        /// </summary>
+        public new T this[object from]
+        {
+            get => (T)Get(from);
+            set => Set(from, value);
+        }
+
+        /// <summary>
+        /// A helper for setting and getting static variables to a value.
+        /// Behind the scenes (if not overriden) will just get the indexer
+        /// by null, and return the value based off of that.
+        /// </summary>
+        public virtual new T Value
+        {
+            get
+            {
+                if (IsStatic)
+                    return this[null];
+
+                Terminal.Log.Error("Can't get un-static property through value, use indexer instead.");
+                return default;
+
+            }
+            set
+            {
+                if (IsStatic)
+                {
+                    this[null] = value;
+                    return;
+                }
+
+                Terminal.Log.Error("Can't set un-static property through value, use indexer instead.");
+            }
+        }
+
+        protected abstract void Set(object from, T value);
+
+        protected sealed override void Set(object from, object value)
+        {
+            Set(from, (T)value);
+        }
+
+        /// <summary>
+        /// A nice to have implicit operator to the target type, so if we're
+        /// dealing with static properties, it's super easy to get them.
+        /// </summary>
+        public static implicit operator T(Property<T> property)
+        {
+            return property.IsStatic ? property[null] : default;
+        }
     }
 
     /// <summary>
@@ -23,7 +72,7 @@ namespace Eggshell.Reflection
     /// of scenarios.
     /// </summary>
     [Serializable, Group("Reflection"), Skip]
-    public abstract class Property<T> : IObject, IProperty
+    public abstract class Property : IObject, IMember<PropertyInfo>
     {
         /// <summary> 
         /// The PropertyInfo that this property was generated for. 
@@ -33,7 +82,7 @@ namespace Eggshell.Reflection
 
         /// <summary>
         /// The cached property info that is generated from
-        /// <see cref="Property{T}.Info"/>.
+        /// <see cref="Property.Info"/>.
         /// </summary>
         private PropertyInfo _info;
 
@@ -48,13 +97,13 @@ namespace Eggshell.Reflection
         /// Property's IObject implementation for Library. as ironic
         /// as that sounds. Its used for getting meta about the Property
         /// </summary>
-        public Library ClassInfo => typeof(Property<T>);
+        public Library ClassInfo => typeof(Property);
 
         /// <summary>
         /// Components that have been attached to this property. Allows
         /// for easy storage of meta data, as well as property specific logic.
         /// </summary>
-        public Components<IProperty> Components { get; }
+        public Components<Property> Components { get; }
 
         /// <summary>
         /// It isn't recommended that you create a property manually, as
@@ -72,7 +121,7 @@ namespace Eggshell.Reflection
         /// Tells the target instance to change the properties value
         /// by the input of "from".
         /// </summary>
-        public T this[object from]
+        public object this[object from]
         {
             get => Get(from);
             set => Set(from, value);
@@ -83,7 +132,7 @@ namespace Eggshell.Reflection
         /// Behind the scenes (if not overriden) will just get the indexer
         /// by null, and return the value based off of that.
         /// </summary>
-        public virtual T Value
+        public virtual object Value
         {
             get
             {
@@ -106,26 +155,10 @@ namespace Eggshell.Reflection
             }
         }
 
-        protected abstract T Get(object from);
-        protected abstract void Set(object from, T value);
+        protected abstract object Get(object from);
+        protected abstract void Set(object from, object value);
 
         // IProperty
-
-        object IProperty.this[object from]
-        {
-            get => Get(from);
-            set => Set(from, (T)value);
-        }
-
-        object IProperty.Get(object from)
-        {
-            return Get(from);
-        }
-
-        void IProperty.Set(object value, object target)
-        {
-            Set(target, (T)value);
-        }
 
         /// <summary>
         /// The name of the property member that this eggshell property
@@ -140,7 +173,7 @@ namespace Eggshell.Reflection
         public string Name { get; }
 
         /// <summary>
-        /// The deterministic id created from <see cref="Property{T}.Name"/>,
+        /// The deterministic id created from <see cref="Property.Name"/>,
         /// which is used in a Binary Tree / Sorted List to get properties
         /// by name.
         /// </summary>
@@ -175,14 +208,5 @@ namespace Eggshell.Reflection
         /// The backing type that this property is using.
         /// </summary>
         public virtual Type Type { get; protected set; }
-
-        /// <summary>
-        /// A nice to have implicit operator to the target type, so if we're
-        /// dealing with static properties, it's super easy to get them.
-        /// </summary>
-        public static implicit operator T(Property<T> property)
-        {
-            return property.IsStatic ? property[null] : default;
-        }
     }
 }
