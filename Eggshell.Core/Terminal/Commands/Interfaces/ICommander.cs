@@ -13,6 +13,8 @@ namespace Eggshell.Diagnostics
         IEnumerable<ICommand> All { get; }
 
         void Push(ICommand command);
+        void Pull(string command);
+
         object Invoke(string command, string[] args);
     }
 }
@@ -21,6 +23,11 @@ namespace Eggshell
 {
     public static class CommanderExtensions
     {
+        public static IEnumerable<ICommand> Find(this ICommander commander, string name)
+        {
+            return commander.All.Where(e => e.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        }
+
         public static void Push<T>(this ICommander commander, string name, Func<T> function, string help = null)
         {
             object Invoker(object[] _) => function.Invoke();
@@ -45,7 +52,7 @@ namespace Eggshell
         {
             object Invoker(object[] e)
             {
-                if (e[0] == null)
+                if (e[0] == null || !property.IsAssignable)
                 {
                     Terminal.Log.Info($"Property [{property.Name}] is equal to [{property.Value}]");
                     return property.Value;
@@ -85,7 +92,7 @@ namespace Eggshell
 
             commander.Push(new Command(name, help, Invoker, new IParameter[]
             {
-                new Parameter(null, typeof(T))
+                new Parameter<T>(default),
             }));
         }
 
@@ -99,8 +106,8 @@ namespace Eggshell
 
             commander.Push(new Command(name, help, Invoker, new IParameter[]
             {
-                new Parameter(null, typeof(T1)),
-                new Parameter(null, typeof(T2))
+                new Parameter<T1>(default),
+                new Parameter<T2>(default),
             }));
         }
 
@@ -114,9 +121,9 @@ namespace Eggshell
 
             commander.Push(new Command(name, help, Invoker, new IParameter[]
             {
-                new Parameter(null, typeof(T1)),
-                new Parameter(null, typeof(T2)),
-                new Parameter(null, typeof(T3))
+                new Parameter<T1>(default),
+                new Parameter<T2>(default),
+                new Parameter<T3>(default),
             }));
         }
 

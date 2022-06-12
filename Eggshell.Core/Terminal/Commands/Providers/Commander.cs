@@ -14,12 +14,17 @@ namespace Eggshell.Diagnostics
             _commands.Add(command.Name, command);
         }
 
+        public void Pull(string command)
+        {
+            _commands.Remove(command);
+        }
+
         public object Invoke(string command, string[] args)
         {
             if (!_commands.TryGetValue(command, out var value))
             {
                 // No Command
-                
+
                 Terminal.Log.Info($"Couldn't find command \"{command}\"");
                 return null;
             }
@@ -27,12 +32,12 @@ namespace Eggshell.Diagnostics
             if (args.Contains("/?"))
             {
                 // Log Help
-                
+
                 Terminal.Log.Info($"[{value.Name}] = {value.Help}");
                 return null;
             }
-           
-            return  value.Invoke(args);;
+
+            return value.Invoke(args);
         }
     }
 }

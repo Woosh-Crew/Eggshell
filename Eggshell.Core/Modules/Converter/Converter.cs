@@ -4,12 +4,14 @@ using Eggshell.Converters;
 namespace Eggshell
 {
     /// <summary>
-    /// Eggshell's string to object converter.
+    /// Eggshell's string to object converter. Converts objects by looking for a valid
+    /// converter using the reflection system, creates it and calls its convert method.
     /// </summary>
     public static class Converter
     {
         /// <summary>
-        /// Converts a string to the type of T. 
+        /// Converts a string to the type of T. Uses eggshells reflection system to find
+        /// the correct converter, and uses it to convert the string to T.
         /// </summary>
         public static T Convert<T>(this string value)
         {
@@ -18,58 +20,66 @@ namespace Eggshell
                 return (T)Enum.Parse(typeof(T), value);
             }
 
-            var library = Library.Database.Find<IConverter<T>>();
+            var converter = Library.Database.Find<IConverter<T>>()?.Create<IConverter<T>>();
+            Assert.IsNull(converter, $"No Valid converters for {typeof(T).Name}.");
 
-            if (library == null)
-            {
-                Terminal.Log.Error($"No Valid converters for {typeof(T).Name}.");
-                return default;
-            }
+            return converter!.Convert(value);
+        }
 
-            var converter = Library.Create<IConverter<T>>(library);
-
+        /// <summary>
+        /// Trys to convert a string to the type of T. Uses eggshells reflection system to
+        /// find the correct converter, and uses it to convert the string to T. Returns false
+        /// if it failed to convert.
+        /// </summary>
+        public static bool TryConvert<T>(this string value, out T output)
+        {
             try
             {
-                return converter.Convert(value);
+                output = Convert<T>(value);
+                return output != null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Terminal.Log.Exception(e);
-                return default;
+                output = default;
+                return false;
             }
         }
 
         /// <summary>
-        /// Converts a string to an object. Based off the
-        /// inputted type. This uses reflection, and is pretty slow..
-        /// Be careful where you put this method.
+        /// Converts a string to an object. Based off the inputted type. Does use a little
+        /// bit of reflection, which might reflect on its performance.
         /// </summary>
         public static object Convert(this string value, Type type)
         {
-            // Doing explicit enum shit here, cause fuck it, this class is already painful
             if (type.IsEnum)
             {
                 return Enum.Parse(type, value);
             }
 
-            // JAKE: This is so aids.... But can't do much about that.
+            var target = typeof(IConverter<>).MakeGenericType(type);
 
-            var interfaceType = typeof(IConverter<>).MakeGenericType(type);
-            var library = Library.Database.Find(interfaceType);
+            var converter = Library.Database.Find(target)?.Create();
+            Assert.IsNull(converter, "No Valid Converters for this Type");
 
-            Assert.IsNull(library, "No Valid Converters for this Type");
+            return target.GetMethod("Convert")?.Invoke(converter, new object[] { value });
+        }
 
-            var converter = library.Create();
-            var method = interfaceType.GetMethod("Convert");
-
+        /// <summary>
+        /// Trys to converts a string to an object. Based off the inputted type. Does use a
+        /// little bit of System.Reflection, which might reflect on its performance. Returns
+        /// false if it failed to convert.
+        /// </summary>
+        public static bool TryConvert(this string value, Type type, out object output)
+        {
             try
             {
-                return method?.Invoke(converter, new object[] { value });
+                output = Convert(value, type);
+                return output != null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Terminal.Log.Exception(e);
-                return default;
+                output = default;
+                return false;
             }
         }
     }

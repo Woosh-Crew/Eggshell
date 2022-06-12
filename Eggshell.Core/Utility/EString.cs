@@ -65,12 +65,6 @@ namespace Eggshell
             return $"{prefix}.{name}".ToLower();
         }
 
-        public static Pathing ToPath(this string value)
-        {
-            Pathing path = value;
-            return path;
-        }
-
         // Copied from this (https://stackoverflow.com/a/2132004)
         public static string[] SplitArguments(this string commandLine)
         {
