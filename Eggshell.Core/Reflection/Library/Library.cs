@@ -10,7 +10,7 @@ namespace Eggshell
     /// using components. We can do a lotta cool and performant
     /// shit because of this. Such as easily doing C# / C++ calls.
     /// </summary>
-    [Serializable, Group("Reflection")]
+    [Serializable, Group("Reflection"), Bindable]
     public partial class Library : IObject, IMeta
     {
         /// <summary>
@@ -99,6 +99,7 @@ namespace Eggshell
         /// calling the internal Construct() method, which can be overridden
         /// or uses a constructor attribute.
         /// </summary>
+        [Bindable]
         public virtual IObject Create()
         {
             // This gets source generated, to be compile time efficient
@@ -149,6 +150,7 @@ namespace Eggshell
         /// to this library. Incredibly useful for setting up instanced
         /// based callbacks, as well as keeping track of instances.
         /// </summary>
+        [Bindable]
         protected virtual bool OnRegister(IObject value)
         {
             // This gets source generated, to be compile time efficient
@@ -171,6 +173,7 @@ namespace Eggshell
         /// to this library. Incredibly useful for setting up instanced
         /// based callbacks, as well as keeping track of instances.
         /// </summary>
+        [Bindable]
         protected virtual void OnUnregister(IObject value)
         {
             // This gets source generated, to be compile time efficient

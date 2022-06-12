@@ -3,114 +3,122 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Eggshell.Generator
 {
-	public class BinderCompiler : Processor
-	{
-		private ImmutableHashSet<INamedTypeSymbol> Queued { get; set; }
+    public class BinderCompiler : Processor
+    {
+        private ImmutableHashSet<INamedTypeSymbol> Queued { get; set; }
 
-		public override bool IsProcessable( SyntaxTree tree )
-		{
-			Queued = tree.GetRoot()
-				.DescendantNodesAndSelf()
-				.OfType<ClassDeclarationSyntax>()
-				.Select( x => Model.GetDeclaredSymbol( x ) )
-				.OfType<INamedTypeSymbol>()
-				.Where( x => x.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) ) )
-				.ToImmutableHashSet();
+        public override bool IsProcessable(SyntaxTree tree)
+        {
+            Queued = tree.GetRoot()
+                .DescendantNodesAndSelf()
+                .OfType<ClassDeclarationSyntax>()
+                .Select(x => ModelExtensions.GetDeclaredSymbol(Model, x))
+                .OfType<INamedTypeSymbol>()
+                .Where(x => x.GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Binding")))
+                .ToImmutableHashSet();
 
-			return Queued.Count > 0;
-		}
+            return Queued.Count > 0;
+        }
 
-		public override void OnProcess()
-		{
-			foreach ( var typeSymbol in Queued )
-			{
-				Add( Create( typeSymbol ), suffix : "Generated" );
-			}
-		}
+        public override void OnProcess()
+        {
+            foreach ( var typeSymbol in Queued )
+            {
+                Add(Create(typeSymbol), suffix : "Generated");
+            }
+        }
 
-		public override void OnFinish() { }
+        public override void OnFinish() { }
 
-		// Binding Compiler
-		// --------------------------------------------------------------------------------------- //
+        // Binding Compiler
+        // --------------------------------------------------------------------------------------- //
 
-		private string OnProperties( INamespaceOrTypeSymbol typeSymbol )
-		{
-			var builder = new StringBuilder();
+        public string Target { get; set; }
 
-			foreach ( var symbol in typeSymbol.GetMembers().Where( e => Property.IsValid( e, typeSymbol ) && (e as IPropertySymbol)?.SetMethod.DeclaredAccessibility == Accessibility.Public ) )
-			{
-				var appendable = $@"public {Factory.OnType( (symbol as IPropertySymbol)?.Type )} {symbol.Name} {{ get; set; }}";
+        private string OnProperties(INamespaceOrTypeSymbol typeSymbol)
+        {
+            var builder = new StringBuilder();
 
-				foreach ( var attribute in symbol.GetAttributes().Where( e => e.AttributeClass!.Name.StartsWith( "OverrideAttribute" ) ) )
-				{
-					appendable = attribute.ConstructorArguments.Length > 1
-						? appendable.Replace( attribute.ConstructorArguments[0].Value!.ToString(), attribute.ConstructorArguments[1].Value!.ToString() )
-						: attribute.ConstructorArguments[0].Value!.ToString();
-				}
+            foreach ( var symbol in typeSymbol.GetMembers().Where(e => Property.IsValid(e, typeSymbol) && (e as IPropertySymbol)?.SetMethod.DeclaredAccessibility == Accessibility.Public) )
+            {
+                var appendable = $@"public {Factory.OnType((symbol as IPropertySymbol)?.Type)} {symbol.Name} {{ get; set; }}";
 
-				builder.AppendLine( appendable );
-			}
+                foreach ( var attribute in symbol.GetAttributes().Where(e => e.AttributeClass!.Name.StartsWith("OverrideAttribute")) )
+                {
+                    appendable = attribute.ConstructorArguments.Length > 1
+                        ? appendable.Replace(attribute.ConstructorArguments[0].Value!.ToString(), attribute.ConstructorArguments[1].Value!.ToString())
+                        : attribute.ConstructorArguments[0].Value!.ToString();
+                }
 
-			return builder.ToString();
-		}
+                builder.AppendLine(appendable);
+            }
 
-		private string OnBody( INamedTypeSymbol symbol )
-		{
-			if ( symbol.GetMembers( "Attached" ).IsEmpty )
-			{
-				return $@"public Library Attached {{ get; set; }}";
-			}
+            return builder.ToString();
+        }
 
-			return string.Empty;
-		}	
+        private string OnBody(INamedTypeSymbol symbol)
+        {
+            if (symbol.GetMembers("Attached").IsEmpty)
+            {
+                return $@"public {Target} Attached {{ get; set; }}";
+            }
 
-		private string OnConstructor( INamedTypeSymbol typeSymbol )
-		{
-			var builder = new StringBuilder();
+            return string.Empty;
+        }
 
-			foreach ( var symbol in typeSymbol.Constructors )
-			{
-				var constructor = new StringBuilder( $"public {typeSymbol.Name}Attribute(" );
+        private string OnConstructor(INamedTypeSymbol typeSymbol)
+        {
+            var builder = new StringBuilder();
 
-				// Build up single constructor
-				for ( var i = 0; i < symbol.Parameters.Length; i++ )
-				{
-					var parameter = symbol.Parameters[i];
-					constructor.Append( $"{Factory.OnType( parameter.Type )} {parameter.Name}" );
+            foreach ( var symbol in typeSymbol.Constructors )
+            {
+                var constructor = new StringBuilder($"public {typeSymbol.Name}Attribute(");
 
-					// Apply default value
-					if ( parameter.HasExplicitDefaultValue )
-					{
-						var arg = parameter.ExplicitDefaultValue;
+                // Build up single constructor
+                for (var i = 0; i < symbol.Parameters.Length; i++)
+                {
+                    var parameter = symbol.Parameters[i];
+                    constructor.Append($"{Factory.OnType(parameter.Type)} {parameter.Name}");
 
-						// This is aids...
-						if ( parameter.Type.Name.Equals( "string", StringComparison.OrdinalIgnoreCase ) )
-						{
-							arg = $@"""{arg}""";
-						}
+                    // Apply default value
+                    if (parameter.HasExplicitDefaultValue)
+                    {
+                        var arg = parameter.ExplicitDefaultValue;
 
-						constructor.Append( $" = {arg}" );
-					}
+                        // This is aids...
+                        if (parameter.Type.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+                        {
+                            arg = $@"""{arg}""";
+                        }
 
-					if ( i != symbol.Parameters.Length - 1 )
-					{
-						constructor.Append( ", " );
-					}
-				}
+                        constructor.Append($" = {arg}");
+                    }
 
-				builder.AppendLine( constructor.Append( ") { }" ).ToString() );
-			}
+                    if (i != symbol.Parameters.Length - 1)
+                    {
+                        constructor.Append(", ");
+                    }
+                }
 
-			return builder.ToString();
-		}
+                builder.AppendLine(constructor.Append(") { }").ToString());
+            }
 
-		private string Create( INamedTypeSymbol typeSymbol )
-		{
-			return $@"// This was generated by Eggshell.
+            return builder.ToString();
+        }
+
+        private string Create(INamedTypeSymbol typeSymbol)
+        {
+            var attribute = typeSymbol.GetAttributes().First(e => e.AttributeClass.Name.StartsWith("Binding")).NamedArguments.FirstOrDefault(e => e.Key == "Type");
+            var target = attribute.Value.ToCSharpString().Replace("typeof(", "").TrimEnd(')');
+
+            Target = target;
+
+            return $@"// This was generated by Eggshell.
 using System;
 using Eggshell;
 using Eggshell.Reflection;
@@ -120,11 +128,11 @@ namespace {typeSymbol.ContainingNamespace}
 	[AttributeUsage( AttributeTargets.Class ), Binding]
 	public class {typeSymbol.Name}Attribute : Attribute, IBinding
 	{{
-		public Library Attached {{ get; set; }}
+		public {Target} Attached {{ get; set; }}
 
-		{OnConstructor( typeSymbol )}
+		{OnConstructor(typeSymbol)}
 
-		{OnProperties( typeSymbol )}
+		{OnProperties(typeSymbol)}
 	}}
 
 	partial class {typeSymbol.Name} : IBinding
@@ -132,6 +140,6 @@ namespace {typeSymbol.ContainingNamespace}
 		{OnBody(typeSymbol)}
 	}}
 }}";
-		}
-	}
+        }
+    }
 }

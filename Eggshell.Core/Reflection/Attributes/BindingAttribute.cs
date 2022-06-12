@@ -5,6 +5,6 @@ namespace Eggshell.Reflection
     [AttributeUsage(AttributeTargets.Class)]
     public class BindingAttribute : Attribute
     {
-        public Type Type { get; set; } = typeof(Library);
+        public Type Type { get; set; }
     }
 }
