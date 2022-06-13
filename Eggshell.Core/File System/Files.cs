@@ -10,7 +10,7 @@ namespace Eggshell
     /// All Saving, Loading, ETC. You can use
     /// short hands for defining paths.
     /// </summary>
-    [Library, Group("Files"), Title("File System")]
+    [Link, Group("Files"), Title("File System")]
     public static class Files
     {
         public static Serializer Serialization { get; } = new();

@@ -8,7 +8,7 @@ namespace Eggshell
     /// use operators for tools that do actions / operations. This operator
     /// can have a callback.
     /// </summary>
-    [Library("tools.operator_generic")]
+    [Link("tools.operator_generic")]
     public abstract class Operator<T> : Operator where T : Delegate
     {
         public void Execute(T callback)
@@ -31,7 +31,7 @@ namespace Eggshell
     /// can be searched for in the editor is well. It is also recommended you
     /// use operators for tools that do actions / operations.
     /// </summary>
-    [Library("tools.operator")]
+    [Link("tools.operator")]
     public abstract class Operator : IObject
     {
         /// <summary>

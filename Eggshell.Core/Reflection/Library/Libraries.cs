@@ -179,14 +179,14 @@ namespace Eggshell
 
         public void Add(Type type)
         {
-            if (!type.IsDefined(typeof(LibraryAttribute), false))
+            if (!type.IsDefined(typeof(LinkAttribute), false))
             {
                 Add(new Library(type.Name.ToProgrammerCase(), type));
                 return;
             }
 
             // If we have meta present, use it
-            var attribute = type.GetCustomAttribute<LibraryAttribute>();
+            var attribute = type.GetCustomAttribute<LinkAttribute>();
             Add(new Library(attribute!.Name, type));
         }
 

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Eggshell.Converters
 {
-    [Library("converter.system"), Group("Converters"), Singleton]
+    [Link("converter.system"), Group("Converters"), Singleton]
     internal sealed class SystemConverter : IConverter<bool>, IConverter<int>, IConverter<float>, IConverter<double>, IConverter<long>, IConverter<string>
     {
         public Library ClassInfo { get; } = typeof(SystemConverter);

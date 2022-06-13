@@ -25,7 +25,7 @@ namespace Eggshell
 
         internal static bool IsValid(Type type)
         {
-            return type.HasInterface<IObject>() || type.IsDefined(typeof(LibraryAttribute), true);
+            return type.HasInterface<IObject>() || type.IsDefined(typeof(LinkAttribute), true);
         }
 
         /// <summary>
