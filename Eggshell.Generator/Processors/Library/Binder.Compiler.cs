@@ -75,7 +75,7 @@ namespace Eggshell.Generator
         {
             var builder = new StringBuilder();
 
-            foreach ( var symbol in typeSymbol.Constructors )
+            foreach ( var symbol in typeSymbol.Constructors.Where(e => !e.IsStatic && !e.IsAbstract && !e.IsImplicitlyDeclared) )
             {
                 var constructor = new StringBuilder($"public {typeSymbol.Name}Attribute(");
 
