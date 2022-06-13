@@ -10,6 +10,7 @@ namespace Eggshell.Reflection
     public interface IMember : IMeta
     {
         Library Parent { get; set; }
+        void OnAttached(Library library);
 
         int Id { get; }
         bool IsStatic { get; }

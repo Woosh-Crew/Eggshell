@@ -7,15 +7,12 @@ namespace Eggshell
     {
         public void OnAttached()
         {
-            Terminal.Command.Push(Attached);
-        }
-    }
-    
-    [Binding(Type = typeof(Property))]
-    public partial class ConVar
-    {
-        public void OnAttached()
-        {
+            if (!Attached.IsStatic)
+            {
+                Terminal.Log.Warning($"Function [{Attached.Name}] needs to be static inorder for it to be a ConCmd");
+                return;
+            }
+            
             Terminal.Command.Push(Attached);
         }
     }

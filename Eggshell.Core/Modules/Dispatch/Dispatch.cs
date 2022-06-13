@@ -1,5 +1,6 @@
 using System;
 using Eggshell.Dispatching;
+using Eggshell.Reflection;
 
 namespace Eggshell
 {
@@ -8,8 +9,52 @@ namespace Eggshell
     /// methods from a string (string based events) can be used across
     /// languages. (C# - C++, vice versa)
     /// </summary>
-    public class Dispatch : Module
+    [Binding(Type = typeof(Function))]
+    public partial class Dispatch
     {
+        /// <summary>
+        /// The hook that gets attached to a library, that allows that library
+        /// to receive callbacks from the dispatcher.
+        /// </summary>
+        private class Hook : Library.Binding
+        {
+            public Library Attached { get; set; }
+
+            public bool OnRegister(IObject value)
+            {
+                Register(value);
+                return true;
+            }
+
+            public void OnUnregister(IObject value)
+            {
+                Unregister(value);
+            }
+        }
+
+        /// <summary>
+        /// The event name that the dispatcher is looking for when invoking
+        /// a dispatch event.
+        /// </summary>
+        [Skip] public string Event { get; }
+
+        public Dispatch(string target)
+        {
+            Event = target;
+        }
+
+        public void OnAttached()
+        {
+            // Add it to the Provider
+            Provider.Add(Event, Attached);
+
+            if (!Attached.Parent.Components.Has<Hook>())
+            {
+                // Register class to have hooks
+                Attached.Parent.Components.Create<Hook>();
+            }
+        }
+
         // Dispatch API
         // --------------------------------------------------------------------------------------- //
 
@@ -74,24 +119,6 @@ namespace Eggshell
         {
             Assert.IsNull(item);
             Provider.Unregister(item);
-        }
-
-        // Predefined Dispatches
-        // --------------------------------------------------------------------------------------- //
-
-        protected override void OnReady()
-        {
-            Run("eggshell.ready");
-        }
-
-        protected override void OnUpdate()
-        {
-            Run("eggshell.update");
-        }
-
-        protected override void OnShutdown()
-        {
-            Run("eggshell.shutdown");
         }
     }
 }

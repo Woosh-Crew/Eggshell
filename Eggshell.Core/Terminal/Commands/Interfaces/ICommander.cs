@@ -48,11 +48,11 @@ namespace Eggshell
             commander.Push(new Command(function.Name, function.Help, function.Invoke, arguments));
         }
 
-        public static void Push(this ICommander commander, Property property)
+        public static void Push(this ICommander commander, Property property, bool readOnly = false)
         {
             object Invoker(object[] e)
             {
-                if (e[0] == null || !property.IsAssignable)
+                if (readOnly || (e[0] == null || !property.IsAssignable))
                 {
                     Terminal.Log.Info($"Property [{property.Name}] is equal to [{property.Value}]");
                     return property.Value;

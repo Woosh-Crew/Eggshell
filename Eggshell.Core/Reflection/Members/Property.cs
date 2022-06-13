@@ -14,7 +14,11 @@ namespace Eggshell.Reflection
         /// </summary>
         public new T this[object from]
         {
-            get => (T)Get(from);
+            get
+            {
+                Get(from, out var value);
+                return value;
+            }
             set => Set(from, value);
         }
 
@@ -46,6 +50,22 @@ namespace Eggshell.Reflection
             }
         }
 
+        /// <summary>
+        /// The getter for this property. Override this logic to provide
+        /// a compile time efficient getter.
+        /// </summary>
+        protected abstract void Get(object from, out T value);
+
+        protected sealed override void Get(object from, out object value)
+        {
+            Get(from, out var output);
+            value = output;
+        }
+
+        /// <summary>
+        /// The setter for this property. Override this logic to provide
+        /// a compile time efficient setter.
+        /// </summary>
         protected abstract void Set(object from, T value);
 
         protected sealed override void Set(object from, object value)
@@ -115,7 +135,22 @@ namespace Eggshell.Reflection
             Origin = origin;
 
             Id = Name.Hash();
+
+            Components = new(this);
         }
+
+        /// <summary>
+        /// A Callback used for initializing components, so null ref's dont
+        /// happen from the parent being null. 
+        /// </summary>
+        public virtual void OnAttached(Library library) { }
+
+        /// <summary>
+        /// Binding is a binding to a property. Allows you to inject logic
+        /// in to the library pipeline, as well as store custom property meta
+        /// data for use in your project. (Such as the ConCmd Component)
+        /// </summary>
+        public interface Binding : IComponent<Property> { }
 
         /// <summary>
         /// Tells the target instance to change the properties value
@@ -123,7 +158,11 @@ namespace Eggshell.Reflection
         /// </summary>
         public object this[object from]
         {
-            get => Get(from);
+            get
+            {
+                Get(from, out var value);
+                return value;
+            }
             set => Set(from, value);
         }
 
@@ -154,8 +193,17 @@ namespace Eggshell.Reflection
                 Terminal.Log.Error("Can't set unstatic property through value, use indexer instead.");
             }
         }
-
-        protected abstract object Get(object from);
+        
+        /// <summary>
+        /// The getter for this property. Override this logic to provide
+        /// a compile time efficient getter.
+        /// </summary>
+        protected abstract void Get(object from, out object value);
+        
+        /// <summary>
+        /// The setter for this property. Override this logic to provide
+        /// a compile time efficient setter.
+        /// </summary>
         protected abstract void Set(object from, object value);
 
         // IProperty

@@ -37,6 +37,12 @@ namespace Eggshell.Reflection
         public Library ClassInfo => typeof(Function);
 
         /// <summary>
+        /// Components that have been attached to this function. Allows
+        /// for easy storage of meta data, as well as function specific logic.
+        /// </summary>
+        public Components<Function> Components { get; }
+
+        /// <summary>
         /// It isn't recommended that you create a function manually, as
         /// this is usually done through source generators.
         /// </summary>
@@ -46,7 +52,21 @@ namespace Eggshell.Reflection
             Origin = origin;
 
             Id = Name.Hash();
+            Components = new(this);
         }
+
+        /// <summary>
+        /// A Callback used for initializing components, so null ref's dont
+        /// happen from the parent being null. 
+        /// </summary>
+        public virtual void OnAttached(Library library) { }
+
+        /// <summary>
+        /// Binding is a binding to a function. Allows you to inject logic
+        /// in to the library pipeline, as well as store custom function meta
+        /// data for use in your project. (Such as the ConCmd Component)
+        /// </summary>
+        public interface Binding : IComponent<Function> { }
 
         /// <summary>
         /// The name of the function member that this eggshell property

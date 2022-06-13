@@ -17,6 +17,7 @@ namespace Eggshell.Reflection
         public void Add(T item)
         {
             item.Parent ??= Parent;
+            item.OnAttached(Parent);
 
             if (_storage.ContainsKey(item.Id))
             {
@@ -30,15 +31,10 @@ namespace Eggshell.Reflection
 
         internal void Add(Members<T> inherited)
         {
-            foreach (var prop in inherited._storage.Values)
+            foreach ( var prop in inherited._storage.Values )
             {
                 Add(prop);
             }
-        }
-
-        public TMember Get<TMember>(string id) where TMember : class, T
-        {
-            return (TMember)this[id];
         }
 
         // Enumerator

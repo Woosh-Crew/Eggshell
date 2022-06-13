@@ -155,7 +155,7 @@ namespace Eggshell
         /// Gets the number of components that have been registered to this components
         /// database, use in conjunction with the indexer.
         /// </summary>
-        public int Count => _storage.Count;
+        public int Count => Storage.Count;
 
         /// <summary>
         /// A Simple array index accessor for the Components, so you can iterate

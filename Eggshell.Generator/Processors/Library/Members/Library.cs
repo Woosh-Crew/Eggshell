@@ -6,27 +6,27 @@ using Microsoft.CodeAnalysis;
 
 namespace Eggshell.Generator
 {
-	/// <summary>
-	/// Creates a library from a Symbol, that is used in Eggshells
-	/// compile time reflection system.
-	/// </summary>
-	public sealed class Library : Member<INamedTypeSymbol>
-	{
-		public Library( ISymbol symbol ) : base( symbol )
-		{
-			Class = Factory.OnType( (ITypeSymbol)symbol );
-		}
+    /// <summary>
+    /// Creates a library from a Symbol, that is used in Eggshells
+    /// compile time reflection system.
+    /// </summary>
+    public sealed class Library : Member<INamedTypeSymbol>
+    {
+        public Library(ISymbol symbol) : base(symbol)
+        {
+            Class = Factory.OnType((ITypeSymbol)symbol);
+        }
 
-		public override string Compile( out string className )
-		{
-			// Class name doesn't matter
-			className = Factory.OnType( Symbol, false ).Replace( '.', '_' ).Replace( '<', '_' ).Replace( '>', '_' );
+        public override string Compile(out string className)
+        {
+            // Class name doesn't matter
+            className = Factory.OnType(Symbol, false).Replace('.', '_').Replace('<', '_').Replace('>', '_');
 
-			return $@"
+            return $@"
 [CompilerGenerated]
 private class {className} : Library
 {{
-	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()}, typeof( {Factory.OnType( Symbol, fillGenerics : false )} ), parent )
+	public {className}( Library parent = null ) : base( ""{Name}"", {Name.Hash()}, typeof( {Factory.OnType(Symbol, fillGenerics : false)} ), parent )
 	{{
 		Title = ""{Title}"";
 		Group = ""{Group}"";
@@ -45,6 +45,11 @@ private class {className} : Library
 	// Overrides
 	public override IObject Create()
 	{{
+		if(Components.Count != {Bindings.Count})
+		{{
+			return base.Create();
+		}}
+
 		{OnCreate()}
 	}}
 
@@ -55,232 +60,247 @@ private class {className} : Library
 
 	protected override bool OnRegister( IObject value )
 	{{
+        if(Components.Count != {Bindings.Count})
+		{{
+			return base.OnRegister( value );
+		}}
+
 		{OnRegister()}
 	}}
 
 	// Components
-	{string.Join( "\n", Components )}
+	{string.Join("\n", Components)}
 
 	// Functions
-	{string.Join( "\n", Functions )}
+	{string.Join("\n", Functions)}
 
 	// Properties
-	{string.Join( "\n", Properties )}
+	{string.Join("\n", Properties)}
 }}
 ";
-		}
+        }
 
-		private string OnProperties()
-		{
-			var builder = new StringBuilder();
+        private string OnProperties()
+        {
+            var builder = new StringBuilder();
 
-			foreach ( var symbol in Symbol.GetMembers().Where( e => Property.IsValid( e, Symbol ) ) )
-			{
-				Properties.AppendLine( new Property( symbol ).Compile( out var name ) );
-				builder.AppendLine( $@"Properties.Add( new {name}() );" );
-			}
+            foreach ( var symbol in Symbol.GetMembers().Where(e => Property.IsValid(e, Symbol)) )
+            {
+                Properties.AppendLine(new Property(symbol).Compile(out var name));
+                builder.AppendLine($@"Properties.Add( new {name}() );");
+            }
 
-			return builder.ToString();
-		}
+            return builder.ToString();
+        }
 
-		private string OnCreate()
-		{
-			if ( Bindings.Count == 0 )
-			{
-				return "return Construct();";
-			}
+        private string OnCreate()
+        {
+            if (Bindings.Count == 0)
+            {
+                return "return Construct();";
+            }
 
-			var builder = new StringBuilder( "return " );
+            var builder = new StringBuilder("return ");
 
-			foreach ( var binding in Bindings )
-			{
-				builder.Append( $"{binding}.OnCreate() ?? " );
-			}
+            foreach ( var binding in Bindings )
+            {
+                builder.Append($"{binding}.OnCreate() ?? ");
+            }
 
-			return builder.Append( "Construct();" ).ToString();
-		}
+            return builder.Append("Construct();").ToString();
+        }
 
-		private string OnRegister()
-		{
-			if ( Bindings.Count == 0 )
-			{
-				return "return true;";
-			}
+        private string OnRegister()
+        {
+            if (Bindings.Count == 0)
+            {
+                return "return true;";
+            }
 
-			var builder = new StringBuilder( "return " );
+            var builder = new StringBuilder("return ");
 
-			foreach ( var binding in Bindings )
-			{
-				builder.Append( $"{binding}.OnRegister( value ) && " );
-			}
+            foreach ( var binding in Bindings )
+            {
+                builder.Append($"{binding}.OnRegister( value ) && ");
+            }
 
-			return builder.Append( "true;" ).ToString();
-		}
+            return builder.Append("true;").ToString();
+        }
 
-		private string OnConstructor()
-		{
-			if ( Symbol.IsAbstract )
-			{
-				return $@"Terminal.Log.Error(""Can't create {Name}, class is abstract""); return null;";
-			}
+        private string OnConstructor()
+        {
+            if (Symbol.IsAbstract)
+            {
+                return $@"Terminal.Log.Error(""Can't create {Name}, class is abstract""); return null;";
+            }
 
-			if ( Symbol.IsStatic )
-			{
-				return $@"Terminal.Log.Error(""Can't create {Name}, class is static""); return null;";
-			}
+            if (Symbol.IsStatic)
+            {
+                return $@"Terminal.Log.Error(""Can't create {Name}, class is static""); return null;";
+            }
 
-			if ( Symbol.InstanceConstructors.All( e => e.Parameters.Length > 0 || e.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected ) )
-			{
-				return $@"Terminal.Log.Error(""Can't create {Name}, class is has no publicly accessible parameterless constructor""); return null;";
-			}
+            if (Symbol.InstanceConstructors.All(e => e.Parameters.Length > 0 || e.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected))
+            {
+                return $@"Terminal.Log.Error(""Can't create {Name}, class is has no publicly accessible parameterless constructor""); return null;";
+            }
 
-			var potential = Symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Constructor" ) )?.ConstructorArguments[0].Value;
-			return potential?.ToString() ?? $"return new {Class}();";
-		}
+            var potential = Symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Constructor"))?.ConstructorArguments[0].Value;
+            return potential?.ToString() ?? $"return new {Class}();";
+        }
 
-		private string OnComponents()
-		{
-			IEnumerable<AttributeData> GetAttributes()
-			{
-				var symbol = Symbol;
+        private string OnComponents()
+        {
+            IEnumerable<AttributeData> GetAttributes()
+            {
+                var symbol = Symbol;
 
-				while ( true )
-				{
-					foreach ( var attribute in symbol.GetAttributes().Where( e => IsValid( e.AttributeClass ) ) )
-					{
-						yield return attribute;
-					}
+                while (true)
+                {
+                    foreach ( var attribute in symbol.GetAttributes().Where(e => IsValid(e.AttributeClass)) )
+                    {
+                        yield return attribute;
+                    }
 
-					if ( symbol.BaseType == null || !symbol.BaseType.AllInterfaces.Any( e => e.Name.StartsWith( "IObject" ) ) )
-					{
-						break;
-					}
+                    if (symbol.BaseType == null || !symbol.BaseType.AllInterfaces.Any(e => e.Name.StartsWith("IObject")))
+                    {
+                        break;
+                    }
 
-					symbol = symbol.BaseType;
-				}
-			}
+                    symbol = symbol.BaseType;
+                }
+            }
 
-			bool IsValid( INamedTypeSymbol symbol )
-			{
-				// Normal Symbol
-				if ( symbol.GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) ) )
-				{
-					return true;
-				}
+            bool IsValid(INamedTypeSymbol symbol)
+            {
+                // Normal Symbol
+                if (symbol.GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Binding")))
+                {
+                    return true;
+                }
 
-				// Weird shit, because roslyn is retarded
+                // Weird shit, because roslyn is retarded
 
-				if ( symbol.Name.Contains( "Attribute" ) )
-				{
-					return false;
-				}
+                if (symbol.Name.Contains("Attribute"))
+                {
+                    return false;
+                }
 
-				return Generator.Current.Compilation.GetTypeByMetadataName( Factory.OnType( symbol ) ).GetAttributes().Any( e => e.AttributeClass.Name.StartsWith( "Binding" ) );
-			}
+                return Generator.Current.Compilation.GetTypeByMetadataName(Factory.OnType(symbol)).GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Binding"));
+            }
 
-			var builder = new StringBuilder();
+            var builder = new StringBuilder();
 
-			foreach ( var symbol in GetAttributes() )
-			{
-				var varName = $"component_{symbol.AttributeClass!.Name}";
+            foreach ( var symbol in GetAttributes() )
+            {
+                var varName = $"component_{symbol.AttributeClass!.Name}";
 
-				if ( Bindings.Contains( varName ) )
-				{
-					continue;
-				}
+                if (Bindings.Contains(varName))
+                {
+                    continue;
+                }
 
-				Components.AppendLine( $"private IBinding {varName};" );
-				builder.AppendLine( $"{varName} = {OnBinding( symbol )};\nComponents.Add({varName});" );
+                Components.AppendLine($"private Library.Binding {varName};");
+                builder.AppendLine($"{varName} = {OnBinding(symbol)};\nComponents.Add({varName});");
 
-				Bindings.Add( varName );
-			}
+                Bindings.Add(varName);
+            }
 
-			return builder.ToString();
-		}
+            return builder.ToString();
+        }
 
-		private string OnBinding( AttributeData attribute )
-		{
-			var builder = new StringBuilder();
+        private string OnBinding(AttributeData attribute)
+        {
+            var builder = new StringBuilder();
 
-			builder.Append( $"new {Factory.OnType( attribute.AttributeClass ).Replace( "Attribute", "" )}(" );
+            builder.Append($"new {Factory.OnType(attribute.AttributeClass).Replace("Attribute", "")}(");
 
-			for ( var i = 0; i < attribute.ConstructorArguments.Length; i++ )
-			{
-				var argument = attribute.ConstructorArguments[i];
-				var arg = argument.Value;
+            for (var i = 0; i < attribute.ConstructorArguments.Length; i++)
+            {
+                var argument = attribute.ConstructorArguments[i];
+                var arg = argument.Value;
 
-				// This is aids...
-				if ( argument.Type!.Name.Equals( "string", StringComparison.OrdinalIgnoreCase ) )
-				{
-					arg = $@"""{arg}""";
-				}
+                // This is aids...
+                if (argument.Type!.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = $@"""{arg}""";
+                }
 
-				builder.Append( arg );
+                if (argument.Type!.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = (bool)arg ? "true" : "false";
+                }
 
-				if ( i != attribute.ConstructorArguments.Length - 1 )
-				{
-					builder.Append( ", " );
-				}
-			}
+                builder.Append(arg);
 
-			builder.Append( "){" );
+                if (i != attribute.ConstructorArguments.Length - 1)
+                {
+                    builder.Append(", ");
+                }
+            }
 
-			foreach ( var args in attribute.NamedArguments )
-			{
-				var arg = args.Value.Value;
+            builder.Append("){");
 
-				// This is aids...
-				if ( args.Value.Type.Name.Equals( "string", StringComparison.OrdinalIgnoreCase ) )
-				{
-					arg = $@"""{arg}""";
-				}
+            foreach ( var args in attribute.NamedArguments )
+            {
+                var arg = args.Value.Value;
 
-				builder.AppendLine( $"{args.Key} = {arg}," );
-			}
+                // This is aids...
+                if (args.Value.Type.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = $@"""{arg}""";
+                }
 
-			return builder.Append( '}' ).ToString();
-		}
+                if (args.Value.Type!.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = (bool)arg ? "true" : "false";
+                }
 
-		private string OnFunctions()
-		{
-			var builder = new StringBuilder();
+                builder.AppendLine($"{args.Key} = {arg},");
+            }
 
-			foreach ( var symbol in Symbol.GetMembers().Where( e => Function.IsValid( e, Symbol ) ) )
-			{
-				Functions.AppendLine( new Function( symbol ).Compile( out var name ) );
-				builder.AppendLine( $@"Functions.Add( new {name}() );" );
-			}
+            return builder.Append('}').ToString();
+        }
 
-			return builder.ToString();
-		}
+        private string OnFunctions()
+        {
+            var builder = new StringBuilder();
 
-		// Library
+            foreach ( var symbol in Symbol.GetMembers().Where(e => Function.IsValid(e, Symbol)) )
+            {
+                Functions.AppendLine(new Function(symbol).Compile(out var name));
+                builder.AppendLine($@"Functions.Add( new {name}() );");
+            }
 
-		public string Class { get; }
+            return builder.ToString();
+        }
 
-		public List<string> Bindings { get; } = new();
-		public StringBuilder Components { get; } = new();
-		public StringBuilder Properties { get; } = new();
-		public StringBuilder Functions { get; } = new();
+        // Library
 
-		protected override string OnName( ISymbol symbol )
-		{
-			var attribute = symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Library" ) );
+        public string Class { get; }
 
-			if ( attribute is { ConstructorArguments.Length: > 0 } )
-				return (string)attribute.ConstructorArguments[0].Value;
+        public List<string> Bindings { get; } = new();
+        public StringBuilder Components { get; } = new();
+        public StringBuilder Properties { get; } = new();
+        public StringBuilder Functions { get; } = new();
 
-			return base.OnName( symbol );
-		}
+        protected override string OnName(ISymbol symbol)
+        {
+            var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Library"));
 
-		protected override string OnGroup( ISymbol symbol )
-		{
-			var attribute = symbol.GetAttributes().FirstOrDefault( e => e.AttributeClass!.Name.StartsWith( "Group" ) );
+            if (attribute is { ConstructorArguments.Length: > 0 })
+                return (string)attribute.ConstructorArguments[0].Value;
 
-			if ( attribute is { ConstructorArguments.Length: > 0 } )
-				return (string)attribute.ConstructorArguments[0].Value;
+            return base.OnName(symbol);
+        }
 
-			return symbol.ContainingNamespace.Name;
-		}
-	}
+        protected override string OnGroup(ISymbol symbol)
+        {
+            var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Group"));
+
+            if (attribute is { ConstructorArguments.Length: > 0 })
+                return (string)attribute.ConstructorArguments[0].Value;
+
+            return symbol.ContainingNamespace.Name;
+        }
+    }
 }

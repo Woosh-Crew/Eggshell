@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
@@ -49,7 +51,13 @@ private class {className} : Property<{generic}>
 		Type = typeof( {Factory.OnType(Symbol.Type)} );
 	}}
 
-	protected override object Get( object from )
+    public override void OnAttached(Library library)
+    {{
+        // Add Components
+		{OnComponents()}
+    }}
+
+	protected override void Get( object from, out {generic} value )
 	{{
 		{OnGetter()}
 	}}
@@ -61,8 +69,107 @@ private class {className} : Property<{generic}>
 	{{
 		{OnSetter()}
 	}}
+
+    // Components
+	{string.Join("\n", Components)}
 }}
 ";
+        }
+
+        public StringBuilder Components { get; } = new();
+        public List<string> Bindings { get; } = new();
+
+        private string OnComponents()
+        {
+            bool IsValid(INamedTypeSymbol symbol)
+            {
+                // Normal Symbol
+                if (symbol.GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Binding")))
+                {
+                    return true;
+                }
+
+                // Weird shit, because roslyn is retarded
+
+                if (symbol.Name.Contains("Attribute"))
+                {
+                    return false;
+                }
+
+                return Generator.Current.Compilation.GetTypeByMetadataName(Factory.OnType(symbol)).GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Binding"));
+            }
+
+            var builder = new StringBuilder();
+
+            foreach ( var symbol in Symbol.GetAttributes().Where(e => IsValid(e.AttributeClass)) )
+            {
+                var varName = $"component_{symbol.AttributeClass!.Name}";
+
+                if (Bindings.Contains(varName))
+                {
+                    continue;
+                }
+
+                Components.AppendLine($"private Property.Binding {varName};");
+                builder.AppendLine($"{varName} = {OnBinding(symbol)};\nComponents.Add({varName});");
+
+                Bindings.Add(varName);
+            }
+
+            return builder.ToString();
+        }
+
+        private string OnBinding(AttributeData attribute)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append($"new {Factory.OnType(attribute.AttributeClass).Replace("Attribute", "")}(");
+
+            for (var i = 0; i < attribute.ConstructorArguments.Length; i++)
+            {
+                var argument = attribute.ConstructorArguments[i];
+                var arg = argument.Value;
+
+                // This is aids...
+                if (argument.Type!.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = $@"""{arg}""";
+                }
+                
+                if (argument.Type!.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = (bool)arg ? "true" : "false";
+                }
+
+                builder.Append(arg);
+
+                if (i != attribute.ConstructorArguments.Length - 1)
+                {
+                    builder.Append(", ");
+                }
+            }
+
+            builder.Append("){");
+
+            foreach ( var args in attribute.NamedArguments )
+            {
+                var arg = args.Value.Value;
+
+                // This is aids...
+                if (args.Value.Type.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = $@"""{arg}""";
+                }
+                
+                if (args.Value.Type!.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase))
+                {
+                    arg = (bool)arg ? "true" : "false";
+                }
+
+                builder.AppendLine($"{args.Key} = {arg},");
+            }
+
+            return builder.Append('}').ToString();
         }
 
         protected override string OnName(ISymbol symbol)
@@ -82,9 +189,9 @@ private class {className} : Property<{generic}>
         private string OnGetter()
         {
             if (Symbol.GetMethod == null || Symbol.GetMethod.DeclaredAccessibility == Accessibility.Private)
-                return "return default;";
+                return @"value = default;";
 
-            return $@"return {(Symbol.IsStatic ? $"{Owner}.{Symbol.Name}" : $"(({Owner})from).{Symbol.Name}")};";
+            return $@"value = {(Symbol.IsStatic ? $"{Owner}.{Symbol.Name}" : $"(({Owner})from).{Symbol.Name}")};";
         }
 
         private string OnSetter()
@@ -101,6 +208,7 @@ private class {className} : Property<{generic}>
         public static bool IsValid(ISymbol symbol, ISymbol typeSymbol)
         {
             return symbol.Kind == SymbolKind.Property
+                   && !symbol.IsStatic
                    && !symbol.Name.StartsWith("this")
                    && !symbol.GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Skip"))
                    && !symbol.IsOverride

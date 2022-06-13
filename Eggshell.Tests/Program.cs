@@ -1,29 +1,34 @@
 ﻿#define EGGSHELL
 
-using Eggshell.IO;
-using Eggshell.Resources;
+using System;
+using Eggshell.Reflection;
 
 namespace Eggshell.Tests
 {
     [Icon(Id = "terminal")]
     public class Console : Project
     {
-        static Console()
+        public Components<Console> Components { get; }
+
+        public Console()
         {
-            Terminal.Command.Push(((Library)typeof(Console)).Properties["console.hello"]);
+            Components = new(this);
         }
 
         public static void Main(string[] args)
         {
             Crack(new());
 
-            Assets.Load<Data>("process://");
-            Terminal.Log.Info(((Pathing)"process://").Absolute());
+            Dispatch.Run("event.hello2");
         }
+
+        [Dispatch("event.hello2")]
+        public static void Hello2() { }
 
         /// <summary>
         /// This is a test description
         /// </summary>
+        [ConVar(Assignable = false)]
         public static float Hello { get; set; }
     }
 }

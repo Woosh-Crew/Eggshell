@@ -14,9 +14,9 @@ namespace Eggshell.Reflection
         public Getter<T> Getter { get; set; }
         public Setter<T> Setter { get; set; }
 
-        protected override object Get(object from)
+        protected override void Get(object from, out T value)
         {
-            return Getter == null ? default : Getter.Invoke(from);
+            value = Getter == null ? default : Getter.Invoke(from);
         }
 
         protected override void Set(object target, T value)
@@ -30,7 +30,7 @@ namespace Eggshell.Reflection
     {
         public NativeProperty(string name) : base(name, null) { }
 
-        protected override object Get(object from)
+        protected override void Get(object from, out T value)
         {
             throw new NotImplementedException();
         }
@@ -62,9 +62,9 @@ namespace Eggshell.Reflection
 
         private T _value;
 
-        protected override object Get(object from)
+        protected override void Get(object from, out T value)
         {
-            return Value;
+            value = Value;
         }
 
         protected override void Set(object from, T value)

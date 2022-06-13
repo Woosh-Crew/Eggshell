@@ -10,7 +10,7 @@ namespace Eggshell
     /// using components. We can do a lotta cool and performant
     /// shit because of this. Such as easily doing C# / C++ calls.
     /// </summary>
-    [Serializable, Group("Reflection"), Bindable]
+    [Serializable, Group("Reflection")]
     public partial class Library : IObject, IMeta
     {
         /// <summary>
@@ -88,6 +88,33 @@ namespace Eggshell
         }
 
         /// <summary>
+        /// IBinding is a binding to a library. Allows you to inject logic
+        /// in to the library pipeline, as well as store custom library meta
+        /// data for use in your project. (Such as the Archive Component)
+        /// </summary>
+        public interface Binding : IComponent<Library>
+        {
+            /// <summary>
+            /// Should we register this object to the library registry? If
+            /// false, it'll destroy itself. If true we should be using this object 
+            /// </summary>
+            bool OnRegister(IObject value) { return true; }
+
+            /// <summary>
+            /// Cleanup any resources when this object gets removed from
+            /// the registry (when it is deleted).
+            /// </summary>
+            void OnUnregister(IObject value) { }
+
+            /// <summary>
+            /// What should we do when this object is created through the library
+            /// system? Should we use a custom constructor? 
+            /// </summary>
+            /// <returns></returns>
+            IObject OnCreate() { return null; }
+        }
+
+        /// <summary>
         /// It isn't recommended that you create the library manually, as
         /// this is usually done through source generators. This will automatically
         /// generate an id for the library, based off the name (hashed) 
@@ -99,14 +126,13 @@ namespace Eggshell
         /// calling the internal Construct() method, which can be overridden
         /// or uses a constructor attribute.
         /// </summary>
-        [Bindable]
         public virtual IObject Create()
         {
             // This gets source generated, to be compile time efficient
 
-            foreach ( var component in Components )
+            for (var index = 0; index < Components.Count; index++)
             {
-                var instance = (component as IBinding)?.OnCreate();
+                var instance = (Components[index] as Binding)?.OnCreate();
 
                 if (instance != null)
                 {
@@ -150,14 +176,13 @@ namespace Eggshell
         /// to this library. Incredibly useful for setting up instanced
         /// based callbacks, as well as keeping track of instances.
         /// </summary>
-        [Bindable]
         protected virtual bool OnRegister(IObject value)
         {
             // This gets source generated, to be compile time efficient
 
-            foreach ( var component in Components )
+            for (var index = 0; index < Components.Count; index++)
             {
-                var potential = (component as IBinding)?.OnRegister(value) ?? true;
+                var potential = (Components[index] as Binding)?.OnRegister(value) ?? true;
 
                 if (!potential)
                 {
@@ -173,14 +198,13 @@ namespace Eggshell
         /// to this library. Incredibly useful for setting up instanced
         /// based callbacks, as well as keeping track of instances.
         /// </summary>
-        [Bindable]
         protected virtual void OnUnregister(IObject value)
         {
             // This gets source generated, to be compile time efficient
 
-            foreach ( var component in Components )
+            for (var index = 0; index < Components.Count; index++)
             {
-                (component as IBinding)?.OnUnregister(value);
+                (Components[index] as Binding)?.OnUnregister(value);
             }
         }
 

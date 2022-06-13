@@ -4,7 +4,7 @@ using Eggshell.Reflection;
 
 namespace Eggshell
 {
-    public class Dispatcher : IDispatcher
+    internal class Dispatcher : IDispatcher
     {
         public Library ClassInfo { get; }
 
@@ -13,8 +13,8 @@ namespace Eggshell
             ClassInfo = Library.Register(this);
         }
 
-        private Dictionary<string, List<Function>> _events = new();
-        private Dictionary<Library, List<IObject>> _registry = new();
+        private readonly Dictionary<string, List<Function>> _events = new();
+        private readonly Dictionary<Library, List<IObject>> _registry = new();
 
         public void Add(string name, Function function)
         {
@@ -38,7 +38,7 @@ namespace Eggshell
                 return;
             }
 
-            foreach (var function in callbacks)
+            foreach ( var function in callbacks )
             {
                 if (function.IsStatic)
                 {
@@ -46,7 +46,7 @@ namespace Eggshell
                     continue;
                 }
 
-                foreach (var item in _registry[function.Parent])
+                foreach ( var item in _registry[function.Parent] )
                 {
                     function.Invoke(item, args);
                 }

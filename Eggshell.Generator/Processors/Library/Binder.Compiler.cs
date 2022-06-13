@@ -125,8 +125,8 @@ using Eggshell.Reflection;
 
 namespace {typeSymbol.ContainingNamespace}
 {{
-	[AttributeUsage( AttributeTargets.Class ), Binding]
-	public class {typeSymbol.Name}Attribute : Attribute, IBinding
+	[AttributeUsage( AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property ), Binding]
+	public class {typeSymbol.Name}Attribute : Attribute, {Target}.Binding
 	{{
 		public {Target} Attached {{ get; set; }}
 
@@ -135,7 +135,7 @@ namespace {typeSymbol.ContainingNamespace}
 		{OnProperties(typeSymbol)}
 	}}
 
-	partial class {typeSymbol.Name} : IBinding
+	partial class {typeSymbol.Name} : {Target}.Binding
 	{{
 		{OnBody(typeSymbol)}
 	}}
