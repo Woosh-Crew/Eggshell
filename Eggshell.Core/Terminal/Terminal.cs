@@ -12,6 +12,8 @@ namespace Eggshell
     [Link("debug.terminal"), Group("Debug")]
     public class Terminal : Module
     {
+        public const string Level = "Terminal";
+
         /// <summary>
         /// Command Console. Use Run(string, object[]) to run a command.
         /// Your game can have its own Console provider.
@@ -58,7 +60,7 @@ namespace Eggshell
         /// specific things.
         /// </summary>
         [Link("debug.report"), ConVar]
-        public static bool Report { get; set; }
+        public static bool Report { get; set; } = true;
 
         /// <summary>
         /// Runs a stopwatch on a IDisposable Scope. Use this in a using() expression
@@ -81,12 +83,11 @@ namespace Eggshell
             Log = new ConsoleLogger();
             Command = new Commander();
 
-            Report = IsDebug;
-
             // Push default commands
 
+            Command.Push("dump", Dump, "Dumps all library meta data into the terminal");
+
             Command.Push<string>("help", Help, "Dumps all commands into the terminal");
-            Command.Push<string>("dump", Dump, "Dumps all library meta data into the terminal");
             Command.Push<string>("exec", Execute, "Executes all commands within a text file (per line)");
         }
 
@@ -94,18 +95,18 @@ namespace Eggshell
         {
             foreach ( var command in Command.All )
             {
-                Log.Entry($"[{command.Name}] = {command.Help}", "Terminal");
+                Log.Entry($"[{command.Name}] = {command.Help}", Level);
             }
         }
 
-        private static void Dump(string input)
+        private static void Dump()
         {
             foreach ( var library in Library.Database )
             {
-                Log.Entry($"[{library.Name}] - {library.Help}", "Terminal");
+                Log.Entry($"[{library.Name}] - {library.Help}", Level);
                 foreach ( var property in library.Properties )
                 {
-                    Log.Entry($"\t[{property.Name}] - {property.Help}", "Terminal");
+                    Log.Entry($"\t[{property.Name}] - {property.Help}", Level);
                 }
             }
         }
@@ -130,7 +131,7 @@ namespace Eggshell
             {
                 var input = invoke.Substring(1);
 
-                Log.Entry($"> {input}", "Terminal");
+                Log.Entry($"> {input}", Level);
                 Command.Invoke(input);
             }
         }

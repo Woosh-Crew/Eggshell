@@ -52,14 +52,20 @@ namespace Eggshell
         {
             object Invoker(object[] e)
             {
-                if (readOnly || (e[0] == null || !property.IsAssignable))
+                if (readOnly)
                 {
-                    Terminal.Log.Info($"Property [{property.Name}] is equal to [{property.Value}]");
+                    Terminal.Log.Entry($"Property [{property.Name}] is readonly [{property.Value}]", Terminal.Level);
+                    return property.Value;
+                }
+
+                if ((e[0] == null || !property.IsAssignable))
+                {
+                    Terminal.Log.Entry($"Property [{property.Name}] is equal to [{property.Value}]", Terminal.Level);
                     return property.Value;
                 }
 
                 property.Value = e[0];
-                Terminal.Log.Info($"Property [{property.Name}] now equals [{property.Value}]");
+                Terminal.Log.Entry($"Property [{property.Name}] now equals [{property.Value}]", Terminal.Level);
                 return property.Value;
             }
 

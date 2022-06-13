@@ -5,7 +5,7 @@ namespace Eggshell
     [Binding(Type = typeof(Property))]
     public partial class ConVar
     {
-        public bool Assignable { get; set; }
+        public bool Assignable { get; set; } = true;
 
         public void OnAttached()
         {

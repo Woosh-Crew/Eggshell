@@ -25,7 +25,7 @@ namespace Eggshell.Diagnostics
             {
                 // No Command
 
-                Terminal.Log.Info($"Couldn't find command \"{command}\"");
+                Terminal.Log.Entry($"Couldn't find command \"{command}\"", Terminal.Level);
                 return null;
             }
 
@@ -33,7 +33,7 @@ namespace Eggshell.Diagnostics
             {
                 // Log Help
 
-                Terminal.Log.Info($"[{value.Name}] = {value.Help}");
+                Terminal.Log.Entry($"[{value.Name}] = {value.Help}", Terminal.Level);
                 return null;
             }
 
