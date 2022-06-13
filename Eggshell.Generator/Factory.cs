@@ -1,74 +1,101 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Eggshell.Generator
 {
-	public class Factory
-	{
-		public static string Documentation( ISymbol symbol )
-		{
-			var syntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLeadingTrivia().Where( e => e.IsKind( SyntaxKind.SingleLineCommentTrivia ) ).Select( e => e.ToFullString() ).ToArray();
+    public class Factory
+    {
+        public static string Documentation(ISymbol symbol)
+        {
+            var help = symbol.GetDocumentationCommentXml(CultureInfo.InstalledUICulture, true);
 
-			if ( syntax == null || syntax.Length == 0 || !syntax.Any( e => e.Contains( "<summary>" ) ) )
-				return "n/a";
+            if (!string.IsNullOrEmpty(help))
+            {
+                var builder = new StringBuilder();
 
-			// This is so fucking aids... dont change it
-			return string.Join( "", syntax ).Replace( "<summary>", "" ).Replace( "</summary>", "" ).Replace( "///", "" ).Replace( "//", "" ).Replace( "\"", "\"\"" ).Trim().Replace( "\n", " " );
-		}
+                var document = new XmlDocument();
+                document.LoadXml(help);
 
-		public static string OnType( ITypeSymbol inputType, bool ignoreGeneric = false, bool fillGenerics = true )
-		{
-			// Build Array
-			if ( inputType is IArrayTypeSymbol arrayTypeSymbol )
-			{
-				return OnType( arrayTypeSymbol.ElementType ) + "[]";
-			}
+                foreach ( XmlNode child in document.DocumentElement.ChildNodes )
+                {
+                    if (child.NodeType == XmlNodeType.Element)
+                    {
+                        foreach ( var text in child.InnerText.Split('\n') )
+                        {
+                            builder.Append(text.Trim());
+                            builder.Append(' ');
+                        }
+                    }
+                }
 
-			var typeName = new StringBuilder( inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty );
+                return builder.ToString().Trim();
+            }
 
-			// This should be inverted
-			var currentType = inputType.ContainingType;
-			if ( currentType != null )
-			{
-				var symbols = new List<INamedTypeSymbol>();
+            var syntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().GetLeadingTrivia().Where(e => e.IsKind(SyntaxKind.SingleLineCommentTrivia)).Select(e => e.ToFullString()).ToArray();
 
-				while ( currentType != null )
-				{
-					symbols.Add( currentType );
-					currentType = currentType.ContainingType;
-				}
+            if (syntax == null || syntax.Length == 0 || !syntax.Any(e => e.Contains("<summary>")))
+                return "n/a";
 
-				symbols.Reverse();
+            // This is so fucking aids... dont change it
+            return string.Join("", syntax).Replace("<summary>", "").Replace("</summary>", "").Replace("///", "").Replace("//", "").Replace("\"", "\"\"").Trim().Replace("\n", " ");
+        }
 
-				foreach ( var type in symbols )
-				{
-					typeName.Append( $"{type.Name}." );
-				}
+        public static string OnType(ITypeSymbol inputType, bool ignoreGeneric = false, bool fillGenerics = true)
+        {
+            // Build Array
+            if (inputType is IArrayTypeSymbol arrayTypeSymbol)
+            {
+                return OnType(arrayTypeSymbol.ElementType) + "[]";
+            }
 
-				symbols.Clear();
-			}
+            var typeName = new StringBuilder(inputType.ContainingNamespace != null ? $"{inputType.ContainingNamespace}." : string.Empty);
 
-			if ( inputType is not INamedTypeSymbol { IsGenericType: true } nType || ignoreGeneric )
-				return typeName.Append( inputType.Name ).ToString();
+            // This should be inverted
+            var currentType = inputType.ContainingType;
+            if (currentType != null)
+            {
+                var symbols = new List<INamedTypeSymbol>();
 
-			if ( !fillGenerics )
-			{
-				return $"{typeName.Append( inputType.Name )}<>";
-			}
+                while (currentType != null)
+                {
+                    symbols.Add(currentType);
+                    currentType = currentType.ContainingType;
+                }
 
-			// Build Generic
-			var builder = new StringBuilder( "<" );
+                symbols.Reverse();
 
-			for ( var i = 0; i < nType.TypeArguments.Length; i++ )
-			{
-				var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
-				builder.Append( i == 0 ? $"{fullName}" : $",{fullName}" );
-			}
+                foreach ( var type in symbols )
+                {
+                    typeName.Append($"{type.Name}.");
+                }
 
-			return $"{typeName.Append( inputType.Name )}{builder.Append( '>' )}";
-		}
-	}
+                symbols.Clear();
+            }
+
+            if (inputType is not INamedTypeSymbol { IsGenericType: true } nType || ignoreGeneric)
+                return typeName.Append(inputType.Name).ToString();
+
+            if (!fillGenerics)
+            {
+                return $"{typeName.Append(inputType.Name)}<>";
+            }
+
+            // Build Generic
+            var builder = new StringBuilder("<");
+
+            for (var i = 0; i < nType.TypeArguments.Length; i++)
+            {
+                var fullName = $"{(nType.TypeArguments[i].ContainingNamespace != null ? $"{nType.TypeArguments[i].ContainingNamespace}." : string.Empty)}{nType.TypeArguments[i].Name}";
+                builder.Append(i == 0 ? $"{fullName}" : $",{fullName}");
+            }
+
+            return $"{typeName.Append(inputType.Name)}{builder.Append('>')}";
+        }
+    }
 }

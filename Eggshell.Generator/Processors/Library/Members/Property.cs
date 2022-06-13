@@ -172,16 +172,6 @@ private class {className} : Property<{generic}>
             return builder.Append('}').ToString();
         }
 
-        protected override string OnName(ISymbol symbol)
-        {
-            var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Property"));
-
-            if (attribute is { ConstructorArguments.Length: > 0 })
-                return (string)attribute.ConstructorArguments[0].Value;
-
-            return base.OnName(symbol);
-        }
-
         // Property
 
         public string Owner { get; }
@@ -208,7 +198,6 @@ private class {className} : Property<{generic}>
         public static bool IsValid(ISymbol symbol, ISymbol typeSymbol)
         {
             return symbol.Kind == SymbolKind.Property
-                   && !symbol.IsStatic
                    && !symbol.Name.StartsWith("this")
                    && !symbol.GetAttributes().Any(e => e.AttributeClass.Name.StartsWith("Skip"))
                    && !symbol.IsOverride

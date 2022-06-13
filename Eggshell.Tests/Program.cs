@@ -18,17 +18,15 @@ namespace Eggshell.Tests
         public static void Main(string[] args)
         {
             Crack(new());
-
             Dispatch.Run("event.hello2");
         }
 
-        [Dispatch("event.hello2")]
-        public static void Hello2() { }
-
         /// <summary>
-        /// This is a test description
+        /// This is a test description hello
+        /// hello
+        /// hello
         /// </summary>
-        [ConVar(Assignable = false)]
+        [ ConVar(Assignable = false)]
         public static float Hello { get; set; }
     }
 }

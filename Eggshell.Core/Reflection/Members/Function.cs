@@ -15,13 +15,24 @@ namespace Eggshell.Reflection
         /// The MethodInfo that this function was generated for. 
         /// caching its meta data in the constructor.
         /// </summary>
-        public MethodInfo Info => Origin == null ? null : _info ??= Parent.Info.GetMethod(Origin, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        public MethodInfo Info => Origin == null
+            ? null
+            : _info ??= Parent.Info.GetMethod(
+                Origin,
+                Parameters
+            );
 
         /// <summary>
         /// The cached method info that is generated from
         /// <see cref="Function.Info"/>.
         /// </summary>
         private MethodInfo _info;
+
+        /// <summary>
+        /// The parameters that are needed in order to invoke this Function
+        /// without any problems...
+        /// </summary>
+        public Type[] Parameters { get; protected set; }
 
         /// <summary>
         /// Where did this function come from? (This will automatically

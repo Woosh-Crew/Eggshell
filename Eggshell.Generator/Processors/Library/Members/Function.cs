@@ -31,6 +31,8 @@ private class {className} : Function
 		Group = ""{Group}"";
 		Help = @""{Help}"";
 		IsStatic = {(Symbol.IsStatic ? "true" : "false")};
+
+        {OnParameters()}
 	}}
 
     public override void OnAttached(Library library)
@@ -142,15 +144,21 @@ private class {className} : Function
             return builder.Append('}').ToString();
         }
 
-
-        protected override string OnName(ISymbol symbol)
+        protected string OnParameters()
         {
-            var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Function"));
+            if (Symbol.Parameters.Length == 0)
+            {
+                return "Parameters = System.Array.Empty<System.Type>();";
+            }
+            
+            var builder = new StringBuilder("Parameters = new System.Type[] {");
 
-            if (attribute is { ConstructorArguments.Length: > 0 })
-                return (string)attribute.ConstructorArguments[0].Value;
+            foreach ( var parameter in Symbol.Parameters )
+            {
+                builder.Append($"typeof({Factory.OnType(parameter.Type)}),");
+            }
 
-            return base.OnName(symbol);
+            return builder.Append("};").ToString();
         }
 
         // Property

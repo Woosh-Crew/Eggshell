@@ -283,16 +283,6 @@ private class {className} : Library
         public StringBuilder Properties { get; } = new();
         public StringBuilder Functions { get; } = new();
 
-        protected override string OnName(ISymbol symbol)
-        {
-            var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Library"));
-
-            if (attribute is { ConstructorArguments.Length: > 0 })
-                return (string)attribute.ConstructorArguments[0].Value;
-
-            return base.OnName(symbol);
-        }
-
         protected override string OnGroup(ISymbol symbol)
         {
             var attribute = symbol.GetAttributes().FirstOrDefault(e => e.AttributeClass!.Name.StartsWith("Group"));

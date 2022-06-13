@@ -44,7 +44,7 @@ namespace Eggshell.Generator
         {
             var builder = new StringBuilder();
 
-            foreach ( var symbol in typeSymbol.GetMembers().Where(e => Property.IsValid(e, typeSymbol) && (e as IPropertySymbol)?.SetMethod.DeclaredAccessibility == Accessibility.Public) )
+            foreach ( var symbol in typeSymbol.GetMembers().Where(e => !e.IsStatic && Property.IsValid(e, typeSymbol) && (e as IPropertySymbol)?.SetMethod.DeclaredAccessibility == Accessibility.Public) )
             {
                 var appendable = $@"public {Factory.OnType((symbol as IPropertySymbol)?.Type)} {symbol.Name} {{ get; set; }}";
 
