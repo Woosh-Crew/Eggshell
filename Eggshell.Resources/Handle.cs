@@ -97,7 +97,7 @@ namespace Eggshell.Resources
         // --------------------------------------------------------------------------------------- //
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Unload(Action callback = null)
+        internal void Unload(Action callback = null)
         {
             if (!IsLoaded || _loading)
             {

@@ -56,6 +56,8 @@ namespace Eggshell.Resources
                 // Can't Unload
                 return;
             }
+
+            Handle.Unload(callback);
         }
 
         private T Create()
@@ -120,7 +122,7 @@ namespace Eggshell.Resources
 
         // Logic
         // --------------------------------------------------------------------------------------- //
-       
+
         /// <summary>
         /// Unloads the asset from memory, this will happen automatically
         /// if nothing references the asset anymore.
