@@ -59,7 +59,7 @@ namespace Eggshell
             {
                 Booted = false;
                 Bootstrap = null;
-
+                
                 Terminal.Log.Error("Bootstrap Failed");
                 Terminal.Log.Exception(e);
             }

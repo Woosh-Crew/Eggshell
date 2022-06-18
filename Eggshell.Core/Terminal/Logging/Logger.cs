@@ -31,10 +31,14 @@ namespace Eggshell.Diagnostics
 
             entry.Message = $"{entry.Message}";
             entry.Time = DateTime.Now;
-            
-            Console.WriteLine($"[{entry.Time.ToShortTimeString()}] [{entry.Level}] {entry.Message}");
 
+            Console.WriteLine($"[{entry.Time.ToShortTimeString()}] [{entry.Level}] {entry.Message}");
             Console.ResetColor();
+
+            if (entry.Level.Contains("Error") || entry.Level.Contains("Exception"))
+            {
+                Console.WriteLine(entry.Trace);
+            }
 
             _logs.Add(entry);
         }

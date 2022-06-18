@@ -26,7 +26,7 @@ namespace Eggshell
         /// when you want to have control over the list (say for networking). This
         /// should be done in your classes constructor, so there always is a database.
         /// </summary>
-        public Components(T item, List<IComponent<T>> components) : this(item)
+        public Components(T item, IList<IComponent<T>> components) : this(item)
         {
             _storage = components;
         }
@@ -40,8 +40,8 @@ namespace Eggshell
             Clear();
         }
 
-        private List<IComponent<T>> _storage;
-        protected List<IComponent<T>> Storage => _storage ??= new();
+        private IList<IComponent<T>> _storage;
+        protected IList<IComponent<T>> Storage => _storage ??= new List<IComponent<T>>();
 
         // Enumerator
         // --------------------------------------------------------------------------------------- //

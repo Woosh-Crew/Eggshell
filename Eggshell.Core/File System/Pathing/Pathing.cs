@@ -418,7 +418,7 @@ namespace Eggshell.IO
         {
             try
             {
-                return Meta().IsFile;
+                return Exists() && Meta().IsFile;
             }
             catch
             {

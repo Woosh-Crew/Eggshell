@@ -15,12 +15,9 @@ namespace Eggshell
         {
             Database = new();
 
-            var stopwatch = Stopwatch.StartNew();
-
+            var stopwatch = Terminal.Stopwatch("Library Ready");
             Database.Add(AppDomain.CurrentDomain);
-
-            stopwatch.Stop();
-            Terminal.Log.Info($"Library Ready | {stopwatch.Elapsed.TotalMilliseconds} ms");
+            stopwatch.Dispose();
         }
 
         internal static bool IsValid(Type type)

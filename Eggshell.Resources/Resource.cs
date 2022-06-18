@@ -1,53 +1,96 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using Eggshell.IO;
 
 namespace Eggshell.Resources
 {
     /// <summary>
     /// A resource holds a reference and its state to an
+    /// asset. It uses a stream for loading the asset
+    /// through a handle.
+    /// </summary>
+    public class Resource<T> : Resource where T : class, IAsset, new()
+    {
+        /// <summary>
+        /// The handle is responsible for loading the asset and keeping
+        /// track of its loading state. We use the handle for either Wait
+        /// or Requesting.
+        /// </summary>
+        private Handle<T> Handle { get; }
+
+        /// <summary>
+        /// Can this asset still be loaded, without having any asset
+        /// references to it? Useful for when loading assets such as
+        /// UI that doesn't need to be reloaded everytime its used.
+        /// </summary>
+        public bool Persistant { get; protected set; }
+
+        public Resource(int id, string binder, Func<Stream> stream) : base(id, binder)
+        {
+            Handle = new(stream);
+        }
+
+        // State Control
+        // --------------------------------------------------------------------------------------- //
+
+        /// <summary>
+        /// Grabs the loaded asset from memory or will open a stream
+        /// and load the asset, then return an instance of the asset
+        /// </summary>
+        public Handle<T> Load(bool persistant = false)
+        {
+            Persistant ^= persistant;
+            Handle.Setup(Create);
+
+            return Handle;
+        }
+
+        /// <summary>
+        /// Unloads the asset from memory, this will happen automatically
+        /// if nothing references the asset anymore.
+        /// </summary>
+        public override void Unload(Action callback, bool forcefully = false)
+        {
+            if (!forcefully && Persistant)
+            {
+                // Can't Unload
+                return;
+            }
+        }
+
+        private T Create()
+        {
+            var asset = new T();
+            if (!asset.Setup(Binder))
+            {
+                return null;
+            }
+
+            asset.Resource = this;
+            return asset;
+        }
+    }
+
+    /// <summary>
+    /// A resource holds a reference and its state to an
     /// asset. It uses a stream for loading the asset.
     /// </summary>
-    public sealed class Resource : IObject
+    public abstract class Resource
     {
-        public Library ClassInfo { get; }
-
         private Resource()
         {
-            ClassInfo = Library.Register(this);
             Components = new(this);
-        }
-        
-        public Resource(int hash, string name, string extension, Func<Stream> stream) : this()
-        {
-            Name = name;
-            Identifier = hash;
-            Extension = extension;
-            Stream = stream;
+            Tags = new();
         }
 
-        public Resource(Pathing path) : this(
-            path.Absolute().Virtual().Normalise().Hash(),      // ID
-            path.Name(false),                       // Resource Name
-            path.Extension(),                       // Extension
-            () => path.Info<FileInfo>().OpenRead()  // Stream
-        )
+        public Resource(int id, string binder) : this()
         {
-            Components.Create<Origin>().Path = path;
-        }
-
-        public override int GetHashCode()
-        {
-            return Identifier;
+            Identifier = id;
+            Binder = binder;
         }
 
         // Identification
-
-        /// <summary>
-        /// The UI friendly name used to represent this resource.
-        /// Used currently in debug modes to see what the resource is.
-        /// </summary>
-        public string Name { get; }
+        // --------------------------------------------------------------------------------------- //
 
         /// <summary>
         /// The identifier that's used for this resource. Which can be
@@ -61,37 +104,7 @@ namespace Eggshell.Resources
         /// asset so it uses the correct binder or what ever the asset
         /// needs to do based on the extension.
         /// </summary>
-        public string Extension { get; }
-
-        // State
-
-        /// <summary>
-        /// Can this asset still be loaded, without having any asset
-        /// references to it? Useful for when loading assets such as
-        /// UI that doesn't need to be reloaded everytime its used.
-        /// </summary>
-        public bool Persistant { get; private set; }
-
-        /// <summary>
-        /// Is this resource currently loaded in memory? (Just checks
-        /// if the source doesn't equal null)
-        /// </summary>
-        public bool IsLoaded => Asset != null;
-
-        // References
-
-        /// <summary>
-        /// The source asset that is cached when the resource finishes
-        /// loading. Usually used for duplicating instances of it.
-        /// </summary>
-        public IAsset Asset { get; private set; }
-
-        /// <summary>
-        /// The stream that will load the target asset. (Such as when
-        /// you want to load an asset from a path, it'll just open a
-        /// read only file stream) 
-        /// </summary>
-        public Func<Stream> Stream { get; }
+        public string Binder { get; }
 
         /// <summary>
         /// Additional data this resource has, that is used for dependency
@@ -99,78 +112,19 @@ namespace Eggshell.Resources
         /// </summary>
         public Components<Resource> Components { get; }
 
-        // Management
-
         /// <summary>
-        /// Grabs the loaded asset from memory or will open a stream
-        /// and load the asset, then return an instance of the asset
+        /// A set of tags that this resource has. Incredibly useful for defining
+        /// what the asset is. Example : Wood Tag, Gun Tag, etc.
         /// </summary>
-        public T Load<T>(bool persistant = false) where T : class, IAsset, new()
-        {
-            Persistant ^= persistant;
+        public HashSet<string> Tags { get; }
 
-            if (IsLoaded)
-            {
-                // Already loaded
-                return (T)Asset;
-            }
-
-            var asset = Create<T>();
-            if (asset == null)
-            {
-                // Invalid File
-                Terminal.Log.Error("Invalid type for Resource, not loading.");
-                return null;
-            }
-
-            using var stopwatch = Terminal.Stopwatch($"Loaded Resource [{Name}, {Identifier}]");
-            using var stream = Stream.Invoke();
-            asset.Load(stream);
-
-            return (T)(Asset = asset);
-        }
-
+        // Logic
+        // --------------------------------------------------------------------------------------- //
+       
         /// <summary>
-        /// Unloads this asset from memory, if it is not persistent.
-        /// (Pass through true as an arg to forcefully unload it)
+        /// Unloads the asset from memory, this will happen automatically
+        /// if nothing references the asset anymore.
         /// </summary>
-        public void Unload(bool forcefully = false)
-        {
-            if (!IsLoaded)
-            {
-                // Nothing was loaded
-                return;
-            }
-
-            if (!forcefully && Persistant)
-            {
-                // Can't Unload
-                return;
-            }
-
-            Terminal.Log.Info($"Unloading Resource [{Name}, {Identifier}]");
-
-            Asset.Unload();
-            Asset.Delete();
-
-            Asset = null;
-        }
-
-        private T Create<T>(T value = null) where T : class, IAsset, new()
-        {
-            Assert.IsTrue(Asset != null);
-
-            var asset = value;
-            asset ??= new();
-
-            if (!asset.Setup(Extension))
-            {
-                // Invalid File, don't load
-                return null;
-            }
-
-            asset.Resource = this;
-            return asset;
-        }
+        public abstract void Unload(Action callback, bool forcefully = false);
     }
 }

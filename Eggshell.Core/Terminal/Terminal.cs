@@ -12,6 +12,11 @@ namespace Eggshell
     [Link("debug.terminal"), Group("Debug")]
     public class Terminal : Module
     {
+        /// <summary>
+        /// The logging entry level for terminal specific logs. Useful
+        /// for terminal specific GUI. So verbose logs get culled but terminal
+        /// ones don't.
+        /// </summary>
         public const string Level = "Terminal";
 
         /// <summary>
@@ -32,6 +37,9 @@ namespace Eggshell
         /// bootstrap does to initialize it.
         /// </summary>
         public static IOverlays Overlays { get; set; }
+
+        // Utility
+        // --------------------------------------------------------------------------------------- //
 
         /// <summary>
         /// Returns true if the instance was launched in developer mode,
@@ -162,7 +170,7 @@ namespace Eggshell
                     return;
                 }
 
-                Log.Info($"{_message} | {time}");
+                Log.Entry($"{_message} | {time}", "Timer");
             }
         }
     }

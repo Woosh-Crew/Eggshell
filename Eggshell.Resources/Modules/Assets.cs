@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.CompilerServices;
 using Eggshell.IO;
 
 namespace Eggshell.Resources
@@ -10,33 +11,33 @@ namespace Eggshell.Resources
     /// of resources and assets. This API will help you greatly when trying to
     /// make data loaded at runtime and compiled at runtime.
     /// </summary>
-    public sealed class Assets : Module, IEnumerable<Resource>
+    public sealed class Assets : Module
     {
-        /// <summary>
-        /// A reference to all the registered resources, loaded or not. You can get
-        /// resources by its path or identifier and load them manually.
-        /// </summary>
-        public static Assets Registered => Get<Assets>();
+        public static Assets Registry
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Get<Assets>();
+        }
 
         // Resources API
         // --------------------------------------------------------------------------------------- //
 
-        /// <summary>
-        /// Manually load an asset from its hash, and if it doesn't exist creat it from
-        /// a func that returns a resource. Useful when loading resources straight from memory
-        /// or from web requests. It is recommended you just use the Pathing version though.
-        /// </summary>
-        public static T Load<T>(int hash, Func<Resource> creation, bool persistant = false) where T : class, IAsset, new()
+        public static Handle<T> Load<T>(int hash, bool persistant = false) where T : class, IAsset, new()
         {
-            return (Find(hash) ?? Registered.Fill(hash, creation))?.Load<T>(persistant);
+            return Find<T>(hash).Load(persistant) ?? Fallback<T>();
         }
 
-        /// <summary>
-        /// Loads an asset from its path. by using its Virtual.Hash as its identifier.
-        /// If the asset you are trying to load has a shorthand path, it'll automatically
-        /// apply that to the path if its not there.
-        /// </summary>
-        public static T Load<T>(Pathing path, bool persistant = false) where T : class, IAsset, new()
+        public static Resource<T> Find<T>(int hash) where T : class, IAsset, new()
+        {
+            return Registry[hash] as Resource<T>;
+        }
+
+        public static Handle<T> Load<T>(Pathing path, bool persistant = false) where T : class, IAsset, new()
+        {
+            return Find<T>(path)?.Load(persistant) ?? Fallback<T>();
+        }
+
+        public static Resource<T> Find<T>(Pathing path) where T : class, IAsset, new()
         {
             Library library = typeof(T);
 
@@ -46,26 +47,17 @@ namespace Eggshell.Resources
                 path = $"{attribute.Short}://" + path;
             }
 
-            var resource = Find(path.Virtual().Normalise());
+            path = path.Virtual().Normalise();
 
-            try
+            if (Registry[path] is Resource<T> resource)
             {
-                return resource != null ? resource.Load<T>(persistant) : Fallback<T>();
+                return resource;
             }
-            catch (Exception e)
-            {
-                Terminal.Log.Error($"Loading Asset [{path.Virtual().Normalise()}] Failed");
-                Terminal.Log.Exception(e);
-                
-                return null;
-            }
+
+            return !path.IsFile() ? null : Registry.Fill<T>(path);
         }
 
-        /// <summary>
-        /// Loads a fallback assets of the type T, such as with a model itd load
-        /// the error model, or a sound, it'll load some funky sound.
-        /// </summary>
-        public static T Fallback<T>() where T : class, IAsset, new()
+        public static Handle<T> Fallback<T>() where T : class, IAsset, new()
         {
             Library library = typeof(T);
 
@@ -77,139 +69,32 @@ namespace Eggshell.Resources
 
             Terminal.Log.Error($"Loading fallback for [{library.Title}]");
 
-            Pathing fallback = files.Fallback;
+            var fallback = files.Fallback;
             fallback = fallback.Virtual().Normalise();
 
-            return !fallback.Exists() ? null : Load<T>(fallback, true);
-        }
-
-        /// <summary>
-        /// Trys to find a resource by its path, if it doesn't exist and its a
-        /// valid path, it'll create a resource at that path.
-        /// </summary>
-        public static Resource Find(Pathing path, bool fill = true)
-        {
-            path = path.Virtual().Normalise();
-            return Registered[path] != null
-                ? Registered[path]
-                : path.Exists() && path.IsFile() && fill
-                    ? Registered.Fill(path)
-                    : null;
-        }
-
-        /// <summary>
-        /// Trys to find a resource by its identifier / hash. Returns null
-        /// if nothing was found.
-        /// </summary>
-        public static Resource Find(int hash)
-        {
-            return Registered[hash];
-        }
-
-        // Module Logic
-        // --------------------------------------------------------------------------------------- //
-
-        protected override void OnReady()
-        {
-            return;
-
-            foreach ( var pathable in Library.Database.With<Pathable>() )
-            {
-                foreach ( var file in pathable.Full.All() )
-                {
-                    Fill(file);
-                }
-            }
-        }
-
-        protected override void OnShutdown()
-        {
-            foreach ( var resource in _storage.Values )
-            {
-                resource.Unload(true);
-            }
-        }
-
-        // Sweep
-
-        /*
-        
-        private RealTimeSince _timeSinceSweep;
-        private const int _timeBetweenSweeps = 60;
-        
-        */
-
-        private void Sweep()
-        {
-            /*
-            
-            if ( !(_timeSinceSweep > _timeBetweenSweeps) )
-            {
-                return;
-            }
-
-            _timeSinceSweep = 0;
-
-            foreach ( var resource in Registered )
-            {
-                if ( resource.Instances?.Count == 0 && !resource.Persistant )
-                {
-                    Terminal.Log.Info( $"No Instances of [{resource.Path}], Unloading" );
-                    resource.Unload( false );
-                }
-            }
-            
-            */
+            return fallback.IsFile() ? Load<T>(fallback, true) : null;
         }
 
         // Registry
         // --------------------------------------------------------------------------------------- //
 
-        /// <summary>
-        /// Gets to get a resource by its hash / identifier. This is useful
-        /// for loading resources over the network.
-        /// </summary>
         public Resource this[int key] => _storage.TryGetValue(key, out var resource) ? resource : null;
+        public Resource this[Pathing path] => _storage.TryGetValue(path.Virtual().Normalise().Hash(), out var resource) ? resource : null;
 
-        /// <summary>
-        /// Gets a resource by its path. Make sure to call virtual before you
-        /// try and get the path, or else it'll most likely return the wrong path.
-        /// </summary>
-        public Resource this[Pathing key] => _storage.TryGetValue(key.Virtual().Normalise().Hash(), out var resource) ? resource : null;
-
-        /// <summary>
-        /// Fills a slot on the resources storage by its raw identifier.
-        /// It'll return the slot that's currently being used from the hash,
-        /// if not it'll make a not slot for that resource and return that.
-        /// </summary>
-        public Resource Fill(int hash, Func<Resource> creation)
+        public void Fill<T>(Resource<T> resource) where T : class, IAsset, new()
         {
-            if (Registered[hash] != null)
-            {
-                return Registered[hash];
-            }
-
-            var instance = creation.Invoke();
-
-            _storage.Add(instance.Identifier, instance);
-            return instance;
+            _storage.Add(resource.Identifier, resource);
         }
 
-        /// <summary>
-        /// Fills a slot on the resources storage by its path.
-        /// It'll return the slot that's currently being used from the hash,
-        /// if not it'll make a not slot for that resource and return that.
-        /// </summary>
-        public Resource Fill(Pathing path)
+        public Resource<T> Fill<T>(Pathing path) where T : class, IAsset, new()
         {
-            if (Registered[path] != null)
-            {
-                return Registered[path];
-            }
+            path = path.Absolute().Virtual().Normalise();
 
-            var instance = new Resource(path);
+            var instance = new Resource<T>(path.Hash(), path.Extension(), () => path.Absolute().Info<FileInfo>().OpenRead());
+            instance.Components.Add(new Origin() { Path = path });
 
             _storage.Add(instance.Identifier, instance);
+
             return instance;
         }
 
@@ -218,21 +103,15 @@ namespace Eggshell.Resources
 
         private readonly SortedList<int, Resource> _storage = new();
 
-        internal void Remove(Resource resource)
+        protected override void OnShutdown()
         {
-            _storage.Remove(resource.Identifier);
-        }
-
-        // Enumerator
-
-        public IEnumerator<Resource> GetEnumerator()
-        {
-            return _storage.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            foreach ( var resource in _storage.Values )
+            {
+                // Unload all resources, forcefully.
+                resource.Unload(null, true);
+            }
+            
+            _storage.Clear();
         }
     }
 }

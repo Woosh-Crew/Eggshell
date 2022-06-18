@@ -13,7 +13,7 @@ namespace Eggshell
     {
         /// <summary>
         /// The progress from 0 to 1 on how far done this routine is.
-        /// </summary>load
+        /// </summary>
         float Progress { get; }
 
         /// <summary>
