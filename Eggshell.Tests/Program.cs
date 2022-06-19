@@ -2,8 +2,6 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using Eggshell.IO;
 using Eggshell.Resources;
 
 namespace Eggshell.Tests
@@ -16,9 +14,9 @@ namespace Eggshell.Tests
             Crack(new());
         }
 
-        protected async override void OnReady()
+        protected override void OnReady()
         {
-            base.OnReady();
         }
     }
+
 }

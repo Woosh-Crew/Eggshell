@@ -9,14 +9,14 @@ namespace Eggshell.Resources
     /// asset. It uses a stream for loading the asset
     /// through a handle.
     /// </summary>
-    public class Resource<T> : Resource where T : class, IAsset, new()
+    public class Resource<T> : Resource where T : class, IAsset
     {
         /// <summary>
         /// The handle is responsible for loading the asset and keeping
         /// track of its loading state. We use the handle for either Wait
         /// or Requesting.
         /// </summary>
-        private Handle<T> Handle { get; }
+        private IHandle<T> Handle { get; }
 
         /// <summary>
         /// Can this asset still be loaded, without having any asset
@@ -25,9 +25,11 @@ namespace Eggshell.Resources
         /// </summary>
         public bool Persistant { get; protected set; }
 
-        public Resource(int id, string binder, Func<Stream> stream) : base(id, binder)
+        public Resource(IHandle<T> handle, int id, string binder) : base(id, binder)
         {
-            Handle = new(stream);
+            Handle = handle;
+            
+            Handle.Asset = Create();
         }
 
         // State Control
@@ -37,11 +39,9 @@ namespace Eggshell.Resources
         /// Grabs the loaded asset from memory or will open a stream
         /// and load the asset, then return an instance of the asset
         /// </summary>
-        public Handle<T> Load(bool persistant = false)
+        public IHandle<T> Load(bool persistant = false)
         {
             Persistant ^= persistant;
-            Handle.Setup(Create);
-
             return Handle;
         }
 
@@ -62,7 +62,8 @@ namespace Eggshell.Resources
 
         private T Create()
         {
-            var asset = new T();
+            var asset = Library.Create<T>();
+
             if (!asset.Setup(Binder))
             {
                 return null;

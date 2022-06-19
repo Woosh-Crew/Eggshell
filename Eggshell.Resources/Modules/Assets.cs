@@ -8,8 +8,8 @@ namespace Eggshell.Resources
 {
     /// <summary>
     /// The assets module is responsible for handling the loading and unloading
-    /// of resources and assets. This API will help you greatly when trying to
-    /// make data loaded at runtime and compiled at runtime.
+    /// of resources and assets using a high level API. This API will help you
+    /// greatly when trying to load custom data at runtime and compiled at runtime.
     /// </summary>
     public sealed class Assets : Module
     {
@@ -19,32 +19,55 @@ namespace Eggshell.Resources
             get => Get<Assets>();
         }
 
-        // Resources API
-        // --------------------------------------------------------------------------------------- //
-
-        public static Handle<T> Load<T>(int hash, bool persistant = false) where T : class, IAsset, new()
+        /// <summary>
+        /// Returns a handle from a resource (Basically calls the resource load,
+        /// or fallbacks one) from the hash of a resource. 
+        /// </summary>
+        public static IHandle<T> Load<T>(int hash, bool persistant = false) where T : class, IAsset, new()
         {
             return Find<T>(hash).Load(persistant) ?? Fallback<T>();
         }
 
+        /// <summary>
+        /// Trys to find the correct resource based off the inputted T input.
+        /// and returns it, null if none was found.
+        /// </summary>
         public static Resource<T> Find<T>(int hash) where T : class, IAsset, new()
         {
-            return Registry[hash] as Resource<T>;
+            if (Registry[hash] is Resource<T> resource)
+            {
+                return resource;
+            }
+
+            Terminal.Log.Error($"Couldn't find resource with ID [{hash}]");
+            return null;
+
         }
 
-        public static Handle<T> Load<T>(Pathing path, bool persistant = false) where T : class, IAsset, new()
+        // Pathing
+
+        /// <summary>
+        /// Returns a handle from a resource (Basically calls the resource load,
+        /// or fallbacks one) from the inputted path. Which virtualizes it and
+        /// normalizes it. 
+        /// </summary>
+        public static IHandle<T> Load<T>(Pathing path, bool persistant = false) where T : class, IAsset, new()
         {
             return Find<T>(path)?.Load(persistant) ?? Fallback<T>();
         }
 
+        /// <summary>
+        /// Trys to find the correct resource based off the inputted T input and
+        /// the inputted path. Fills the path if none was found.
+        /// </summary>
         public static Resource<T> Find<T>(Pathing path) where T : class, IAsset, new()
         {
             Library library = typeof(T);
 
             // Apply shorthand, if path doesn't have one
-            if (!path.IsValid() && library.Components.TryGet<Pathable>(out var attribute))
+            if (!path.IsValid() && library.Components.TryGet(out Pathable pathable))
             {
-                path = $"{attribute.Short}://" + path;
+                path = $"{pathable.Short}://" + path;
             }
 
             path = path.Virtual().Normalise();
@@ -54,10 +77,31 @@ namespace Eggshell.Resources
                 return resource;
             }
 
-            return !path.IsFile() ? null : Registry.Fill<T>(path);
+            if (path.IsFile())
+            {
+                return Registry.Fill<T>(path);
+            }
+
+            Terminal.Log.Error($"No file found at path [{path}]");
+            return null;
         }
 
-        public static Handle<T> Fallback<T>() where T : class, IAsset, new()
+        // URI
+
+        public static IHandle<T> Load<T>(Uri uri, bool persistant = false) where T : class, IAsset, new()
+        {
+            return Find<T>(uri)?.Load(persistant) ?? Fallback<T>();
+        }
+
+        public static Resource<T> Find<T>(Uri uri) where T : class, IAsset, new()
+        {
+            Terminal.Log.Error("URI's are not supported yet!");
+            return null;
+        }
+
+        // Default
+
+        public static IHandle<T> Fallback<T>() where T : class, IAsset, new()
         {
             Library library = typeof(T);
 
@@ -69,9 +113,7 @@ namespace Eggshell.Resources
 
             Terminal.Log.Error($"Loading fallback for [{library.Title}]");
 
-            var fallback = files.Fallback;
-            fallback = fallback.Virtual().Normalise();
-
+            var fallback = files.Fallback.Virtual().Normalise();
             return fallback.IsFile() ? Load<T>(fallback, true) : null;
         }
 
@@ -88,9 +130,15 @@ namespace Eggshell.Resources
 
         public Resource<T> Fill<T>(Pathing path) where T : class, IAsset, new()
         {
+            if (!path.Exists() || !path.IsFile())
+            {
+                Terminal.Log.Error("Invalid Resource Fill from Pathing");
+                return null;
+            }
+
             path = path.Absolute().Virtual().Normalise();
 
-            var instance = new Resource<T>(path.Hash(), path.Extension(), () => path.Absolute().Info<FileInfo>().OpenRead());
+            var instance = new Resource<T>(new FileHandle<T>(path.Absolute().Info<FileInfo>()), path.Hash(), path.Extension());
             instance.Components.Add(new Origin() { Path = path });
 
             _storage.Add(instance.Identifier, instance);
@@ -110,7 +158,7 @@ namespace Eggshell.Resources
                 // Unload all resources, forcefully.
                 resource.Unload(null, true);
             }
-            
+
             _storage.Clear();
         }
     }

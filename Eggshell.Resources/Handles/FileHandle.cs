@@ -4,48 +4,21 @@ using System.Runtime.CompilerServices;
 
 namespace Eggshell.Resources
 {
-    public readonly struct HandleAwaiter<T> : INotifyCompletion where T : class, IAsset
+    internal class FileHandle<T> : IHandle<T> where T : class, IAsset
     {
-        private readonly Handle<T> _handle;
+        private FileInfo File { get; }
 
-        public HandleAwaiter(Handle<T> handle)
+        public FileHandle(FileInfo file)
         {
-            _handle = handle;
-        }
-
-        public bool IsCompleted => _handle.IsLoaded;
-
-        public void OnCompleted(Action continuation)
-        {
-            _handle.Request(_ => continuation?.Invoke());
-        }
-
-        public T GetResult()
-        {
-            return _handle.Cached();
-        }
-    }
-
-    /// <summary>
-    /// A Handle is responsible for controlling how an asset is loaded,
-    /// which is invoked by the resource. We do this so we can async load
-    /// assets, or add your own extension methods to the loading process.
-    /// </summary>
-    public class Handle<T> : IRoutine where T : class, IAsset
-    {
-        private Func<Stream> Stream { get; }
-
-        public Handle(Func<Stream> stream)
-        {
-            Stream = stream;
-        }
-
-        internal void Setup(Func<T> asset)
-        {
-            _asset ??= asset.Invoke();
+            File = file;
         }
 
         public bool IsLoaded => _isLoaded;
+
+        public T Asset
+        {
+            set => _asset = value;
+        }
 
         // Request
 
@@ -71,7 +44,7 @@ namespace Eggshell.Resources
 
             _stopwatch = Terminal.Stopwatch($"Asset Loaded [{_asset}]");
 
-            _stream = Stream.Invoke();
+            _stream = File.OpenRead();
             _loading = true;
 
             _asset.Load(_stream, OnLoad);
@@ -88,7 +61,7 @@ namespace Eggshell.Resources
             _stopwatch = null;
 
             _stream?.Dispose();
-            
+
             _onLoad?.Invoke(_asset);
             _onLoad = null;
         }
@@ -133,15 +106,6 @@ namespace Eggshell.Resources
         // --------------------------------------------------------------------------------------- //
 
         /// <summary>
-        /// A custom awaiter handle so you can do "await Resource.Load()"
-        /// very powerful api I must say...
-        /// </summary>
-        public HandleAwaiter<T> GetAwaiter()
-        {
-            return new(this);
-        }
-
-        /// <summary>
         /// Returns the cached asset if it is valid and was already loaded,
         /// returns null if it fucked up. You shouldn't need to use this.
         /// </summary>
@@ -154,7 +118,7 @@ namespace Eggshell.Resources
         /// Sets up a request by registering a callback for when the asset
         /// is loaded.
         /// </summary>
-        public void Request(Action<T> callback)
+        public void Request(Action<T> callback = null)
         {
             if (!Valid())
             {
@@ -163,7 +127,7 @@ namespace Eggshell.Resources
 
             if (IsLoaded)
             {
-                callback.Invoke(_asset);
+                callback?.Invoke(_asset);
                 return;
             }
 
@@ -182,17 +146,6 @@ namespace Eggshell.Resources
 
             Terminal.Log.Error("Asset was invalid.");
             return false;
-        }
-
-        // IRoutine
-        // --------------------------------------------------------------------------------------- //
-
-        float IRoutine.Progress => 0;
-        string IRoutine.Text => "Loading";
-
-        void IRoutine.Load(Action loaded)
-        {
-            Request(_ => loaded.Invoke());
         }
     }
 }
